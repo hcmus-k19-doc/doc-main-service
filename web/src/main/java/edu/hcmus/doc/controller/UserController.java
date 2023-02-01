@@ -1,7 +1,5 @@
 package edu.hcmus.doc.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
 import edu.hcmus.doc.DocURL;
 import edu.hcmus.doc.model.dto.CredentialsDto;
 import edu.hcmus.doc.model.dto.UserDto;
@@ -30,9 +28,12 @@ public class UserController extends DocAbstractController {
   private final UserService userService;
 
   @GetMapping
-  public List<UserDto> getUsers(@RequestParam(required = false) String query) {
+  public List<UserDto> getUsers(
+      @RequestParam(required = false) String query,
+      @RequestParam(required = false, defaultValue = "0") long first,
+      @RequestParam(required = false, defaultValue = "10") long max) {
     return userService
-        .getUsers()
+        .getUsers(query, first, max)
         .stream()
         .map(user -> {
           UserDto dto = userMapper.toDto(user);

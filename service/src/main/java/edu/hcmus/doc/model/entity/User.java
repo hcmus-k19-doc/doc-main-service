@@ -1,7 +1,5 @@
 package edu.hcmus.doc.model.entity;
 
-import static javax.persistence.FetchType.LAZY;
-
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.Column;

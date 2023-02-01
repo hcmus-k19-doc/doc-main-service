@@ -18,8 +18,8 @@ public class UserServiceImpl implements UserService {
   private final PasswordEncoder passwordEncoder;
 
   @Override
-  public List<User> getUsers() {
-    return userRepository.findAll();
+  public List<User> getUsers(String query, long first, long max) {
+    return userRepository.getUsers(query, first, max);
   }
 
   @Override
