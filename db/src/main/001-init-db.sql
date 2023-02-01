@@ -24,8 +24,8 @@ CREATE TABLE "user_role"
 );
 
 INSERT INTO "user" ("first_name", "last_name", "username", "password", "email")
-VALUES ('John', 'Doe', 'johndoe', 'password', 'john@gmail.com'),
-       ('Jane', 'Doe', 'janedoe', 'password', 'jane@gmail.com');
+VALUES ('John', 'Doe', 'johndoe', '$2a$10$04cKaybcuJcL18QPgs5UKOSb9gKdPnpv8wWHyTswwg5Q0Vt4GFQFm', 'john@gmail.com'),
+       ('Jane', 'Doe', 'janedoe', '$2a$10$.v7r4X6hqzgR5rE8zMu6uOmDhCWxk7MnCPSN8Hjex0E2PD8a7GKWq', 'jane@gmail.com');
 
 INSERT INTO "doc_role" ("name")
 VALUES ('APPROVER'), ('REVIEWER'), ('SUBMITTER');

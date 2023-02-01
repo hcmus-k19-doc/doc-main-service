@@ -10,4 +10,10 @@ public interface UserService {
   User getUserById(Long id);
 
   User getUserByUsername(String username);
+
+  User getUserByEmail(String email);
+
+  long getTotalUsers();
+
+  boolean validateUserCredentialsByUserId(Long id, String password);
 }
