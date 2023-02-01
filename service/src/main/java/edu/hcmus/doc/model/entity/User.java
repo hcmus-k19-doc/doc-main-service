@@ -1,18 +1,18 @@
 package edu.hcmus.doc.model.entity;
 
-import java.util.Objects;
+import static javax.persistence.FetchType.LAZY;
+
+import java.util.HashSet;
+import java.util.Set;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
-import lombok.Getter;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.Data;
 
-@Getter
-@Setter
-@ToString
-@RequiredArgsConstructor
+@Data
 @Entity
 @Table(name = "user", schema = "public")
 public class User extends DocAbstractEntity {
@@ -26,25 +26,11 @@ public class User extends DocAbstractEntity {
   @Column(name = "email")
   private String email;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    if (!super.equals(o)) {
-      return false;
-    }
-    User user = (User) o;
-    return Objects.equals(username, user.username)
-        && Objects.equals(password, user.password) && Objects.equals(email,
-        user.email);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(super.hashCode(), username, password, email);
-  }
+  @ManyToMany
+  @JoinTable(
+      name = "user_role",
+      joinColumns = @JoinColumn(name = "user_id"),
+      inverseJoinColumns = @JoinColumn(name = "role_id")
+  )
+  private Set<DocRoleEntity> roles = new HashSet<>();
 }
