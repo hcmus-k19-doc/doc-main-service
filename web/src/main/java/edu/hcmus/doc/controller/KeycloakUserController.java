@@ -1,9 +1,10 @@
 package edu.hcmus.doc.controller;
 
+import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
+
 import edu.hcmus.doc.DocURL;
 import edu.hcmus.doc.model.dto.CredentialsDto;
 import edu.hcmus.doc.model.dto.UserDto;
-import edu.hcmus.doc.model.entity.DocRoleEntity;
 import edu.hcmus.doc.model.entity.User;
 import edu.hcmus.doc.security.util.SecurityUtils;
 import edu.hcmus.doc.service.UserService;
@@ -22,8 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(DocURL.API_V1 + "/users")
-public class UserController extends DocAbstractController {
+@RequestMapping(DocURL.API_V1 + "/keycloak/users")
+public class KeycloakUserController extends DocAbstractController {
 
   private final UserService userService;
 
@@ -37,11 +38,7 @@ public class UserController extends DocAbstractController {
         .stream()
         .map(user -> {
           UserDto dto = userMapper.toDto(user);
-          dto.setRoles(user
-              .getRoles()
-              .stream()
-              .map(DocRoleEntity::getName)
-              .collect(Collectors.toSet()));
+          dto.setRoles(user.getRoles().stream().map(userRole -> userRole.getRole().getName()).collect(Collectors.toSet()));
           return dto;
         })
         .toList();
@@ -54,12 +51,12 @@ public class UserController extends DocAbstractController {
     dto.setRoles(user
         .getRoles()
         .stream()
-        .map(DocRoleEntity::getName)
+        .map(userRole -> userRole.getRole().getName())
         .collect(Collectors.toSet()));
     return dto;
   }
 
-  @PostMapping(value = "/{id}/auth/validate-credentials")
+  @PostMapping(value = "/{id}/auth/validate-credentials", consumes = APPLICATION_FORM_URLENCODED_VALUE)
   public boolean getCredentials(@PathVariable Long id, @RequestBody CredentialsDto credentialsDto) {
     return userService.validateUserCredentialsByUserId(id, credentialsDto.getPassword());
   }

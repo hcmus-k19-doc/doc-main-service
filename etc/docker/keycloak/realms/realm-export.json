@@ -1707,22 +1707,6 @@
         "config": {}
       }
     ],
-    "org.keycloak.storage.UserStorageProvider": [
-      {
-        "id": "8bc35c30-aa9a-4238-afc5-bd79e5545017",
-        "name": "DOC customer provider",
-        "providerId": "DOC",
-        "subComponents": {},
-        "config": {
-          "cachePolicy": [
-            "DEFAULT"
-          ],
-          "enabled": [
-            "true"
-          ]
-        }
-      }
-    ],
     "org.keycloak.keys.KeyProvider": [
       {
         "id": "ed0daf5a-7fad-437a-9bcf-c90b9fc48262",

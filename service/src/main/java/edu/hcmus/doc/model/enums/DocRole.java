@@ -5,9 +5,9 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public enum DocRole {
 
-  APPROVER("Approver"),
-  REVIEWER("Reviewer"),
-  SUBMITTER("Submitter");
+  APPROVER("APPROVER"),
+  REVIEWER("REVIEWER"),
+  SUBMITTER("SUBMITTER");
 
   public final String value;
 }
