@@ -12,7 +12,4 @@ public interface UserRepository extends
     QuerydslPredicateExecutor<User>,
     CustomUserRepository {
 
-  User findByUsername(String username);
-
-  User findByEmail(String email);
 }

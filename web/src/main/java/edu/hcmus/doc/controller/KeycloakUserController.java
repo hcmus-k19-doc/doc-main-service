@@ -1,7 +1,5 @@
 package edu.hcmus.doc.controller;
 
-import static org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE;
-
 import edu.hcmus.doc.DocURL;
 import edu.hcmus.doc.model.dto.CredentialsDto;
 import edu.hcmus.doc.model.dto.UserDto;
@@ -28,6 +26,7 @@ public class KeycloakUserController extends DocAbstractController {
 
   private final UserService userService;
 
+  // GET
   @GetMapping
   public List<UserDto> getUsers(
       @RequestParam(required = false) String query,
@@ -46,19 +45,7 @@ public class KeycloakUserController extends DocAbstractController {
 
   @GetMapping("/{id}")
   public UserDto getUserById(@PathVariable Long id) {
-    User user = userService.getUserById(id);
-    UserDto dto = userMapper.toDto(user);
-    dto.setRoles(user
-        .getRoles()
-        .stream()
-        .map(userRole -> userRole.getRole().getName())
-        .collect(Collectors.toSet()));
-    return dto;
-  }
-
-  @PostMapping(value = "/{id}/auth/validate-credentials", consumes = APPLICATION_FORM_URLENCODED_VALUE)
-  public boolean getCredentials(@PathVariable Long id, @RequestBody CredentialsDto credentialsDto) {
-    return userService.validateUserCredentialsByUserId(id, credentialsDto.getPassword());
+    return userMapper.toDto(userService.getUserById(id));
   }
 
   @GetMapping("/username/{username}")
@@ -79,5 +66,11 @@ public class KeycloakUserController extends DocAbstractController {
   @GetMapping("/current-name")
   public String getCurrentName() {
     return SecurityUtils.getCurrentName();
+  }
+
+  // POST
+  @PostMapping("/{id}/auth/validate-credentials")
+  public boolean getCredentials(@PathVariable Long id, @RequestBody CredentialsDto credentialsDto) {
+    return userService.validateUserCredentialsByUserId(id, credentialsDto.getPassword());
   }
 }
