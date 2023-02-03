@@ -3,7 +3,7 @@ package edu.hcmus.doc.model.enums;
 import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
-public enum DocRole {
+public enum DocRoleEnum {
 
   APPROVER("APPROVER"),
   REVIEWER("REVIEWER"),

@@ -38,7 +38,7 @@ public class UserRole {
 
   @ManyToOne
   @MapsId("roleId")
-  private DocRoleEntity role;
+  private DocRole role;
 
   @Override
   public boolean equals(Object o) {

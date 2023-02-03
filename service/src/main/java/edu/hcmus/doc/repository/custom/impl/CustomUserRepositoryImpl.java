@@ -1,7 +1,7 @@
 package edu.hcmus.doc.repository.custom.impl;
 
 import com.querydsl.jpa.impl.JPAQuery;
-import edu.hcmus.doc.model.entity.QDocRoleEntity;
+import edu.hcmus.doc.model.entity.QDocRole;
 import edu.hcmus.doc.model.entity.QUser;
 import edu.hcmus.doc.model.entity.QUserRole;
 import edu.hcmus.doc.model.entity.User;
@@ -15,17 +15,13 @@ public class CustomUserRepositoryImpl extends DocAbstractCustomRepository<User> 
 
   @Override
   public List<User> getUsers(String query, long first, long max) {
-    JPAQuery<User> userJPAQuery = selectFrom(QUser.user);
+    JPAQuery<User> userJPAQuery = baseQuery();
     if (StringUtils.isNotBlank(query)) {
       userJPAQuery.where(QUser.user.username.startsWithIgnoreCase(query)
           .or(QUser.user.email.startsWithIgnoreCase(query)));
     }
 
     return userJPAQuery
-        .innerJoin(QUser.user.roles, QUserRole.userRole)
-        .fetchJoin()
-        .innerJoin(QUserRole.userRole.role, QDocRoleEntity.docRoleEntity)
-        .fetchJoin()
         .offset(first)
         .limit(max)
         .distinct()
@@ -61,9 +57,9 @@ public class CustomUserRepositoryImpl extends DocAbstractCustomRepository<User> 
 
   private JPAQuery<User> baseQuery() {
     return selectFrom(QUser.user)
-        .innerJoin(QUser.user.roles, QUserRole.userRole)
+        .leftJoin(QUser.user.roles, QUserRole.userRole)
         .fetchJoin()
-        .innerJoin(QUserRole.userRole.role, QDocRoleEntity.docRoleEntity)
+        .leftJoin(QUserRole.userRole.role, QDocRole.docRole)
         .fetchJoin();
   }
 }

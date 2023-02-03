@@ -3,11 +3,9 @@ package edu.hcmus.doc.controller;
 import edu.hcmus.doc.DocURL;
 import edu.hcmus.doc.model.dto.CredentialsDto;
 import edu.hcmus.doc.model.dto.UserDto;
-import edu.hcmus.doc.model.entity.User;
 import edu.hcmus.doc.security.util.SecurityUtils;
 import edu.hcmus.doc.service.UserService;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -35,11 +33,7 @@ public class KeycloakUserController extends DocAbstractController {
     return userService
         .getUsers(query, first, max)
         .stream()
-        .map(user -> {
-          UserDto dto = userMapper.toDto(user);
-          dto.setRoles(user.getRoles().stream().map(userRole -> userRole.getRole().getName()).collect(Collectors.toSet()));
-          return dto;
-        })
+        .map(userMapper::toDto)
         .toList();
   }
 
