@@ -25,4 +25,4 @@ jobs:
         run:  mvn clean install -DskipTests=true -DskipTypescriptGenerator=true
 
       - name: Test
-        run: mvn test
+        run: mvn test -DskipTypescriptGenerator=true
