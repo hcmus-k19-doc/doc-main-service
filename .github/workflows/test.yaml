@@ -22,7 +22,7 @@ jobs:
           java-version: '17.0.5'
 
       - name: Build
-        run: mvn clean install -DskipTests=true
+        run:  mvn clean install -DskipTests=true -DskipTypescriptGenerator=true
 
       - name: Test
         run: mvn test
