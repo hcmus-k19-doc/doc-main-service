@@ -6,7 +6,7 @@ import edu.hcmus.doc.mainservice.model.entity.SendingLevel;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class SendingLevelRepositoryTest extends AbstractRepositoryTest {
+class SendingLevelRepositoryTest extends DocAbstractRepositoryTest {
 
   @Test
   void testGetAllSendingLevels() {

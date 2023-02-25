@@ -133,7 +133,7 @@ CREATE TABLE "return_request"
     "id"                SERIAL           NOT NULL,
     "user_id"           BIGINT           NOT NULL,
     "processing_doc_id" BIGINT           NOT NULL,
-    "step"              BIGINT           NOT NULL,
+    "step"              INT              NOT NULL,
     "reason"            VARCHAR(200)     NOT NULL,
     "status"            "request_status" NOT NULL,
     CONSTRAINT "return_request_pk" PRIMARY KEY ("id")
@@ -153,7 +153,7 @@ CREATE TABLE "processing_user_role"
 (
     "user_id"            BIGINT NOT NULL,
     "processing_doc_id"  BIGINT NOT NULL,
-    "step"               BIGINT NOT NULL,
+    "step"               INT    NOT NULL,
     "processing_role_id" BIGINT NOT NULL,
     CONSTRAINT "processing_user_role_pk" PRIMARY KEY ("user_id", "processing_doc_id", "step",
                                                       "processing_role_id")
@@ -174,6 +174,12 @@ CREATE TABLE "feedback"
     "content"           VARCHAR(200) NOT NULL,
     CONSTRAINT "feedback_pk" PRIMARY KEY ("id")
 ) INHERITS ("doc_base_table");
+
+-- base table
+ALTER TABLE "doc_base_table"
+    ADD CONSTRAINT "doc_base_table_created_by_fk" FOREIGN KEY ("created_by") REFERENCES "user" ("id");
+ALTER TABLE "doc_base_table"
+    ADD CONSTRAINT "doc_base_table_updated_by_fk" FOREIGN KEY ("updated_by") REFERENCES "user" ("id");
 
 -- user_role table
 ALTER TABLE "user_role"

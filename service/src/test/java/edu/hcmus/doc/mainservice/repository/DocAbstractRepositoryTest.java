@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 @AutoConfigureTestEntityManager
 @ImportAutoConfiguration
 @ExtendWith(PostgresContainerExtension.class)
-abstract class AbstractRepositoryTest {
+abstract class DocAbstractRepositoryTest {
 
   @Autowired
   protected DistributionOrganizationRepository distributionOrganizationRepository;
@@ -26,10 +26,37 @@ abstract class AbstractRepositoryTest {
   protected DocumentTypeRepository documentTypeRepository;
 
   @Autowired
+  protected ExtensionRequestRepository extensionRequestRepository;
+
+  @Autowired
+  protected FeedbackRepository feedbackRepository;
+
+  @Autowired
   protected IncomingDocumentRepository incomingDocumentRepository;
 
   @Autowired
+  protected LinkedDocumentRepository linkedDocumentRepository;
+
+  @Autowired
+  protected OutgoingDocumentRepository outgoingDocumentRepository;
+
+  @Autowired
   protected ProcessedDocumentRepository processedDocumentRepository;
+
+  @Autowired
+  protected ProcessingDocumentRepository processingDocumentRepository;
+
+  @Autowired
+  protected ProcessingDocumentRoleRepository processingDocumentRoleRepository;
+
+  @Autowired
+  protected ProcessingUserRepository processingUserRepository;
+
+  @Autowired
+  protected ProcessingUserRoleRepository processingUserRoleRepository;
+
+  @Autowired
+  protected ReturnRequestRepository returnRequestRepository;
 
   @Autowired
   protected SendingLevelRepository sendingLevelRepository;

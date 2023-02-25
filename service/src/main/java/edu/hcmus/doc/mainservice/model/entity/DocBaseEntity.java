@@ -33,7 +33,14 @@ public abstract class DocBaseEntity {
 
   @CreatedBy
   @OneToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "created_by", referencedColumnName = "id", nullable = false, insertable = false, updatable = false, columnDefinition = "BIGINT")
+  @JoinColumn(
+      name = "created_by",
+      referencedColumnName = "id",
+      nullable = false,
+      insertable = false,
+      updatable = false,
+      columnDefinition = "BIGINT"
+  )
   protected User createdBy;
 
   @UpdateTimestamp

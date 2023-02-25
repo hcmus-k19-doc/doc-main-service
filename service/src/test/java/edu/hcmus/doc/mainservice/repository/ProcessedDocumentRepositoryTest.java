@@ -6,7 +6,7 @@ import edu.hcmus.doc.mainservice.model.entity.ProcessedDocument;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class ProcessedDocumentRepositoryTest extends AbstractRepositoryTest {
+class ProcessedDocumentRepositoryTest extends DocAbstractRepositoryTest {
 
   @Test
   void testGetAllProcessedDocuments() {

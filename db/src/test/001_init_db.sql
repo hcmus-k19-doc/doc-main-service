@@ -5,6 +5,7 @@ SET
 CREATE TYPE "request_status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 CREATE TYPE "urgency" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 CREATE TYPE "confidentiality" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+CREATE TYPE "processing_status" AS ENUM ('IN_PROGRESS', 'CLOSED');
 
 CREATE TABLE "doc_base_table"
 (
@@ -75,12 +76,12 @@ CREATE TABLE "document_type"
 
 CREATE TABLE "processing_document"
 (
-    "id"                  SERIAL       NOT NULL,
-    "incoming_doc_id"     BIGINT       NOT NULL,
-    "status"              VARCHAR(255) NOT NULL,
-    "is_opened"           BOOL         NOT NULL,
-    "processing_duration" TIME,
-    "processing_request"  VARCHAR(255) NOT NULL,
+    "id"                  SERIAL              NOT NULL,
+    "incoming_doc_id"     BIGINT              NOT NULL,
+    "status"              "processing_status" NOT NULL,
+    "is_opened"           BOOL                NOT NULL,
+    "processing_duration" DATE,
+    "processing_request"  VARCHAR(255)        NOT NULL,
     CONSTRAINT "processing_document_pk" PRIMARY KEY ("id")
 ) INHERITS ("doc_base_table");
 
@@ -132,7 +133,7 @@ CREATE TABLE "return_request"
     "id"                SERIAL           NOT NULL,
     "user_id"           BIGINT           NOT NULL,
     "processing_doc_id" BIGINT           NOT NULL,
-    "step"              BIGINT           NOT NULL,
+    "step"              INT              NOT NULL,
     "reason"            VARCHAR(200)     NOT NULL,
     "status"            "request_status" NOT NULL,
     CONSTRAINT "return_request_pk" PRIMARY KEY ("id")
@@ -152,7 +153,7 @@ CREATE TABLE "processing_user_role"
 (
     "user_id"            BIGINT NOT NULL,
     "processing_doc_id"  BIGINT NOT NULL,
-    "step"               BIGINT NOT NULL,
+    "step"               INT    NOT NULL,
     "processing_role_id" BIGINT NOT NULL,
     CONSTRAINT "processing_user_role_pk" PRIMARY KEY ("user_id", "processing_doc_id", "step",
                                                       "processing_role_id")
@@ -169,12 +170,16 @@ CREATE TABLE "processing_flow"
 CREATE TABLE "feedback"
 (
     "id"                SERIAL       NOT NULL,
-    "created_by"        BIGINT       NOT NULL,
     "processing_doc_id" BIGINT       NOT NULL,
     "content"           VARCHAR(200) NOT NULL,
-    "created_at"        DATE         NOT NULL,
     CONSTRAINT "feedback_pk" PRIMARY KEY ("id")
 ) INHERITS ("doc_base_table");
+
+-- base table
+ALTER TABLE "doc_base_table"
+    ADD CONSTRAINT "doc_base_table_created_by_fk" FOREIGN KEY ("created_by") REFERENCES "user" ("id");
+ALTER TABLE "doc_base_table"
+    ADD CONSTRAINT "doc_base_table_updated_by_fk" FOREIGN KEY ("updated_by") REFERENCES "user" ("id");
 
 -- user_role table
 ALTER TABLE "user_role"

@@ -6,7 +6,7 @@ import edu.hcmus.doc.mainservice.model.entity.DistributionOrganization;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class DistributionOrganizationRepositoryTest extends AbstractRepositoryTest {
+class DistributionOrganizationRepositoryTest extends DocAbstractRepositoryTest {
 
   @Test
   void testGetAllDistributionOrganizations() {

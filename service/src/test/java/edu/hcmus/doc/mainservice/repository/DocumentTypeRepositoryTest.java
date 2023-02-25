@@ -6,7 +6,7 @@ import edu.hcmus.doc.mainservice.model.entity.DocumentType;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
-class DocumentTypeRepositoryTest extends AbstractRepositoryTest {
+class DocumentTypeRepositoryTest extends DocAbstractRepositoryTest {
 
   @Test
   void testGetAllDocumentTypes() {

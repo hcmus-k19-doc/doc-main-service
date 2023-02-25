@@ -1,7 +1,7 @@
 package edu.hcmus.doc.mainservice.model.entity;
 
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
-import java.time.LocalTime;
+import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -24,12 +24,12 @@ public class ProcessingDocument extends DocAbstractEntity {
   @Column(name = "status", nullable = false)
   private ProcessingStatus status;
 
-  @Column(name = "is_opened", nullable = false)
+  @Column(name = "is_opened", nullable = false, columnDefinition = "BOOL DEFAULT FALSE")
   private boolean isOpened;
 
-  @Column(name = "processing_duration")
-  private LocalTime processingDuration;
+  @Column(name = "processing_duration", columnDefinition = "DATE")
+  private LocalDate processingDuration;
 
-  @Column(name = "processing_request", nullable = false)
+  @Column(name = "processing_request", nullable = false, columnDefinition = "VARCHAR(255) NOT NULL")
   private String processingRequest;
 }

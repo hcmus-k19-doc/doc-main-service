@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-class UserRoleRepositoryTest extends AbstractRepositoryTest {
+class UserRoleRepositoryTest extends DocAbstractRepositoryTest {
 
   @Autowired
   private PasswordEncoder passwordEncoder;
