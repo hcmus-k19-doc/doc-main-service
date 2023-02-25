@@ -57,12 +57,12 @@ CREATE TABLE "incoming_document"
     "distribution_date"      TIMESTAMP         NOT NULL,
     "arriving_date"          DATE              NOT NULL,
     "arriving_time"          TIME              NOT NULL,
-    "comment"                TEXT              NOT NULL,
+    "comment"                VARCHAR(255)      NOT NULL,
     "urgency"                "urgency"         NOT NULL,
     "confidentiality"        "confidentiality" NOT NULL,
     "folder"                 VARCHAR(255)      NOT NULL,
     "sending_level_id"       BIGINT            NOT NULL,
-    "is_deleted"             BOOL              NOT NULL,
+    "is_deleted"             BOOL              NOT NULL DEFAULT FALSE,
     CONSTRAINT "incoming_document_pk" PRIMARY KEY ("id")
 ) INHERITS ("doc_base_table");
 
@@ -80,7 +80,7 @@ CREATE TABLE "processing_document"
     "status"              VARCHAR(255) NOT NULL,
     "is_opened"           BOOL         NOT NULL,
     "processing_duration" TIME,
-    "processing_request"  TEXT         NOT NULL,
+    "processing_request"  VARCHAR(255) NOT NULL,
     CONSTRAINT "processing_document_pk" PRIMARY KEY ("id")
 ) INHERITS ("doc_base_table");
 

@@ -11,13 +11,28 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
 
 @SpringBootTest
-@Transactional
+@Transactional(rollbackFor = Throwable.class)
 @AutoConfigureCache
 @AutoConfigureDataJpa
 @AutoConfigureTestEntityManager
 @ImportAutoConfiguration
 @ExtendWith(PostgresContainerExtension.class)
 abstract class AbstractRepositoryTest {
+
+  @Autowired
+  protected DistributionOrganizationRepository distributionOrganizationRepository;
+
+  @Autowired
+  protected DocumentTypeRepository documentTypeRepository;
+
+  @Autowired
+  protected IncomingDocumentRepository incomingDocumentRepository;
+
+  @Autowired
+  protected ProcessedDocumentRepository processedDocumentRepository;
+
+  @Autowired
+  protected SendingLevelRepository sendingLevelRepository;
 
   @Autowired
   protected UserRepository userRepository;
