@@ -177,3 +177,12 @@ VALUES (1, 1, 1, 'reason', 'PENDING', 1, 1),
        (2, 10, 1, 'reason', 'REJECTED', 1, 1),
        (1, 11, 1, 'reason', 'REJECTED', 1, 1),
        (2, 12, 1, 'reason', 'REJECTED', 1, 1);
+
+INSERT INTO "processing_flow" (flow_version, doc_type_id, flow, created_by, updated_by)
+VALUES (1, 1, '{APPROVER, SUBMITTER, REVIEWER}', 1, 1),
+       (1, 2, '{APPROVER, SUBMITTER, REVIEWER}', 1, 1),
+       (1, 3, '{APPROVER, SUBMITTER, REVIEWER}', 1, 1),
+       (1, 4, '{APPROVER, SUBMITTER, REVIEWER}', 1, 1),
+       (1, 5, '{APPROVER, SUBMITTER, REVIEWER}', 1, 1),
+       (2, 1, '{APPROVER, REVIEWER, SUBMITTER}', 1, 1),
+       (2, 2, '{SUBMITTER, REVIEWER, APPROVER}', 1, 1)

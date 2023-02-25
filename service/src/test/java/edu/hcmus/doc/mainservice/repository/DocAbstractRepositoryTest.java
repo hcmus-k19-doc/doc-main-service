@@ -50,6 +50,9 @@ abstract class DocAbstractRepositoryTest {
   protected ProcessingDocumentRoleRepository processingDocumentRoleRepository;
 
   @Autowired
+  protected ProcessingFlowRepository processingFlowRepository;
+
+  @Autowired
   protected ProcessingUserRepository processingUserRepository;
 
   @Autowired
