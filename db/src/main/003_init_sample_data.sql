@@ -50,3 +50,65 @@ VALUES (2),
        (8),
        (10),
        (12);
+
+INSERT INTO "processing_document"
+(incoming_doc_id,
+ status,
+ is_opened,
+ processing_request)
+VALUES (1, 'IN_PROGRESS', FALSE, 'processing_request'),
+       (3, 'IN_PROGRESS', FALSE, 'processing_request'),
+       (5, 'IN_PROGRESS', FALSE, 'processing_request'),
+       (7, 'IN_PROGRESS', FALSE, 'processing_request'),
+       (9, 'IN_PROGRESS', FALSE, 'processing_request'),
+       (11, 'IN_PROGRESS', FALSE, 'processing_request'),
+       (2, 'CLOSED', TRUE, 'processing_request'),
+       (4, 'CLOSED', TRUE, 'processing_request'),
+       (6, 'CLOSED', TRUE, 'processing_request'),
+       (8, 'CLOSED', TRUE, 'processing_request'),
+       (10, 'CLOSED', TRUE, 'processing_request'),
+       (12, 'CLOSED', TRUE, 'processing_request');
+
+INSERT INTO "outgoing_document" (version)
+VALUES (0),
+       (0),
+       (0),
+       (0),
+       (0),
+       (0);
+
+INSERT INTO "linked_document" (incoming_doc_id, outgoing_doc_id)
+VALUES (1, 1),
+       (3, 2),
+       (5, 3),
+       (7, 4),
+       (9, 5),
+       (11, 6);
+
+INSERT INTO "extension_request" (processing_doc_id, reason, extended_until, status)
+VALUES (1, 'reason', '2023-12-01', 'PENDING'),
+       (2, 'reason', '2023-12-01', 'PENDING'),
+       (3, 'reason', '2023-12-01', 'PENDING'),
+       (4, 'reason', '2023-12-01', 'PENDING'),
+       (5, 'reason', '2023-12-01', 'APPROVED'),
+       (6, 'reason', '2023-12-01', 'APPROVED'),
+       (7, 'reason', '2023-12-01', 'APPROVED'),
+       (8, 'reason', '2023-12-01', 'APPROVED'),
+       (9, 'reason', '2023-12-01', 'REJECTED'),
+       (10, 'reason', '2023-12-01', 'REJECTED'),
+       (11, 'reason', '2023-12-01', 'REJECTED'),
+       (12, 'reason', '2023-12-01', 'REJECTED');
+
+INSERT INTO "feedback" (processing_doc_id, content)
+VALUES (1, 'content'),
+       (2, 'content'),
+       (3, 'content'),
+       (4, 'content'),
+       (5, 'content'),
+       (6, 'content'),
+       (7, 'content'),
+       (8, 'content'),
+       (9, 'content'),
+       (10, 'content'),
+       (11, 'content'),
+       (12, 'content');

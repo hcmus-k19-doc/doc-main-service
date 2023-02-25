@@ -5,6 +5,7 @@ SET
 CREATE TYPE "request_status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 CREATE TYPE "urgency" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 CREATE TYPE "confidentiality" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
+CREATE TYPE "processing_status" AS ENUM ('IN_PROGRESS', 'CLOSED');
 
 CREATE TABLE "doc_base_table"
 (
@@ -75,12 +76,12 @@ CREATE TABLE "document_type"
 
 CREATE TABLE "processing_document"
 (
-    "id"                  SERIAL       NOT NULL,
-    "incoming_doc_id"     BIGINT       NOT NULL,
-    "status"              VARCHAR(255) NOT NULL,
-    "is_opened"           BOOL         NOT NULL,
-    "processing_duration" TIME,
-    "processing_request"  VARCHAR(255) NOT NULL,
+    "id"                  SERIAL              NOT NULL,
+    "incoming_doc_id"     BIGINT              NOT NULL,
+    "status"              "processing_status" NOT NULL,
+    "is_opened"           BOOL                NOT NULL,
+    "processing_duration" DATE,
+    "processing_request"  VARCHAR(255)        NOT NULL,
     CONSTRAINT "processing_document_pk" PRIMARY KEY ("id")
 ) INHERITS ("doc_base_table");
 
@@ -169,10 +170,8 @@ CREATE TABLE "processing_flow"
 CREATE TABLE "feedback"
 (
     "id"                SERIAL       NOT NULL,
-    "created_by"        BIGINT       NOT NULL,
     "processing_doc_id" BIGINT       NOT NULL,
     "content"           VARCHAR(200) NOT NULL,
-    "created_at"        DATE         NOT NULL,
     CONSTRAINT "feedback_pk" PRIMARY KEY ("id")
 ) INHERITS ("doc_base_table");
 

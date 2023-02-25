@@ -2,7 +2,10 @@ package edu.hcmus.doc.mainservice.model.entity;
 
 import java.time.LocalDateTime;
 import javax.persistence.Column;
+import javax.persistence.FetchType;
+import javax.persistence.JoinColumn;
 import javax.persistence.MappedSuperclass;
+import javax.persistence.OneToOne;
 import javax.persistence.Version;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -11,6 +14,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
+import org.springframework.data.annotation.LastModifiedBy;
 
 @Getter
 @Setter
@@ -28,13 +32,16 @@ public abstract class DocBaseEntity {
   protected LocalDateTime createdDate;
 
   @CreatedBy
-  @Column(name = "created_by", nullable = false, updatable = false, columnDefinition = "BIGINT")
-  protected Long createdBy;
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "created_by", referencedColumnName = "id", nullable = false, insertable = false, updatable = false, columnDefinition = "BIGINT")
+  protected User createdBy;
 
   @UpdateTimestamp
   @Column(name = "updated_date", nullable = false, columnDefinition = "TIMESTAMP NOT NULL DEFAULT NOW()")
   protected LocalDateTime updatedDate;
 
-  @Column(name = "updated_by", nullable = false, columnDefinition = "BIGINT")
-  protected Long updatedBy;
+  @LastModifiedBy
+  @OneToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "created_by", referencedColumnName = "id", columnDefinition = "BIGINT")
+  protected User updatedBy;
 }
