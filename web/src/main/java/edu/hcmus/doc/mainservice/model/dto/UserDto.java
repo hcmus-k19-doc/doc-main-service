@@ -1,6 +1,6 @@
 package edu.hcmus.doc.mainservice.model.dto;
 
-import edu.hcmus.doc.mainservice.model.enums.DocRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import java.util.Set;
 import lombok.Data;
 
@@ -10,5 +10,5 @@ public class UserDto {
   private Long id;
   private String username;
   private String email;
-  private Set<DocRoleEnum> roles;
+  private Set<DocSystemRoleEnum> roles;
 }

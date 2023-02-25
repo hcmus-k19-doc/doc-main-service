@@ -1,26 +1,33 @@
-CREATE SCHEMA "doc-main";
-SET SEARCH_PATH TO "doc-main";
+CREATE SCHEMA doc_main;
+SET
+    SEARCH_PATH TO doc_main;
 
 CREATE TYPE "request_status" AS ENUM ('PENDING', 'APPROVED', 'REJECTED');
 CREATE TYPE "urgency" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 CREATE TYPE "confidentiality" AS ENUM ('LOW', 'MEDIUM', 'HIGH');
 
-CREATE TABLE "abstract_doc_role"
+CREATE TABLE "doc_base_table"
+(
+    "version"      BIGINT    NOT NULL DEFAULT 0,
+    "created_date" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "created_by"   BIGINT,
+    "updated_date" TIMESTAMP NOT NULL DEFAULT NOW(),
+    "updated_by"   BIGINT
+);
+
+CREATE TABLE "processing_document_role"
 (
     "id"   SERIAL      NOT NULL,
     "name" VARCHAR(20) NOT NULL UNIQUE,
-    CONSTRAINT "abstract_doc_role_pk" PRIMARY KEY ("id")
-);
+    CONSTRAINT "processing_document_role_pk" PRIMARY KEY ("id")
+) INHERITS ("doc_base_table");
 
-CREATE TABLE "processing_doc_role"
+CREATE TABLE "doc_system_role"
 (
-    CONSTRAINT "processing_doc_role_pk" PRIMARY KEY ("id")
-) INHERITS ("abstract_doc_role");
-
-CREATE TABLE "doc_role"
-(
-    CONSTRAINT "doc_role_pk" PRIMARY KEY ("id")
-) INHERITS ("abstract_doc_role");
+    "id"   SERIAL      NOT NULL,
+    "name" VARCHAR(20) NOT NULL UNIQUE,
+    CONSTRAINT "doc_system_role_pk" PRIMARY KEY ("id")
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "user"
 (
@@ -31,14 +38,14 @@ CREATE TABLE "user"
     "password"   VARCHAR(255) NOT NULL,
     "email"      VARCHAR(255) NOT NULL UNIQUE,
     CONSTRAINT "user_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "user_role"
 (
-    "role_id" SERIAL NOT NULL,
-    "user_id" SERIAL NOT NULL,
+    "role_id" BIGINT NOT NULL,
+    "user_id" BIGINT NOT NULL,
     CONSTRAINT "user_role_pk" PRIMARY KEY ("role_id", "user_id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "incoming_document"
 (
@@ -57,14 +64,14 @@ CREATE TABLE "incoming_document"
     "sending_level_id"       BIGINT            NOT NULL,
     "is_deleted"             BOOL              NOT NULL,
     CONSTRAINT "incoming_document_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "document_type"
 (
     "id"   SERIAL       NOT NULL,
     "type" VARCHAR(255) NOT NULL,
     CONSTRAINT "document_type_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "processing_document"
 (
@@ -75,20 +82,20 @@ CREATE TABLE "processing_document"
     "processing_duration" TIME,
     "processing_request"  TEXT         NOT NULL,
     CONSTRAINT "processing_document_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "outgoing_document"
 (
     "id" SERIAL NOT NULL,
     CONSTRAINT "outgoing_document_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "linked_document"
 (
     "incoming_doc_id" BIGINT NOT NULL,
     "outgoing_doc_id" BIGINT NOT NULL,
     CONSTRAINT "linked_document_pk" PRIMARY KEY ("incoming_doc_id", "outgoing_doc_id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "distribution_organization"
 (
@@ -96,14 +103,14 @@ CREATE TABLE "distribution_organization"
     "name"   VARCHAR(255) NOT NULL,
     "symbol" VARCHAR(255) NOT NULL UNIQUE,
     CONSTRAINT "distribution_organization_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "sending_level"
 (
     "id"    SERIAL       NOT NULL,
     "level" VARCHAR(255) NOT NULL,
     CONSTRAINT "sending_level_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "processing_user"
 (
@@ -111,14 +118,14 @@ CREATE TABLE "processing_user"
     "processing_doc_id" BIGINT NOT NULL,
     "step"              INT    NOT NULL,
     CONSTRAINT "processing_user_pk" PRIMARY KEY ("user_id", "processing_doc_id", "step")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "processed_document"
 (
     "id"              SERIAL NOT NULL,
     "incoming_doc_id" BIGINT NOT NULL,
     CONSTRAINT "processed_document_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "return_request"
 (
@@ -129,7 +136,7 @@ CREATE TABLE "return_request"
     "reason"            VARCHAR(200)     NOT NULL,
     "status"            "request_status" NOT NULL,
     CONSTRAINT "return_request_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "extension_request"
 (
@@ -139,7 +146,7 @@ CREATE TABLE "extension_request"
     "extended_until"    DATE             NOT NULL,
     "status"            "request_status" NOT NULL,
     CONSTRAINT "extension_request_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "processing_user_role"
 (
@@ -149,15 +156,15 @@ CREATE TABLE "processing_user_role"
     "processing_role_id" BIGINT NOT NULL,
     CONSTRAINT "processing_user_role_pk" PRIMARY KEY ("user_id", "processing_doc_id", "step",
                                                       "processing_role_id")
-);
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "processing_flow"
 (
-    "version"  BIGINT       NOT NULL,
-    "doc_type" VARCHAR(255) NOT NULL,
-    "flow"     VARCHAR      NOT NULL,
-    CONSTRAINT "processing_flow_pk" PRIMARY KEY ("version", "doc_type")
-);
+    "flow_version" BIGINT         NOT NULL,
+    "doc_type_id"  BIGINT         NOT NULL,
+    "flow"         VARCHAR(255)[] NOT NULL,
+    CONSTRAINT "processing_flow_pk" PRIMARY KEY ("flow_version", "doc_type_id")
+) INHERITS ("doc_base_table");
 
 CREATE TABLE "feedback"
 (
@@ -167,11 +174,11 @@ CREATE TABLE "feedback"
     "content"           VARCHAR(200) NOT NULL,
     "created_at"        DATE         NOT NULL,
     CONSTRAINT "feedback_pk" PRIMARY KEY ("id")
-);
+) INHERITS ("doc_base_table");
 
 -- user_role table
 ALTER TABLE "user_role"
-    ADD CONSTRAINT "user_role_doc_role_fk" FOREIGN KEY ("role_id") REFERENCES "doc_role" ("id");
+    ADD CONSTRAINT "user_role_doc_system_role_fk" FOREIGN KEY ("role_id") REFERENCES "doc_system_role" ("id");
 ALTER TABLE "user_role"
     ADD CONSTRAINT "user_role_user_fk" FOREIGN KEY ("user_id") REFERENCES "user" ("id");
 
@@ -219,9 +226,13 @@ ALTER TABLE "processing_user_role"
         FOREIGN KEY ("user_id", "processing_doc_id", "step")
             REFERENCES "processing_user" ("user_id", "processing_doc_id", "step");
 ALTER TABLE "processing_user_role"
-    ADD CONSTRAINT "processing_user_role_processing_doc_role_fk"
+    ADD CONSTRAINT "processing_user_role_processing_document_role_fk"
         FOREIGN KEY ("processing_role_id")
-            REFERENCES "processing_doc_role" ("id");
+            REFERENCES "processing_document_role" ("id");
+
+-- processing_flow table
+ALTER TABLE "processing_flow"
+    ADD CONSTRAINT "processing_flow_document_type_fk" FOREIGN KEY ("doc_type_id") REFERENCES "document_type" ("id");
 
 -- feedback table
 ALTER TABLE "feedback"

@@ -21,4 +21,10 @@ abstract class AbstractRepositoryTest {
 
   @Autowired
   protected UserRepository userRepository;
+
+  @Autowired
+  protected DocSystemRoleRepository docSystemRoleRepository;
+
+  @Autowired
+  protected UserRoleRepository userRoleRepository;
 }
