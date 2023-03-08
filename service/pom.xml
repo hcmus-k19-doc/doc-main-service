@@ -76,6 +76,12 @@
       <version>4.0.1</version>
     </dependency>
 
+    <!--    Spring boot test dependencies    -->
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+    </dependency>
+
     <dependency>
       <groupId>edu.hcmus.doc.main-service</groupId>
       <artifactId>doc-main-service-common</artifactId>
