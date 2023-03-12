@@ -15,19 +15,25 @@ ALTER TABLE return_request
 
 -- processing_user table
 ALTER TABLE processing_user
-    ADD COLUMN processing_user_role_id BIGINT
-        CONSTRAINT processing_user_processing_user_role_fk REFERENCES processing_user_role (id);
+    DROP CONSTRAINT processing_user_pk;
+ALTER TABLE processing_user
+    ADD COLUMN id SERIAL
+        CONSTRAINT processing_user_pk PRIMARY KEY;
 ALTER TABLE processing_user
     ADD COLUMN return_request_id BIGINT
         CONSTRAINT processing_user_return_request_fk REFERENCES return_request (id);
 
--- Migrating data from processing_user_role to processing_user
-UPDATE processing_user
-SET processing_user_role_id = processing_user_role.id
-FROM processing_user_role
-WHERE processing_user_role.user_id = processing_user.user_id
-  AND processing_user_role.processing_doc_id = processing_user.processing_doc_id
-  AND processing_user_role.step = processing_user.step;
+ALTER TABLE processing_user_role
+    ADD COLUMN processing_user_id BIGINT
+        CONSTRAINT processing_user_role_processing_user_fk REFERENCES processing_user (id);
+
+-- Migrating data from processing_user to processing_user_role
+UPDATE processing_user_role
+SET processing_user_id = processing_user.id
+FROM processing_user
+WHERE processing_user.user_id = processing_user_role.user_id
+  AND processing_user.processing_doc_id = processing_user_role.processing_doc_id
+  AND processing_user.step = processing_user_role.step;
 
 -- Migrating data from return_request to processing_user
 UPDATE processing_user
