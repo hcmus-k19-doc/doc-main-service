@@ -51,3 +51,23 @@ ALTER TABLE return_request
     DROP user_id,
     DROP processing_doc_id,
     DROP step;
+
+-- user_role table
+ALTER TABLE user_role
+    DROP CONSTRAINT user_role_pk;
+ALTER TABLE user_role ADD COLUMN id SERIAL
+    CONSTRAINT user_role_pk PRIMARY KEY;
+
+-- processing_flow table
+ALTER TABLE processing_flow
+    DROP CONSTRAINT processing_flow_pk;
+ALTER TABLE processing_flow
+    ADD COLUMN id SERIAL
+        CONSTRAINT processing_flow_pk PRIMARY KEY;
+
+-- linked_document table
+ALTER TABLE linked_document
+    DROP CONSTRAINT linked_document_pk;
+ALTER TABLE linked_document
+    ADD COLUMN id SERIAL
+        CONSTRAINT linked_document_pk PRIMARY KEY;
