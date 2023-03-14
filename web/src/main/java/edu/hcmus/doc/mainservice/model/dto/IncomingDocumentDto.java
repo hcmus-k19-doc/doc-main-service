@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.model.dto;
 
+import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import java.time.LocalDate;
 import lombok.Data;
 
@@ -9,6 +10,8 @@ import lombok.Data;
 @Data
 public class IncomingDocumentDto extends DocAbstractDto {
 
+  private ProcessingStatus status;
+  private LocalDate processingDuration;
   private String incomingNumber;
   private DocumentTypeDto documentType;
   private String originalSymbolNumber;

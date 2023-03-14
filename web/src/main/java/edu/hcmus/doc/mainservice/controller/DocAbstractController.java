@@ -16,7 +16,7 @@ public abstract class DocAbstractController {
   protected UserMapper userMapper;
 
   @Autowired
-  protected IncomingDocumentMapper incomingDocumentMapper;
+  protected IncomingDocumentMapper incomingDecoratorDocumentMapper;
 
   @Autowired
   protected PaginationMapper paginationMapper;

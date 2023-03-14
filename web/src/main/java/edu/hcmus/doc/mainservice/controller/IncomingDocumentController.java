@@ -4,6 +4,7 @@ import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
+import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,8 @@ public class IncomingDocumentController extends DocAbstractController {
 
   private final IncomingDocumentService incomingDocumentService;
 
+  private final ProcessingDocumentService processingDocumentService;
+
   @GetMapping
   public DocPaginationDto<IncomingDocumentDto> getIncomingDocuments(
       @RequestParam(required = false, defaultValue = "") String query,
@@ -25,10 +28,10 @@ public class IncomingDocumentController extends DocAbstractController {
   ) {
 
     return paginationMapper.toDto(
-        incomingDocumentService
+        processingDocumentService
             .getIncomingDocuments(query, page, pageSize)
             .stream()
-            .map(incomingDocumentMapper::toDto)
+            .map(incomingDecoratorDocumentMapper::toDto)
             .toList(),
         incomingDocumentService.getTotalElements(query),
         incomingDocumentService.getTotalPages(query, pageSize));
