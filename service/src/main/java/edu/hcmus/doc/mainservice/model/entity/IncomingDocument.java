@@ -43,8 +43,8 @@ public class IncomingDocument extends DocAbstractEntity {
   @Column(name = "arriving_time", nullable = false, columnDefinition = "TIME NOT NULL")
   private LocalTime arrivingTime;
 
-  @Column(name = "comment", nullable = false, columnDefinition = "VARCHAR(255) NOT NULL")
-  private String comment;
+  @Column(name = "summary", nullable = false, columnDefinition = "VARCHAR(255) NOT NULL")
+  private String summary;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "urgency", nullable = false)
