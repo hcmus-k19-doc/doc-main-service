@@ -41,7 +41,7 @@ public abstract class DocBaseEntity {
       updatable = false,
       columnDefinition = "BIGINT"
   )
-  protected User createdBy = new User();
+  protected User createdBy;
 
   @UpdateTimestamp
   @Column(name = "updated_date", nullable = false, columnDefinition = "TIMESTAMP NOT NULL DEFAULT NOW()")
@@ -50,5 +50,5 @@ public abstract class DocBaseEntity {
   @LastModifiedBy
   @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "created_by", referencedColumnName = "id", columnDefinition = "BIGINT")
-  protected User updatedBy = new User();
+  protected User updatedBy;
 }
