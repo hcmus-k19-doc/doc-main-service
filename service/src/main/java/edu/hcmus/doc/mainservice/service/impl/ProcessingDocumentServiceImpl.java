@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
@@ -16,17 +17,17 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
   private final ProcessingDocumentRepository processingDocumentRepository;
 
   @Override
-  public long getTotalElements(String query) {
-    return processingDocumentRepository.getTotalElements(query);
+  public long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
+    return processingDocumentRepository.getTotalElements(searchCriteriaDto);
   }
 
   @Override
-  public long getTotalPages(String query, long limit) {
-    return getTotalElements(query) / limit;
+  public long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit) {
+    return getTotalElements(searchCriteriaDto) / limit;
   }
 
   @Override
-  public List<ProcessingDocument> getIncomingDocuments(String query, long offset, long limit) {
-    return processingDocumentRepository.getProcessingDocuments(query, offset, limit);
+  public List<ProcessingDocument> getIncomingDocuments(SearchCriteriaDto searchCriteriaDto, long offset, long limit) {
+    return processingDocumentRepository.searchByCriteria(searchCriteriaDto, offset, limit);
   }
 }

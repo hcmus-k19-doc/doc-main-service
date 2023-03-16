@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface ProcessingDocumentRepository
-    extends JpaRepository<ProcessingDocument, Long>,
+    extends
+    JpaRepository<ProcessingDocument, Long>,
     QuerydslPredicateExecutor<ProcessingDocument>,
     CustomProcessingDocumentRepository {
-
 }

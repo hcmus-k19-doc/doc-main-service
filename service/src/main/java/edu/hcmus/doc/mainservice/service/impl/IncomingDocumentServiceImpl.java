@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
@@ -16,13 +17,13 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   private final IncomingDocumentRepository incomingDocumentRepository;
 
   @Override
-  public long getTotalElements(String query) {
-    return incomingDocumentRepository.getTotalElements(query);
+  public long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
+    return incomingDocumentRepository.getTotalElements(searchCriteriaDto);
   }
 
   @Override
-  public long getTotalPages(String query, long limit) {
-    return getTotalElements(query) / limit;
+  public long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit) {
+    return getTotalElements(searchCriteriaDto) / limit;
   }
 
   @Override

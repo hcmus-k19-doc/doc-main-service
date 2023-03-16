@@ -1,11 +1,9 @@
 package edu.hcmus.doc.mainservice.repository.custom;
 
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
-import java.util.List;
+import edu.hcmus.doc.mainservice.repository.DocAbstractSearchRepository;
 
-public interface CustomProcessingDocumentRepository {
+public interface CustomProcessingDocumentRepository
+    extends DocAbstractSearchRepository<ProcessingDocument> {
 
-  Long getTotalElements(String query);
-
-  List<ProcessingDocument> getProcessingDocuments(String query, long offset, long limit);
 }

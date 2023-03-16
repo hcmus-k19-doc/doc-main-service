@@ -1,69 +1,113 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
+import static edu.hcmus.doc.mainservice.model.entity.QIncomingDocument.incomingDocument;
+import static edu.hcmus.doc.mainservice.model.entity.QProcessingDocument.processingDocument;
+
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.jpa.impl.JPAQuery;
+import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QDistributionOrganization;
 import edu.hcmus.doc.mainservice.model.entity.QDocumentType;
-import edu.hcmus.doc.mainservice.model.entity.QIncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QSendingLevel;
 import edu.hcmus.doc.mainservice.repository.custom.CustomProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import java.util.List;
 
-public class CustomProcessingDocumentRepositoryImpl extends
-    DocAbstractCustomRepository<ProcessingDocument> implements CustomProcessingDocumentRepository {
+public class CustomProcessingDocumentRepositoryImpl
+    extends DocAbstractCustomRepository<ProcessingDocument>
+    implements CustomProcessingDocumentRepository {
 
   @Override
-  public Long getTotalElements(String query) {
-    return selectFrom(QProcessingDocument.processingDocument)
-        .select(QProcessingDocument.processingDocument.id.count())
+  public Long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
+    return selectFrom(processingDocument)
+        .select(processingDocument.id.count())
         .fetchOne();
   }
 
   @Override
-  public List<ProcessingDocument> getProcessingDocuments(String query, long offset, long limit) {
-    return select(
-        QProcessingDocument.processingDocument.id,
-        QProcessingDocument.processingDocument.status,
-        QProcessingDocument.processingDocument.processingDuration,
-        QIncomingDocument.incomingDocument.id,
-        QIncomingDocument.incomingDocument.incomingNumber,
-        QIncomingDocument.incomingDocument.originalSymbolNumber,
-        QIncomingDocument.incomingDocument.arrivingDate,
-        QIncomingDocument.incomingDocument.summary,
-        QIncomingDocument.incomingDocument.sendingLevel.id,
-        QIncomingDocument.incomingDocument.sendingLevel.level,
-        QIncomingDocument.incomingDocument.documentType.id,
-        QIncomingDocument.incomingDocument.documentType.type,
-        QIncomingDocument.incomingDocument.distributionOrg.id,
-        QIncomingDocument.incomingDocument.distributionOrg.name)
-        .from(QProcessingDocument.processingDocument)
-        .innerJoin(QProcessingDocument.processingDocument.incomingDoc, QIncomingDocument.incomingDocument)
-        .innerJoin(QIncomingDocument.incomingDocument.sendingLevel, QSendingLevel.sendingLevel)
-        .innerJoin(QIncomingDocument.incomingDocument.documentType, QDocumentType.documentType)
-        .innerJoin(QIncomingDocument.incomingDocument.distributionOrg, QDistributionOrganization.distributionOrganization)
-        .orderBy(QIncomingDocument.incomingDocument.id.asc())
-        .offset(offset * limit)
-        .limit(limit)
-        .fetch()
-        .stream()
-        .map(tuple -> {
-          ProcessingDocument processingDocument = new ProcessingDocument();
-          processingDocument.setId(tuple.get(QProcessingDocument.processingDocument.id));
-          processingDocument.setStatus(tuple.get(QProcessingDocument.processingDocument.status));
-          processingDocument.setProcessingDuration(tuple.get(QProcessingDocument.processingDocument.processingDuration));
-          processingDocument.getIncomingDoc().setId(tuple.get(QIncomingDocument.incomingDocument.id));
-          processingDocument.getIncomingDoc().setIncomingNumber(tuple.get(QIncomingDocument.incomingDocument.incomingNumber));
-          processingDocument.getIncomingDoc().setOriginalSymbolNumber(tuple.get(QIncomingDocument.incomingDocument.originalSymbolNumber));
-          processingDocument.getIncomingDoc().setArrivingDate(tuple.get(QIncomingDocument.incomingDocument.arrivingDate));
-          processingDocument.getIncomingDoc().setSummary(tuple.get(QIncomingDocument.incomingDocument.summary));
-          processingDocument.getIncomingDoc().getSendingLevel().setId(tuple.get(QIncomingDocument.incomingDocument.sendingLevel.id));
-          processingDocument.getIncomingDoc().getSendingLevel().setLevel(tuple.get(QIncomingDocument.incomingDocument.sendingLevel.level));
-          processingDocument.getIncomingDoc().getDocumentType().setId(tuple.get(QIncomingDocument.incomingDocument.documentType.id));
-          processingDocument.getIncomingDoc().getDocumentType().setType(tuple.get(QIncomingDocument.incomingDocument.documentType.type));
-          processingDocument.getIncomingDoc().getDistributionOrg().setId(tuple.get(QIncomingDocument.incomingDocument.distributionOrg.id));
-          processingDocument.getIncomingDoc().getDistributionOrg().setName(tuple.get(QIncomingDocument.incomingDocument.distributionOrg.name));
-          return processingDocument;
-        }).toList();
+  public long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit) {
+    return getTotalElements(searchCriteriaDto) / limit;
+  }
+
+  @Override
+  public List<ProcessingDocument> searchByCriteria(SearchCriteriaDto searchCriteriaDto, long offset, long limit) {
+    return
+        searchQueryByCriteria(searchCriteriaDto)
+            .select(
+                processingDocument.id,
+                processingDocument.status,
+                processingDocument.processingDuration,
+                incomingDocument.id,
+                incomingDocument.incomingNumber,
+                incomingDocument.originalSymbolNumber,
+                incomingDocument.arrivingDate,
+                incomingDocument.summary,
+                incomingDocument.sendingLevel.id,
+                incomingDocument.sendingLevel.level,
+                incomingDocument.documentType.id,
+                incomingDocument.documentType.type,
+                incomingDocument.distributionOrg.id,
+                incomingDocument.distributionOrg.name)
+            .orderBy(incomingDocument.id.asc())
+            .offset(offset * limit)
+            .limit(limit)
+            .fetch()
+            .stream()
+            .map(tuple -> {
+              ProcessingDocument processingDocument = new ProcessingDocument();
+              processingDocument.setId(tuple.get(QProcessingDocument.processingDocument.id));
+              processingDocument.setStatus(tuple.get(QProcessingDocument.processingDocument.status));
+              processingDocument.setProcessingDuration(tuple.get(QProcessingDocument.processingDocument.processingDuration));
+              processingDocument.getIncomingDoc().setId(tuple.get(incomingDocument.id));
+              processingDocument.getIncomingDoc().setIncomingNumber(tuple.get(incomingDocument.incomingNumber));
+              processingDocument.getIncomingDoc().setOriginalSymbolNumber(tuple.get(incomingDocument.originalSymbolNumber));
+              processingDocument.getIncomingDoc().setArrivingDate(tuple.get(incomingDocument.arrivingDate));
+              processingDocument.getIncomingDoc().setSummary(tuple.get(incomingDocument.summary));
+              processingDocument.getIncomingDoc().getSendingLevel().setId(tuple.get(incomingDocument.sendingLevel.id));
+              processingDocument.getIncomingDoc().getSendingLevel().setLevel(tuple.get(incomingDocument.sendingLevel.level));
+              processingDocument.getIncomingDoc().getDocumentType().setId(tuple.get(incomingDocument.documentType.id));
+              processingDocument.getIncomingDoc().getDocumentType().setType(tuple.get(incomingDocument.documentType.type));
+              processingDocument.getIncomingDoc().getDistributionOrg().setId(tuple.get(incomingDocument.distributionOrg.id));
+              processingDocument.getIncomingDoc().getDistributionOrg().setName(tuple.get(incomingDocument.distributionOrg.name));
+              return processingDocument;
+            })
+            .toList();
+  }
+
+  private JPAQuery<ProcessingDocument> searchQueryByCriteria(SearchCriteriaDto searchCriteriaDto) {
+    BooleanBuilder where = new BooleanBuilder();
+
+    if (searchCriteriaDto != null) {
+      if (searchCriteriaDto.getIncomingNumber() != null) {
+        where.and(incomingDocument.incomingNumber.eq(searchCriteriaDto.getIncomingNumber()));
+      }
+      if (searchCriteriaDto.getOriginalSymbolNumber() != null) {
+        where.and(incomingDocument.originalSymbolNumber.eq(searchCriteriaDto.getOriginalSymbolNumber()));
+      }
+      if (searchCriteriaDto.getDocumentType() != null) {
+        where.and(incomingDocument.documentType.type.eq(searchCriteriaDto.getDocumentType()));
+      }
+      if (searchCriteriaDto.getDistributionOrg() != null) {
+        where.and(incomingDocument.distributionOrg.name.eq(searchCriteriaDto.getDistributionOrg()));
+      }
+      if (searchCriteriaDto.getArrivingDate() != null) {
+        where.and(incomingDocument.arrivingDate.eq(searchCriteriaDto.getArrivingDate().atStartOfDay().toLocalDate()));
+      }
+      if (searchCriteriaDto.getProcessingDuration() != null) {
+        where.and(incomingDocument.arrivingDate.eq(searchCriteriaDto.getProcessingDuration().atStartOfDay().toLocalDate()));
+      }
+      if (searchCriteriaDto.getSummary() != null) {
+        where.and(incomingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
+      }
+    }
+
+    return selectFrom(processingDocument)
+        .innerJoin(processingDocument.incomingDoc, incomingDocument)
+        .innerJoin(incomingDocument.sendingLevel, QSendingLevel.sendingLevel)
+        .innerJoin(incomingDocument.documentType, QDocumentType.documentType)
+        .innerJoin(incomingDocument.distributionOrg, QDistributionOrganization.distributionOrganization)
+        .where(where);
   }
 }

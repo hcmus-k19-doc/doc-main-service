@@ -3,10 +3,11 @@ package edu.hcmus.doc.mainservice.controller;
 import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocumentDto;
-import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
+import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,24 +17,22 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(DocURL.API_V1 + "/incoming-documents")
 public class IncomingDocumentController extends DocAbstractController {
 
-  private final IncomingDocumentService incomingDocumentService;
-
   private final ProcessingDocumentService processingDocumentService;
 
-  @GetMapping
+  @PostMapping("/search")
   public DocPaginationDto<IncomingDocumentDto> getIncomingDocuments(
-      @RequestParam(required = false, defaultValue = "") String query,
+      @RequestBody(required = false) SearchCriteriaDto searchCriteria,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "3") int pageSize
   ) {
 
     return paginationMapper.toDto(
         processingDocumentService
-            .getIncomingDocuments(query, page, pageSize)
+            .getIncomingDocuments(searchCriteria, page, pageSize)
             .stream()
             .map(incomingDecoratorDocumentMapper::toDto)
             .toList(),
-        incomingDocumentService.getTotalElements(query),
-        incomingDocumentService.getTotalPages(query, pageSize));
+        processingDocumentService.getTotalElements(searchCriteria),
+        processingDocumentService.getTotalPages(searchCriteria, pageSize));
   }
 }

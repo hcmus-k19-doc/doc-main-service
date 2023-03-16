@@ -97,6 +97,7 @@
             <classPattern>edu.hcmus.doc.mainservice.model.dto.IncomingDocumentDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.SendingLevelDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.UserDto</classPattern>
+            <classPattern>edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto</classPattern>
           </classPatterns>
           <excludeClasses>
             <class>java.io.Serializable</class>

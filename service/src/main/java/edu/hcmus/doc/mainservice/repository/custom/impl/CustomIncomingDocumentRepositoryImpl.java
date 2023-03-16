@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
+import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QDistributionOrganization;
 import edu.hcmus.doc.mainservice.model.entity.QDocumentType;
@@ -14,7 +15,7 @@ public class CustomIncomingDocumentRepositoryImpl
     implements CustomIncomingDocumentRepository {
 
   @Override
-  public Long getTotalElements(String query) {
+  public Long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
     return selectFrom(QIncomingDocument.incomingDocument)
         .select(QIncomingDocument.incomingDocument.id.count())
         .fetchOne();
