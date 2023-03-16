@@ -21,14 +21,15 @@ public class CustomProcessingDocumentRepositoryImpl
 
   @Override
   public Long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
-    return selectFrom(processingDocument)
+    return searchQueryByCriteria(searchCriteriaDto)
         .select(processingDocument.id.count())
         .fetchOne();
   }
 
   @Override
   public long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit) {
-    return getTotalElements(searchCriteriaDto) / limit;
+    Long totalElements = getTotalElements(searchCriteriaDto);
+    return (totalElements / limit) + (totalElements % limit == 0 ? 0 : 1);
   }
 
   @Override

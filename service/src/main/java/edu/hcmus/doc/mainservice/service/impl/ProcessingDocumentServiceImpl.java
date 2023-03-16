@@ -23,7 +23,7 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
 
   @Override
   public long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit) {
-    return getTotalElements(searchCriteriaDto) / limit;
+    return processingDocumentRepository.getTotalPages(searchCriteriaDto, limit);
   }
 
   @Override
