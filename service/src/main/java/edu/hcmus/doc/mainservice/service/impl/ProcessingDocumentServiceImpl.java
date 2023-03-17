@@ -27,7 +27,11 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
   }
 
   @Override
-  public List<ProcessingDocument> getIncomingDocuments(SearchCriteriaDto searchCriteriaDto, long offset, long limit) {
+  public List<ProcessingDocument> searchProcessingDocuments(
+      SearchCriteriaDto searchCriteriaDto,
+      long offset,
+      long limit
+  ) {
     return processingDocumentRepository.searchByCriteria(searchCriteriaDto, offset, limit);
   }
 }

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test;
 class ProcessingDocumentRepositoryTest extends DocAbstractRepositoryTest {
 
   @Test
-  void testSearch() {
+  void testSearchByCriteria() {
     // Given
     SearchCriteriaDto query = new SearchCriteriaDto();
     long offset = 0;

@@ -28,7 +28,7 @@ public class IncomingDocumentController extends DocAbstractController {
 
     return paginationMapper.toDto(
         processingDocumentService
-            .getIncomingDocuments(searchCriteria, page, pageSize)
+            .searchProcessingDocuments(searchCriteria, page, pageSize)
             .stream()
             .map(incomingDecoratorDocumentMapper::toDto)
             .toList(),

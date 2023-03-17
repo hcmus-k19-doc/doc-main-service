@@ -10,5 +10,5 @@ public interface ProcessingDocumentService {
 
   long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit);
 
-  List<ProcessingDocument> getIncomingDocuments(SearchCriteriaDto searchCriteriaDto, long offset, long limit);
+  List<ProcessingDocument> searchProcessingDocuments(SearchCriteriaDto searchCriteriaDto, long offset, long limit);
 }

@@ -14,6 +14,7 @@ import edu.hcmus.doc.mainservice.model.entity.QSendingLevel;
 import edu.hcmus.doc.mainservice.repository.custom.CustomProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import java.util.List;
+import org.apache.commons.lang3.StringUtils;
 
 public class CustomProcessingDocumentRepositoryImpl
     extends DocAbstractCustomRepository<ProcessingDocument>
@@ -80,28 +81,38 @@ public class CustomProcessingDocumentRepositoryImpl
   private JPAQuery<ProcessingDocument> searchQueryByCriteria(SearchCriteriaDto searchCriteriaDto) {
     BooleanBuilder where = new BooleanBuilder();
 
-    if (searchCriteriaDto != null) {
-      if (searchCriteriaDto.getIncomingNumber() != null) {
-        where.and(incomingDocument.incomingNumber.eq(searchCriteriaDto.getIncomingNumber()));
-      }
-      if (searchCriteriaDto.getOriginalSymbolNumber() != null) {
-        where.and(incomingDocument.originalSymbolNumber.eq(searchCriteriaDto.getOriginalSymbolNumber()));
-      }
-      if (searchCriteriaDto.getDocumentType() != null) {
-        where.and(incomingDocument.documentType.type.eq(searchCriteriaDto.getDocumentType()));
-      }
-      if (searchCriteriaDto.getDistributionOrg() != null) {
-        where.and(incomingDocument.distributionOrg.name.eq(searchCriteriaDto.getDistributionOrg()));
-      }
-      if (searchCriteriaDto.getArrivingDate() != null) {
-        where.and(incomingDocument.arrivingDate.eq(searchCriteriaDto.getArrivingDate().atStartOfDay().toLocalDate()));
-      }
-      if (searchCriteriaDto.getProcessingDuration() != null) {
-        where.and(incomingDocument.arrivingDate.eq(searchCriteriaDto.getProcessingDuration().atStartOfDay().toLocalDate()));
-      }
-      if (searchCriteriaDto.getSummary() != null) {
-        where.and(incomingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
-      }
+    if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getIncomingNumber())) {
+      where.and(incomingDocument.incomingNumber.eq(searchCriteriaDto.getIncomingNumber()));
+    }
+    if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getOriginalSymbolNumber())) {
+      where.and(
+          incomingDocument.originalSymbolNumber.eq(searchCriteriaDto.getOriginalSymbolNumber()));
+    }
+    if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getDocumentType())) {
+      where.and(incomingDocument.documentType.type.eq(searchCriteriaDto.getDocumentType()));
+    }
+    if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getDistributionOrg())) {
+      where.and(incomingDocument.distributionOrg.name.eq(searchCriteriaDto.getDistributionOrg()));
+    }
+    if (searchCriteriaDto != null
+        && searchCriteriaDto.getArrivingDateFrom() != null
+        && searchCriteriaDto.getArrivingDateTo() != null) {
+      where.and(incomingDocument.arrivingDate.between(
+          searchCriteriaDto.getArrivingDateFrom().atStartOfDay().toLocalDate(),
+          searchCriteriaDto.getArrivingDateTo().plusDays(1).atStartOfDay().toLocalDate()
+      ));
+    }
+    if (searchCriteriaDto != null
+        && searchCriteriaDto.getProcessingDurationFrom() != null
+        && searchCriteriaDto.getProcessingDurationTo() != null) {
+      where.and(incomingDocument.arrivingDate.between(
+          searchCriteriaDto.getProcessingDurationFrom().atStartOfDay().toLocalDate(),
+          searchCriteriaDto.getProcessingDurationTo().plusDays(1).atStartOfDay().toLocalDate()
+      ));
+    }
+    if (searchCriteriaDto != null
+        && StringUtils.isNotBlank(searchCriteriaDto.getSummary())) {
+      where.and(incomingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
 
     return selectFrom(processingDocument)
