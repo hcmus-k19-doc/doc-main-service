@@ -88,11 +88,11 @@ public class CustomProcessingDocumentRepositoryImpl
       where.and(
           incomingDocument.originalSymbolNumber.eq(searchCriteriaDto.getOriginalSymbolNumber()));
     }
-    if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getDocumentType())) {
-      where.and(incomingDocument.documentType.type.eq(searchCriteriaDto.getDocumentType()));
+    if (searchCriteriaDto != null && searchCriteriaDto.getDocumentTypeId() != null) {
+      where.and(incomingDocument.documentType.id.eq(searchCriteriaDto.getDocumentTypeId()));
     }
-    if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getDistributionOrg())) {
-      where.and(incomingDocument.distributionOrg.name.eq(searchCriteriaDto.getDistributionOrg()));
+    if (searchCriteriaDto != null && searchCriteriaDto.getDistributionOrgId() != null) {
+      where.and(incomingDocument.distributionOrg.id.eq(searchCriteriaDto.getDistributionOrgId()));
     }
     if (searchCriteriaDto != null
         && searchCriteriaDto.getArrivingDateFrom() != null
@@ -110,8 +110,7 @@ public class CustomProcessingDocumentRepositoryImpl
           searchCriteriaDto.getProcessingDurationTo().plusDays(1).atStartOfDay().toLocalDate()
       ));
     }
-    if (searchCriteriaDto != null
-        && StringUtils.isNotBlank(searchCriteriaDto.getSummary())) {
+    if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getSummary())) {
       where.and(incomingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
 
