@@ -20,7 +20,7 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
   @Override
   public IncomingDocumentDto toDto(ProcessingDocument processingDocument) {
     IncomingDocumentDto dto = delegate.toDto(processingDocument.getIncomingDoc());
-    dto.setStatus(processingDocument.getStatus());
+    dto.setStatus(processingDocument.getStatus().name());
     dto.setProcessingDuration(processingDocument.getProcessingDuration());
     return dto;
   }

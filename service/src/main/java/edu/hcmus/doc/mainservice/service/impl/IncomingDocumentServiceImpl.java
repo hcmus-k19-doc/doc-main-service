@@ -22,6 +22,11 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   }
 
   @Override
+  public IncomingDocument createIncomingDocument(IncomingDocument incomingDocument) {
+    return incomingDocumentRepository.save(incomingDocument);
+  }
+
+  @Override
   public long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit) {
     return getTotalElements(searchCriteriaDto) / limit;
   }

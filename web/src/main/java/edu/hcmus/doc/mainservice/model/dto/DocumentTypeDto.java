@@ -7,6 +7,5 @@ import lombok.Data;
  */
 @Data
 public class DocumentTypeDto extends DocAbstractDto {
-
   private String type;
 }
