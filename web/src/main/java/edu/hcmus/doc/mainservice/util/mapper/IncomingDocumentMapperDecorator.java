@@ -1,12 +1,21 @@
 package edu.hcmus.doc.mainservice.util.mapper;
 
-import edu.hcmus.doc.mainservice.model.dto.IncomingDocumentDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
+import edu.hcmus.doc.mainservice.service.DistributionOrganizationService;
+import edu.hcmus.doc.mainservice.service.DocumentTypeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
 public abstract class IncomingDocumentMapperDecorator implements IncomingDocumentMapper {
+
+  @Autowired
+  DocumentTypeService documentTypeService;
+
+  @Autowired
+  DistributionOrganizationService distributionOrganizationService;
 
   @Autowired
   @Qualifier("delegate")
@@ -20,8 +29,19 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
   @Override
   public IncomingDocumentDto toDto(ProcessingDocument processingDocument) {
     IncomingDocumentDto dto = delegate.toDto(processingDocument.getIncomingDoc());
-    dto.setStatus(processingDocument.getStatus().name());
+    dto.setStatus(processingDocument.getStatus());
     dto.setProcessingDuration(processingDocument.getProcessingDuration());
     return dto;
+  }
+
+  @Override
+  public IncomingDocument toEntity(IncomingDocumentPostDto dto) {
+    IncomingDocument entity = delegate.toEntity(dto);
+
+    entity.setDocumentType(documentTypeService.findById(dto.getDocumentType()));
+    entity.setDistributionOrg(distributionOrganizationService.findById(dto.getDistributionOrg()));
+    entity.setSendingLevel(null);
+
+    return entity;
   }
 }

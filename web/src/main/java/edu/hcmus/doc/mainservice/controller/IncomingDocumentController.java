@@ -2,17 +2,18 @@ package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
-import edu.hcmus.doc.mainservice.model.dto.IncomingDocumentDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
-import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
+import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
 @RestController
@@ -41,8 +42,8 @@ public class IncomingDocumentController extends DocAbstractController {
     }
 
     @PostMapping("/create")
-    public IncomingDocumentDto createIncomingDocument(@RequestBody IncomingDocumentDto incomingDocumentDto) {
-        IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(incomingDocumentDto);
+    public IncomingDocumentDto createIncomingDocument(@RequestBody IncomingDocumentPostDto incomingDocumentPostDto) {
+        IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(incomingDocumentPostDto);
         return incomingDecoratorDocumentMapper.toDto(
                 incomingDocumentService.createIncomingDocument(incomingDocument));
     }
