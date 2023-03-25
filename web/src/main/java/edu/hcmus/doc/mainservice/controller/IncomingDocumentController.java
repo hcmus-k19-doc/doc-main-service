@@ -8,10 +8,6 @@ import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
