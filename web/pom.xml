@@ -91,6 +91,7 @@
           <jsonLibrary>jackson2</jsonLibrary>
           <classPatterns>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DistributionOrganizationDto</classPattern>
+            <classPattern>edu.hcmus.doc.mainservice.model.dto.FolderDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DocAbstractDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DocPaginationDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DocumentTypeDto</classPattern>
