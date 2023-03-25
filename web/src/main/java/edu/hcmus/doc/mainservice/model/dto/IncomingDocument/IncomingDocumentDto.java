@@ -1,9 +1,6 @@
 package edu.hcmus.doc.mainservice.model.dto.IncomingDocument;
 
-import edu.hcmus.doc.mainservice.model.dto.DistributionOrganizationDto;
-import edu.hcmus.doc.mainservice.model.dto.DocAbstractDto;
-import edu.hcmus.doc.mainservice.model.dto.DocumentTypeDto;
-import edu.hcmus.doc.mainservice.model.dto.SendingLevelDto;
+import edu.hcmus.doc.mainservice.model.dto.*;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import java.time.LocalDate;
 import lombok.Data;
@@ -22,4 +19,5 @@ public class IncomingDocumentDto extends DocAbstractDto {
     private LocalDate arrivingDate;
     private String summary;
     private SendingLevelDto sendingLevel;
+    private FolderDto folder;
 }

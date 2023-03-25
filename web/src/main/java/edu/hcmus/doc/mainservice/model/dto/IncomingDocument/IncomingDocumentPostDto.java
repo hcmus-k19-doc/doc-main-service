@@ -1,6 +1,5 @@
 package edu.hcmus.doc.mainservice.model.dto.IncomingDocument;
 
-import edu.hcmus.doc.mainservice.model.entity.SendingLevel;
 import edu.hcmus.doc.mainservice.model.enums.Confidentiality;
 import edu.hcmus.doc.mainservice.model.enums.Urgency;
 import lombok.Data;
@@ -21,5 +20,5 @@ public class IncomingDocumentPostDto {
     private String summary;
     private Urgency urgency;
     private Confidentiality confidentiality;
-    private String folder;
+    private Long folder;
 }

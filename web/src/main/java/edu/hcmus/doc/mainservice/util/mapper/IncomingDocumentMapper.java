@@ -23,6 +23,7 @@ public interface IncomingDocumentMapper {
     @Mapping(target = "documentType", ignore = true)
     @Mapping(target = "distributionOrg", ignore = true)
     @Mapping(target = "arrivingDate", ignore = true)
+    @Mapping(target = "folder", ignore = true)
     IncomingDocumentDto toDto(ProcessingDocument processingDocument);
 
     @Mapping(source = "incomingNumber", target = "incomingNumber")
@@ -33,7 +34,7 @@ public interface IncomingDocumentMapper {
     @Mapping(source = "summary", target = "summary")
     @Mapping(source = "urgency", target = "urgency")
     @Mapping(source = "confidentiality", target = "confidentiality")
-    @Mapping(source = "folder", target = "folder")
+    @Mapping(target = "folder", ignore = true)
     @Mapping(target = "documentType", ignore = true)
     @Mapping(target = "distributionOrg", ignore = true)
     @Mapping(target = "sendingLevel", ignore = true)

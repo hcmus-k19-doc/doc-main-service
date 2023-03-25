@@ -20,6 +20,9 @@ public abstract class DocAbstractController {
   protected DocumentTypeMapper documentTypeMapper;
 
   @Autowired
+  protected FolderMapper folderMapper;
+
+  @Autowired
   protected DistributionOrganizationMapper distributionOrganizationMapper;
   @Autowired
   protected PaginationMapper paginationMapper;

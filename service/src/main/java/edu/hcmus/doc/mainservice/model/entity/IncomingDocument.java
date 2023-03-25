@@ -54,8 +54,9 @@ public class IncomingDocument extends DocAbstractEntity {
   @Column(name = "confidentiality", nullable = false)
   private Confidentiality confidentiality;
 
-  @Column(name = "folder", columnDefinition = "VARCHAR(255) NOT NULL")
-  private String folder;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "folder_id", referencedColumnName = "id", nullable = false)
+  private Folder folder;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "sending_level_id", referencedColumnName = "id")

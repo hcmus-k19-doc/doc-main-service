@@ -6,6 +6,7 @@ import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.service.DistributionOrganizationService;
 import edu.hcmus.doc.mainservice.service.DocumentTypeService;
+import edu.hcmus.doc.mainservice.service.FolderService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -16,6 +17,9 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
 
   @Autowired
   DistributionOrganizationService distributionOrganizationService;
+
+  @Autowired
+  FolderService folderService;
 
   @Autowired
   @Qualifier("delegate")
@@ -38,6 +42,7 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
   public IncomingDocument toEntity(IncomingDocumentPostDto dto) {
     IncomingDocument entity = delegate.toEntity(dto);
 
+    entity.setFolder(folderService.findById(dto.getFolder()));
     entity.setDocumentType(documentTypeService.findById(dto.getDocumentType()));
     entity.setDistributionOrg(distributionOrganizationService.findById(dto.getDistributionOrg()));
     entity.setSendingLevel(null);
