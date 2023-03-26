@@ -64,4 +64,8 @@ public class IncomingDocument extends DocAbstractEntity {
 
   @Column(name = "is_deleted")
   private boolean isDeleted;
+
+//  @OneToMany(fetch = FetchType.LAZY)
+//  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id")
+//  private List<Attachment> attachments = new ArrayList<>();
 }
