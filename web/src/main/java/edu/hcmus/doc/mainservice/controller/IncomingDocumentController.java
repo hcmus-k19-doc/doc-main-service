@@ -9,6 +9,7 @@ import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor
@@ -19,6 +20,11 @@ public class IncomingDocumentController extends DocAbstractController {
     private final ProcessingDocumentService processingDocumentService;
     private final IncomingDocumentService incomingDocumentService;
 
+    @GetMapping("/{id}")
+    public IncomingDocumentDto getIncomingDocument(@PathVariable Long id) {
+        return incomingDecoratorDocumentMapper
+                .toDto(incomingDocumentService.getIncomingDocumentById(id));
+    }
 
     @PostMapping("/search")
     public DocPaginationDto<IncomingDocumentDto> getIncomingDocuments(

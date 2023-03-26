@@ -14,6 +14,11 @@ public interface IncomingDocumentMapper {
 
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "processingDuration", ignore = true)
+    @Mapping(source = "urgency", target = "urgency")
+    @Mapping(source = "confidentiality", target = "confidentiality")
+    @Mapping(source = "distributionDate", target = "distributionDate")
+    @Mapping(source = "arrivingDate", target = "arrivingDate")
+    @Mapping(source = "arrivingTime", target = "arrivingTime")
     IncomingDocumentDto toDto(IncomingDocument incomingDocument);
 
     @Mapping(target = "summary", ignore = true)
