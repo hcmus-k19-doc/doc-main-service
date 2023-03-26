@@ -28,6 +28,12 @@ public class IncomingDocumentController extends DocAbstractController {
   private final ProcessingDocumentService processingDocumentService;
   private final IncomingDocumentService incomingDocumentService;
 
+    @GetMapping("/{id}")
+    public IncomingDocumentDto getIncomingDocument(@PathVariable Long id) {
+        return incomingDecoratorDocumentMapper
+            .toDto(incomingDocumentService.getIncomingDocumentById(id));
+    }
+
   @PostMapping("/search")
   public DocPaginationDto<IncomingDocumentDto> getIncomingDocuments(
       @RequestBody(required = false) SearchCriteriaDto searchCriteria,
