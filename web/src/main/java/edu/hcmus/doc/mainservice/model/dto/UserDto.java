@@ -9,7 +9,6 @@ public class UserDto extends DocAbstractDto {
 
   private String username;
   private String email;
-  private String firstName;
-  private String lastName;
+  private String fullName;
   private Set<DocSystemRoleEnum> roles;
 }
