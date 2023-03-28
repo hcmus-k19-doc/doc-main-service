@@ -52,12 +52,8 @@ public class IncomingDocumentController extends DocAbstractController {
   @PostMapping("/create")
   public IncomingDocumentDto createIncomingDocument(
       @ModelAttribute IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto) {
-    IncomingDocumentPostDto incomingDocumentPostDto = objectMapper.readValue(
-        incomingDocumentWithAttachmentPostDto.getIncomingDocumentPostDto(), IncomingDocumentPostDto.class);
-    IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(
-        incomingDocumentPostDto);
     return incomingDecoratorDocumentMapper.toDto(
-        incomingDocumentService.createIncomingDocument(incomingDocument));
+        incomingDocumentService.createIncomingDocument(incomingDocumentWithAttachmentPostDto));
   }
 
     @PostMapping("/elastic/search")
