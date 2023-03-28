@@ -1,15 +1,19 @@
 package edu.hcmus.doc.mainservice.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import edu.hcmus.doc.mainservice.DocURL;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
-import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,7 +27,7 @@ public class IncomingDocumentController extends DocAbstractController {
 
   private final ProcessingDocumentService processingDocumentService;
   private final IncomingDocumentService incomingDocumentService;
-  private final AttachmentService attachmentService;
+  private final ObjectMapper objectMapper;
 
 
     @PostMapping("/search")
@@ -43,16 +47,15 @@ public class IncomingDocumentController extends DocAbstractController {
                 processingDocumentService.getTotalPages(searchCriteria, pageSize));
     }
 
+  @SneakyThrows
   @PostMapping("/create")
   public IncomingDocumentDto createIncomingDocument(
-      @RequestBody IncomingDocumentPostDto incomingDocumentPostDto) {
-    IncomingDocument incomingDocument = incomingDocumentService.createIncomingDocument(
-        incomingDecoratorDocumentMapper.toEntity(incomingDocumentPostDto));
-//    attachmentService.saveAttachmentsByIncomingDocId(incomingDocumentPostDto.getAttachmentDtos(),
-//        incomingDocument.getId());
-
-    IncomingDocumentDto incomingDocumentDto = incomingDecoratorDocumentMapper.toDto(
-        incomingDocument);
-    return incomingDocumentDto;
+      @ModelAttribute AttachmentPostDto attachmentPostDto) {
+    IncomingDocumentPostDto incomingDocumentPostDto = objectMapper.readValue(
+        attachmentPostDto.getIncomingDocumentPostDto(), IncomingDocumentPostDto.class);
+    IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(
+        incomingDocumentPostDto);
+    return incomingDecoratorDocumentMapper.toDto(
+        incomingDocumentService.createIncomingDocument(incomingDocument));
   }
 }
