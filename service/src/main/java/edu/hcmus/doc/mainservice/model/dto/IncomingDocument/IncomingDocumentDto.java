@@ -1,6 +1,11 @@
 package edu.hcmus.doc.mainservice.model.dto.IncomingDocument;
 
-import edu.hcmus.doc.mainservice.model.dto.*;
+import edu.hcmus.doc.mainservice.model.dto.AttachmentDto;
+import edu.hcmus.doc.mainservice.model.dto.DistributionOrganizationDto;
+import edu.hcmus.doc.mainservice.model.dto.DocAbstractDto;
+import edu.hcmus.doc.mainservice.model.dto.DocumentTypeDto;
+import edu.hcmus.doc.mainservice.model.dto.FolderDto;
+import edu.hcmus.doc.mainservice.model.dto.SendingLevelDto;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import java.time.LocalDate;
 import java.util.ArrayList;

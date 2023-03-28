@@ -4,10 +4,8 @@ import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 @Data
-public class AttachmentDto {
+public class AttachmentDto extends DocAbstractDto {
 
-  protected Long id;
-  protected Long version;
   private String alfrescoFileId;
   private String alfrescoFolderId;
   private String fileType;
