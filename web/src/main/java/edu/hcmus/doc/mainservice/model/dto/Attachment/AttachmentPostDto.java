@@ -6,6 +6,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Data
 public class AttachmentPostDto {
-  private String incomingDocumentPostDto;
+  private String incomingDocumentId;
   private List<MultipartFile> attachments;
 }
