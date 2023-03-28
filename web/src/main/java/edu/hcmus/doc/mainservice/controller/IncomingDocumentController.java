@@ -6,18 +6,24 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
+import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(DocURL.API_V1 + "/incoming-documents")
 public class IncomingDocumentController extends DocAbstractController {
 
-    private final ProcessingDocumentService processingDocumentService;
-    private final IncomingDocumentService incomingDocumentService;
+  private final ProcessingDocumentService processingDocumentService;
+  private final IncomingDocumentService incomingDocumentService;
+  private final AttachmentService attachmentService;
 
 
     @PostMapping("/search")
@@ -37,10 +43,16 @@ public class IncomingDocumentController extends DocAbstractController {
                 processingDocumentService.getTotalPages(searchCriteria, pageSize));
     }
 
-    @PostMapping("/create")
-    public IncomingDocumentDto createIncomingDocument(@RequestBody IncomingDocumentPostDto incomingDocumentPostDto) {
-        IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(incomingDocumentPostDto);
-        return incomingDecoratorDocumentMapper.toDto(
-                incomingDocumentService.createIncomingDocument(incomingDocument));
-    }
+  @PostMapping("/create")
+  public IncomingDocumentDto createIncomingDocument(
+      @RequestBody IncomingDocumentPostDto incomingDocumentPostDto) {
+    IncomingDocument incomingDocument = incomingDocumentService.createIncomingDocument(
+        incomingDecoratorDocumentMapper.toEntity(incomingDocumentPostDto));
+//    attachmentService.saveAttachmentsByIncomingDocId(incomingDocumentPostDto.getAttachmentDtos(),
+//        incomingDocument.getId());
+
+    IncomingDocumentDto incomingDocumentDto = incomingDecoratorDocumentMapper.toDto(
+        incomingDocument);
+    return incomingDocumentDto;
+  }
 }

@@ -3,6 +3,8 @@ package edu.hcmus.doc.mainservice.model.dto.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.dto.*;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import lombok.Data;
 
 /**
@@ -20,4 +22,5 @@ public class IncomingDocumentDto extends DocAbstractDto {
     private String summary;
     private SendingLevelDto sendingLevel;
     private FolderDto folder;
+    private List<AttachmentDto> attachments = new ArrayList<>();
 }

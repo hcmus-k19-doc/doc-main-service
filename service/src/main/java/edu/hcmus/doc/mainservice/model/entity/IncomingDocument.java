@@ -5,6 +5,8 @@ import edu.hcmus.doc.mainservice.model.enums.Urgency;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -12,6 +14,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.Data;
 
@@ -65,7 +68,7 @@ public class IncomingDocument extends DocAbstractEntity {
   @Column(name = "is_deleted")
   private boolean isDeleted;
 
-//  @OneToMany(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id")
-//  private List<Attachment> attachments = new ArrayList<>();
+  @OneToMany(fetch = FetchType.LAZY)
+  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id")
+  private List<Attachment> attachments = new ArrayList<>();
 }
