@@ -56,19 +56,20 @@ public class IncomingDocumentController extends DocAbstractController {
         incomingDocumentService.createIncomingDocument(incomingDocumentWithAttachmentPostDto));
   }
 
-    @PostMapping("/elastic/search")
-    public DocPaginationDto<IncomingDocumentDto> getIncomingDocumentsByElasticSearch(
-        @RequestBody ElasticSearchCriteriaDto elasticSearchCriteriaDto,
-        @RequestParam(required = false, defaultValue = "0") int page,
-        @RequestParam(required = false, defaultValue = "3") int pageSize
-    ) throws ExecutionException, InterruptedException {
-        ProcessingDocumentSearchResultDto processingDocumentSearchResultDto = processingDocumentService.searchProcessingDocumentsByElasticSearch(elasticSearchCriteriaDto, page, pageSize);
-        return paginationMapper.toDto(
-            processingDocumentSearchResultDto.getProcessingDocuments()
-                .stream()
-                .map(incomingDecoratorDocumentMapper::toDto)
-                .toList(),
-            processingDocumentSearchResultDto.getTotalElements(),
-            processingDocumentSearchResultDto.getTotalPages());
-    }
+  @PostMapping("/elastic/search")
+  public DocPaginationDto<IncomingDocumentDto> getIncomingDocumentsByElasticSearch(
+      @RequestBody ElasticSearchCriteriaDto elasticSearchCriteriaDto,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "3") int pageSize
+  ) throws ExecutionException, InterruptedException {
+    ProcessingDocumentSearchResultDto processingDocumentSearchResultDto = processingDocumentService.searchProcessingDocumentsByElasticSearch(
+        elasticSearchCriteriaDto, page, pageSize);
+    return paginationMapper.toDto(
+        processingDocumentSearchResultDto.getProcessingDocuments()
+            .stream()
+            .map(incomingDecoratorDocumentMapper::toDto)
+            .toList(),
+        processingDocumentSearchResultDto.getTotalElements(),
+        processingDocumentSearchResultDto.getTotalPages());
+  }
 }
