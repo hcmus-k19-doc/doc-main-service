@@ -1,7 +1,9 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.FileWrapper;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
@@ -12,11 +14,14 @@ import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
+import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 @RequiredArgsConstructor
 @Service
@@ -48,8 +53,21 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
     AttachmentPostDto attachmentPostDto = new AttachmentPostDto();
     attachmentPostDto.setIncomingDocId(savedIncomingDocument.getId());
-    attachmentPostDto.setAttachments(incomingDocumentWithAttachmentPostDto.getAttachments());
-    attachmentService.saveAttachmentsByIncomingDocId(attachmentPostDto);
+    List<FileWrapper> fileWrappers = incomingDocumentWithAttachmentPostDto.getAttachments().stream()
+        .map(file -> {
+          FileWrapper fileWrapper = new FileWrapper();
+          try {
+            fileWrapper.setData(file.getBytes());
+          } catch (IOException e) {
+            throw new RuntimeException(e);
+          }
+          fileWrapper.setFileName(file.getOriginalFilename());
+          fileWrapper.setContentType(file.getContentType());
+          return fileWrapper;
+        }).collect(Collectors.toList());
+    attachmentPostDto.setAttachments(fileWrappers);
+    List<AttachmentDto> attachmentDtos = attachmentService.saveAttachmentsByIncomingDocId(
+        attachmentPostDto);
     return savedIncomingDocument;
   }
 
