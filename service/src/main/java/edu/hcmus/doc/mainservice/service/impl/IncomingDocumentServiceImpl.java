@@ -1,6 +1,7 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
@@ -44,9 +45,11 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     Folder folder = folderService.findById(incomingDocument.getFolder().getId());
     folder.setNextNumber(folder.getNextNumber() + 1);
     IncomingDocument savedIncomingDocument = incomingDocumentRepository.save(incomingDocument);
-    attachmentService.saveAttachmentsByIncomingDocId(
-        incomingDocumentWithAttachmentPostDto.getAttachments(),
-        savedIncomingDocument.getId());
+
+    AttachmentPostDto attachmentPostDto = new AttachmentPostDto();
+    attachmentPostDto.setIncomingDocId(savedIncomingDocument.getId());
+    attachmentPostDto.setAttachments(incomingDocumentWithAttachmentPostDto.getAttachments());
+    attachmentService.saveAttachmentsByIncomingDocId(attachmentPostDto);
     return savedIncomingDocument;
   }
 

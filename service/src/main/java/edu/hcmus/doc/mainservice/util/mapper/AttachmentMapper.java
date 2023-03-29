@@ -1,6 +1,6 @@
 package edu.hcmus.doc.mainservice.util.mapper;
 
-import edu.hcmus.doc.mainservice.model.dto.AttachmentDto;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.entity.Attachment;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

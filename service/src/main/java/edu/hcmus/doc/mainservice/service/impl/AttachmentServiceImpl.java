@@ -1,6 +1,8 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
-import edu.hcmus.doc.mainservice.model.dto.AttachmentDto;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
+import edu.hcmus.doc.mainservice.model.dto.FileDto;
 import edu.hcmus.doc.mainservice.repository.AttachmentRepository;
 import edu.hcmus.doc.mainservice.service.AttachmentService;
 
@@ -8,6 +10,7 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
+import org.springframework.amqp.rabbit.AsyncRabbitTemplate.RabbitConverterFuture;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,9 +32,11 @@ public class AttachmentServiceImpl implements AttachmentService {
   private String routingkey;
 
   @Override
-  public List<AttachmentDto> saveAttachmentsByIncomingDocId(List<MultipartFile> attachments,
-      Long incomingDocId) {
+  public List<AttachmentDto> saveAttachmentsByIncomingDocId(AttachmentPostDto attachmentPostDto) {
     // call api to doc-file-service to save files
+
+//    RabbitConverterFuture<List<FileDto>> rabbitConverterFuture = asyncRabbitTemplate
+//        .convertSendAndReceive(exchange, routingkey, attachments);
 
     // save file info to db
     return null;

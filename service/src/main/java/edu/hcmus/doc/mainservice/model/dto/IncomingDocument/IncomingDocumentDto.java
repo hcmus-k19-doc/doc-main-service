@@ -1,6 +1,6 @@
 package edu.hcmus.doc.mainservice.model.dto.IncomingDocument;
 
-import edu.hcmus.doc.mainservice.model.dto.AttachmentDto;
+import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.dto.DistributionOrganizationDto;
 import edu.hcmus.doc.mainservice.model.dto.DocAbstractDto;
 import edu.hcmus.doc.mainservice.model.dto.DocumentTypeDto;
