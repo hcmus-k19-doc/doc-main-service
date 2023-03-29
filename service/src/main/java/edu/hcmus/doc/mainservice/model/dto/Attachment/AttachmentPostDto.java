@@ -1,6 +1,5 @@
 package edu.hcmus.doc.mainservice.model.dto.Attachment;
 
-import java.io.Serializable;
 import java.util.List;
 import lombok.Data;
 

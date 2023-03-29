@@ -7,23 +7,16 @@ import edu.hcmus.doc.mainservice.model.dto.FileDto;
 import edu.hcmus.doc.mainservice.model.exception.FileServiceFailureException;
 import edu.hcmus.doc.mainservice.repository.AttachmentRepository;
 import edu.hcmus.doc.mainservice.service.AttachmentService;
-
 import java.util.List;
-
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
-import org.springframework.amqp.core.MessageProperties;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate.RabbitConverterFuture;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.SerializationUtils;
-import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -44,14 +37,6 @@ public class AttachmentServiceImpl implements AttachmentService {
   @SneakyThrows
   @Override
   public List<AttachmentDto> saveAttachmentsByIncomingDocId(AttachmentPostDto attachmentPostDto) {
-
-//    // call api to doc-file-service to save files
-//    byte[] requestBytes = SerializationUtils.serialize(attachmentPostDto);
-//
-//    MessageProperties messageProperties = new MessageProperties();
-//    messageProperties.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE);
-//
-//    Message requestMessage = new Message(requestBytes);
 
     RabbitConverterFuture<List<FileDto>> rabbitConverterFuture = asyncRabbitTemplate
         .convertSendAndReceiveAsType(exchange, routingkey, attachmentPostDto,
