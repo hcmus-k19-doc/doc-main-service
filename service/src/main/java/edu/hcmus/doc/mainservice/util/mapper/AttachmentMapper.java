@@ -28,10 +28,7 @@ public interface AttachmentMapper {
 
   AttachmentPostDto toAttachmentPostDto(Long incomingDocId, List<MultipartFile> attachments);
 
-  @Mapping(source = "incomingDocId", target = "incomingDocId")
-  @Mapping(source = "fileDto.id", target = "alfrescoFileId")
-  @Mapping(source = "fileDto.parentFolderId", target = "alfrescoFolderId")
-  @Mapping(source = "fileDto.mimeType", target = "fileType")
+
   AttachmentDto convertFileDtoToAttachmentDto(Long incomingDocId, FileDto fileDto);
 
 }

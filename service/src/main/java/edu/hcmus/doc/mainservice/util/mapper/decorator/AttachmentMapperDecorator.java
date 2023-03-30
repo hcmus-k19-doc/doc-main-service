@@ -20,8 +20,8 @@ public abstract class AttachmentMapperDecorator implements AttachmentMapper {
   @Qualifier("delegate")
   private AttachmentMapper delegate;
 
-  @Autowired
-  IncomingDocumentService incomingDocumentService;
+//  @Autowired
+//  IncomingDocumentService incomingDocumentService;
 
   @Override
   public AttachmentPostDto toAttachmentPostDto(Long incomingDocId,
@@ -47,14 +47,19 @@ public abstract class AttachmentMapperDecorator implements AttachmentMapper {
   @Override
   public Attachment toEntity(AttachmentDto attachmentDto) {
     Attachment entity = delegate.toEntity(attachmentDto);
-    entity.setIncomingDoc(incomingDocumentService.findById(attachmentDto.getIncomingDocId()));
+//    entity.setIncomingDoc(incomingDocumentService.findById(attachmentDto.getIncomingDocId()));
 
     return entity;
   }
 
   @Override
   public AttachmentDto convertFileDtoToAttachmentDto(Long incomingDocId, FileDto fileDto) {
-    return delegate.convertFileDtoToAttachmentDto(incomingDocId, fileDto);
+    AttachmentDto attachmentDto = new AttachmentDto();
+    attachmentDto.setAlfrescoFileId(fileDto.getId());
+    attachmentDto.setAlfrescoFolderId(fileDto.getParentFolderId());
+    attachmentDto.setFileType(fileDto.getMimeType());
+    attachmentDto.setIncomingDocId(incomingDocId);
+    return attachmentDto;
   }
 
 }

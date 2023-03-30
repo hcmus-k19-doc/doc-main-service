@@ -17,7 +17,6 @@ import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,12 +24,6 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor = Throwable.class)
 public class IncomingDocumentServiceImpl implements IncomingDocumentService {
-
-  @Value("${spring.rabbitmq.template.exchange}")
-  private String exchange;
-
-  @Value("${spring.rabbitmq.template.attachment-routing-key}")
-  private String routingkey;
 
   private final IncomingDocumentRepository incomingDocumentRepository;
   private final FolderService folderService;
