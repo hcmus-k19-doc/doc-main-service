@@ -14,4 +14,6 @@ public interface IncomingDocumentService {
   long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit);
 
   List<IncomingDocument> getIncomingDocuments(String query, long offset, long limit);
+
+  IncomingDocument findById(Long id);
 }

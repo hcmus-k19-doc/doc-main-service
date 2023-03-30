@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping(DocURL.API_V1 + "/attachments")
 public class AttachmentController {
+
   private final AttachmentService attachmentService;
 
   @PostMapping("/upload")

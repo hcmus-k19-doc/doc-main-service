@@ -15,7 +15,7 @@ public class Attachment extends DocAbstractEntity{
   private String alfrescoFolderId;
   private String fileType;
 
-//  @ManyToOne(fetch = FetchType.LAZY)
-//  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id", nullable = false)
-//  private IncomingDocument incomingDocument;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id", nullable = false)
+  private IncomingDocument incomingDoc = new IncomingDocument();
 }
