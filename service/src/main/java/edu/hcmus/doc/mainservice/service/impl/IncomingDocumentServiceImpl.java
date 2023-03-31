@@ -1,5 +1,7 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import static edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException.INCOMING_DOCUMENT_NOT_FOUND;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
@@ -8,6 +10,7 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWith
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.Folder;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
+import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.FolderService;
@@ -71,6 +74,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
   @Override
   public IncomingDocument findById(Long id) {
-    return incomingDocumentRepository.findById(id).orElse(null);
+    return incomingDocumentRepository.findById(id).orElseThrow(
+        () -> new IncomingDocumentNotFoundException(INCOMING_DOCUMENT_NOT_FOUND)
+    );
   }
 }

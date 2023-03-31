@@ -1,6 +1,5 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
-
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.FileDto;
@@ -58,7 +57,6 @@ public class AttachmentServiceImpl implements AttachmentService {
         new ListenableFutureCallback<>() {
           @Override
           public void onFailure(Throwable ex) {
-//            throw new FileServiceFailureException(FileServiceFailureException.FILE_SERVICE_FAILURE);
             throw new RuntimeException(ex);
           }
 
@@ -67,20 +65,21 @@ public class AttachmentServiceImpl implements AttachmentService {
           }
         }
     );
+
     // save file info to db
     List<FileDto> fileDtos = rabbitConverterFuture.get();
 
     List<AttachmentDto> attachmentDtos = Objects.requireNonNull(fileDtos).stream()
-        .map(fileDto -> attachmentMapperDecorator.convertFileDtoToAttachmentDto(attachmentPostDto.getIncomingDocId(), fileDto)).toList();
+        .map(fileDto -> attachmentMapperDecorator.convertFileDtoToAttachmentDto(
+            attachmentPostDto.getIncomingDocId(), fileDto)).toList();
 
-    incomingDocumentRepository.findById(attachmentPostDto.getIncomingDocId()).ifPresent(incomingDoc -> {
-      attachmentDtos.stream().map(attachmentMapperDecorator::toEntity).forEach(attachment -> {
-        attachment.setIncomingDoc(incomingDoc);
-        attachmentRepository.save(attachment);
-      });
-    });
-
-//    throw new RuntimeException("test");
+    incomingDocumentRepository.findById(attachmentPostDto.getIncomingDocId())
+        .ifPresent(incomingDoc -> {
+          attachmentDtos.stream().map(attachmentMapperDecorator::toEntity).forEach(attachment -> {
+            attachment.setIncomingDoc(incomingDoc);
+            attachmentRepository.save(attachment);
+          });
+        });
 
     return attachmentDtos;
   }

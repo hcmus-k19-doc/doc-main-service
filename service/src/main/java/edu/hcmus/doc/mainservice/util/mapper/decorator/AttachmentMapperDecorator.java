@@ -5,7 +5,6 @@ import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.FileWrapper;
 import edu.hcmus.doc.mainservice.model.dto.FileDto;
 import edu.hcmus.doc.mainservice.model.entity.Attachment;
-import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.util.mapper.AttachmentMapper;
 import java.io.IOException;
 import java.util.List;
@@ -20,8 +19,6 @@ public abstract class AttachmentMapperDecorator implements AttachmentMapper {
   @Qualifier("delegate")
   private AttachmentMapper delegate;
 
-//  @Autowired
-//  IncomingDocumentService incomingDocumentService;
 
   @Override
   public AttachmentPostDto toAttachmentPostDto(Long incomingDocId,
@@ -47,7 +44,6 @@ public abstract class AttachmentMapperDecorator implements AttachmentMapper {
   @Override
   public Attachment toEntity(AttachmentDto attachmentDto) {
     Attachment entity = delegate.toEntity(attachmentDto);
-//    entity.setIncomingDoc(incomingDocumentService.findById(attachmentDto.getIncomingDocId()));
 
     return entity;
   }

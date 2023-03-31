@@ -9,6 +9,5 @@ CREATE TABLE "attachment"
     "file_type" VARCHAR(255) NOT NULL,
     CONSTRAINT "attachment_pk" PRIMARY KEY ("id"),
     CONSTRAINT "attachment_incoming_document_fk" FOREIGN KEY ("incoming_doc_id")
-        REFERENCES "incoming_document" ("id") MATCH SIMPLE
-        ON UPDATE NO ACTION ON DELETE NO ACTION
+        REFERENCES "incoming_document" ("id")
 ) INHERITS ("doc_base_table");
