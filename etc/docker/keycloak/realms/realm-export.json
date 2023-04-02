@@ -943,6 +943,22 @@
             "claim.name": "clientId",
             "jsonType.label": "String"
           }
+        },
+        {
+          "name": "Full Name",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-attribute-mapper",
+          "consentRequired": false,
+          "config": {
+            "aggregate.attrs": "false",
+            "userinfo.token.claim": "true",
+            "multivalued": "false",
+            "user.attribute": "fullName",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "claim.name": "fullName",
+            "jsonType.label": "String"
+          }
         }
       ],
       "defaultClientScopes": [

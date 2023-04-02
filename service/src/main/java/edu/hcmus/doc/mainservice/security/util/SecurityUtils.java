@@ -20,8 +20,7 @@ public class SecurityUtils {
     currentUser.setId(getExternalId(jwt.getSubject()));
     currentUser.setUsername(jwt.getClaimAsString("username"));
     currentUser.setEmail(jwt.getClaimAsString("email"));
-
-    SecurityContextHolder.clearContext();
+    currentUser.setFullName(jwt.getClaimAsString("fullName"));
     return currentUser;
   }
 
