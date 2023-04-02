@@ -2,6 +2,8 @@ package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.UserDto;
+import edu.hcmus.doc.mainservice.model.entity.User;
+import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.UserService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,5 +26,10 @@ public class UserController extends DocAbstractController {
   @GetMapping("/directors")
   public List<UserDto> getDirectors() {
     return userMapper.toDto(userService.getDirectors());
+  }
+
+  @GetMapping("/current-principal")
+  public User getCurrentName() {
+    return SecurityUtils.getCurrentUser();
   }
 }

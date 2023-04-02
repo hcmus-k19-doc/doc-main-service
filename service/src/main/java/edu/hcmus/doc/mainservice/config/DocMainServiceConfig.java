@@ -1,6 +1,6 @@
 package edu.hcmus.doc.mainservice.config;
 
-import edu.hcmus.doc.mainservice.util.KeycloakProperty;
+import edu.hcmus.doc.mainservice.util.keycloak.KeycloakProperty;
 import javax.ws.rs.client.ClientBuilder;
 import lombok.RequiredArgsConstructor;
 import org.jboss.resteasy.client.jaxrs.ResteasyClient;
@@ -24,8 +24,14 @@ public class DocMainServiceConfig {
   }
 
   @Bean
-  public ResteasyWebTarget resteasyWebTarget() {
+  public ResteasyWebTarget resteasyTokenTarget() {
     ResteasyClient resteasyClient = resteasyClient();
-    return resteasyClient.target(keycloakProperty.getUrl());
+    return resteasyClient.target(keycloakProperty.getUrl() + "/token");
+  }
+
+  @Bean
+  public ResteasyWebTarget resteasyRevokeTarget() {
+    ResteasyClient resteasyClient = resteasyClient();
+    return resteasyClient.target(keycloakProperty.getUrl() + "/revoke");
   }
 }
