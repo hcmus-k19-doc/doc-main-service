@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.service;
 
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
@@ -16,5 +17,7 @@ public interface IncomingDocumentService {
   @Deprecated(since = "1.0.0", forRemoval = true)
   List<IncomingDocument> getIncomingDocuments(String query, long offset, long limit);
 
-  IncomingDocument createIncomingDocument(IncomingDocument incomingDocument);
+  IncomingDocument findById(Long id);
+
+  IncomingDocument createIncomingDocument(IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto);
 }
