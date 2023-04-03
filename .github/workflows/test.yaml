@@ -5,8 +5,7 @@ name: DOC test
 
 on:
   pull_request:
-  push:
-    branches: [ main ]
+    types: [ opened ]
 
 jobs:
   test:
