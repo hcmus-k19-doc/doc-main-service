@@ -1,15 +1,14 @@
 # This workflow will build a package using Maven and then publish it to GitHub packages when a release is created
 # For more information see: https://github.com/actions/setup-java/blob/main/docs/advanced-usage.md#apache-maven-with-a-settings-path
 
-name: DOC test, build and push to Docker Hub
+name: DOC build and push to Docker Hub
 
 on:
-  pull_request:
   push:
     branches: [ main ]
 
 jobs:
-  CI/CD:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -29,10 +28,6 @@ jobs:
 
       - name: Build
         uses: mr-smithers-excellent/docker-build-push@v6
-        on:
-          pull_request:
-            types: [ closed ]
-            branches: [ main ]
         with:
           image: hcmusdoc/doc-main-service
           tags: latest
