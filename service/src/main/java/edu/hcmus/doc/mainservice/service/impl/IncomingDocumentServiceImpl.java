@@ -10,11 +10,11 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWith
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.Folder;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
-import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
+import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
-import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
+import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
@@ -33,12 +33,14 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   private final IncomingDocumentRepository incomingDocumentRepository;
 
   private final FolderService folderService;
+
   private final AttachmentService attachmentService;
 
   private final ObjectMapper objectMapper;
-  private final IncomingDocumentMapper incomingDecoratorDocumentMapper;
-  private final AttachmentMapperDecorator attachmentMapperDecorator;
 
+  private final IncomingDocumentMapper incomingDecoratorDocumentMapper;
+
+  private final AttachmentMapperDecorator attachmentMapperDecorator;
 
   private final ProcessingDocumentRepository processingDocumentRepository;
 
