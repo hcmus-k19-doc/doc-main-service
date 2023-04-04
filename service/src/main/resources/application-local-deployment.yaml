@@ -1,3 +1,4 @@
+# These configs for local development only
 server:
   port: ${DOC_MAIN_SERVICE_SERVER_PORT}
 
