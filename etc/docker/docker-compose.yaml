@@ -58,6 +58,9 @@ services:
   doc-main-service:
     container_name: doc-main-service
     image: hcmusdoc/doc-main-service:latest
+    build:
+      context: ../../
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     depends_on:
