@@ -1,25 +1,26 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: doc-main-service
-  labels:
-    name: doc-main-service
+  namespace: default
 spec:
-    replicas: 1
-    selector:
-      matchLabels:
+  serviceName: doc-main-service
+  replicas: 1
+  selector:
+    matchLabels:
+      app: doc-main-service
+  template:
+    metadata:
+      labels:
         app: doc-main-service
-    template:
-      metadata:
-        labels:
-          app: doc-main-service
-      spec:
-        containers:
-          - name: doc-main-service
-            image: hcmusdoc/doc-main-service:latest
-            ports:
+    spec:
+      containers:
+        - name: doc-main-service
+          image: hcmusdoc/doc-main-service:latest
+          imagePullPolicy: Never
+          ports:
             - containerPort: 8080
-            env:
+          env:
             - name: DOC_MAIN_SERVICE_SPRING_PROFILES_ACTIVE
               valueFrom:
                 configMapKeyRef:
@@ -38,11 +39,17 @@ spec:
                   name: doc-main-service-config
                   key: doc-main-service-oauth2-resourceserver-jwt-issuer-uri
 
-            - name: DOC_MAIN_SERVICE_DATASOURCE_URL
+            - name: DOC_DB_HOST
               valueFrom:
                 configMapKeyRef:
                   name: doc-main-postgres-config
-                  key: datasource-url
+                  key: host
+
+            - name: DOC_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: doc-main-postgres-config
+                  key: db-name
 
             - name: DOC_MAIN_SERVICE_DATASOURCE_USERNAME
               valueFrom:
@@ -72,13 +79,13 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: doc-rabbitmq-secret
-                  key: doc-main-service-rabbitmq-username
+                  key: username
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: doc-rabbitmq-secret
-                  key: doc-main-service-rabbitmq-password
+                  key: password
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_TEMPLATE_EXCHANGE
               valueFrom:
@@ -88,9 +95,9 @@ spec:
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_TEMPLATE_ROUTING_KEY
               valueFrom:
-                  configMapKeyRef:
-                    name: doc-rabbitmq-config
-                    key: doc-main-service-rabbitmq-template-routing-key
+                configMapKeyRef:
+                  name: doc-rabbitmq-config
+                  key: doc-main-service-rabbitmq-template-routing-key
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_TEMPLATE_ATTACHMENT_ROUTING_KEY
               valueFrom:
@@ -135,12 +142,13 @@ kind: Service
 metadata:
   name: doc-main-service
   labels:
-    name: doc-main-service
+    app: doc-main-service
 spec:
-    selector:
-        app: doc-main-service
-    ports:
-      - protocol: TCP
-        port: 8080
-        targetPort: 8080
-    type: NodePort
+  selector:
+    app: doc-main-service
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+      nodePort: 30080
+  type: NodePort

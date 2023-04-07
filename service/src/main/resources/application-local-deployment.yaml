@@ -13,7 +13,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   datasource:
-    url: ${DOC_MAIN_SERVICE_DATASOURCE_URL}
+    url: jdbc:postgresql://${DOC_DB_HOST}:5432/${DOC_DATABASE}?stringtype=unspecified
     username: ${DOC_MAIN_SERVICE_DATASOURCE_USERNAME}
     password: ${DOC_MAIN_SERVICE_DATASOURCE_PASSWORD}
     driver-class-name: org.postgresql.Driver

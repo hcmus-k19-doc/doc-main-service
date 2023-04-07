@@ -5,8 +5,8 @@ metadata:
   labels:
     deployment: local
 data:
-  doc-main-service-rabbitmq-host: host.docker.internal
-  doc-main-service-rabbitmq-port: 5672
+  doc-main-service-rabbitmq-host: rabbitmq
+  doc-main-service-rabbitmq-port: "5672"
   doc-main-service-rabbitmq-template-exchange: doc.exchange
   doc-main-service-rabbitmq-template-routing-key: doc.routingkey
   doc-main-service-rabbitmq-template-attachment-routing-key: doc.attachment-routing-key
