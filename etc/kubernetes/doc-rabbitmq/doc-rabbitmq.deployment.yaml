@@ -1,44 +1,47 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rabbitmq-deployment
+  name: doc-rabbitmq
 spec:
   selector:
     matchLabels:
-      app: rabbitmq
+      app: doc-rabbitmq
   replicas: 1
   template:
     metadata:
       labels:
-        app: rabbitmq
+        app: doc-rabbitmq
     spec:
       containers:
-        - name: rabbitmq
+        - name: doc-rabbitmq
           imagePullPolicy: Never
-          image: rabbitmq:3.8.9-management
+          image: rabbitmq:3.9.26-management-alpine
           ports:
             - containerPort: 5672
             - containerPort: 15672
             - containerPort: 61613
-          env: # Setting Environmental Variables
-            - name: RABBITMQ_DEFAULT_USER  # Setting Database username from Secret
+          env:
+            - name: RABBITMQ_DEFAULT_USER
               valueFrom:
                 secretKeyRef:
                   name: doc-rabbitmq-secret
                   key: username
+
             - name: RABBITMQ_DEFAULT_PASS # Setting Database password from Secret
               valueFrom:
                 secretKeyRef:
                   name: doc-rabbitmq-secret
                   key: password
+
 ---
+
 # Define a 'Service' To Expose mysql to Other Services
 apiVersion: v1
 kind: Service
 metadata:
-  name: rabbitmq  # DNS name
+  name: doc-rabbitmq  # DNS name
   labels:
-    app: rabbitmq
+    app: doc-rabbitmq
 spec:
   ports:
     - port: 5672
@@ -47,6 +50,5 @@ spec:
     - port: 61613
       targetPort: 61613
       name: stomp
-  selector: # mysql Pod Should contain same labels
-    app: rabbitmq
-  clusterIP: None  # We Use DNS, Thus ClusterIP is not relevant
+  selector:
+    app: doc-rabbitmq

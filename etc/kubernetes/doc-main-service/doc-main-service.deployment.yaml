@@ -1,10 +1,8 @@
 apiVersion: apps/v1
-kind: StatefulSet
+kind: Deployment
 metadata:
   name: doc-main-service
-  namespace: default
 spec:
-  serviceName: doc-main-service
   replicas: 1
   selector:
     matchLabels:
