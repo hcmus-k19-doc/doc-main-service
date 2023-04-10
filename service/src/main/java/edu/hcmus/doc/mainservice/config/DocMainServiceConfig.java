@@ -12,6 +12,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.domain.AuditorAware;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
@@ -48,6 +49,7 @@ public class DocMainServiceConfig {
   }
 
   @Bean
+  @Profile("dev-security")
   public AuditorAware<User> auditorProvider() {
     return new AuditorAwareImpl();
   }
