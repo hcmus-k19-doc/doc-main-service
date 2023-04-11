@@ -2,6 +2,7 @@ package edu.hcmus.doc.mainservice.util.mapper;
 
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPutDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.service.DistributionOrganizationService;
@@ -40,6 +41,18 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
 
   @Override
   public IncomingDocument toEntity(IncomingDocumentPostDto dto) {
+    IncomingDocument entity = delegate.toEntity(dto);
+
+    entity.setFolder(folderService.findById(dto.getFolder()));
+    entity.setDocumentType(documentTypeService.findById(dto.getDocumentType()));
+    entity.setDistributionOrg(distributionOrganizationService.findById(dto.getDistributionOrg()));
+    entity.setSendingLevel(null);
+
+    return entity;
+  }
+
+  @Override
+  public IncomingDocument toEntity(IncomingDocumentPutDto dto) {
     IncomingDocument entity = delegate.toEntity(dto);
 
     entity.setFolder(folderService.findById(dto.getFolder()));

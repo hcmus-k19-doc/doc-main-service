@@ -6,11 +6,10 @@ import edu.hcmus.doc.mainservice.model.enums.Urgency;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Data
-public class IncomingDocumentPostDto {
+public class IncomingDocumentPutDto extends DocAbstractDto {
     private String incomingNumber;
     private Long documentType;
     private String originalSymbolNumber;

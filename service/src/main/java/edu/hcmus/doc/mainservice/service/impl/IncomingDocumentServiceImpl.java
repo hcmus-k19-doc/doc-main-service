@@ -3,18 +3,18 @@ package edu.hcmus.doc.mainservice.service.impl;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.Folder;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
-import edu.hcmus.doc.mainservice.model.exception.DocNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.FolderNotFoundException;
+import edu.hcmus.doc.mainservice.repository.FolderRepository;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
-import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
-
-import java.util.List;
-
+import edu.hcmus.doc.mainservice.util.DocObjectUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @Service
@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
     private final IncomingDocumentRepository incomingDocumentRepository;
-    private final FolderService folderService;
+    private final FolderRepository folderRepository;
 
     @Override
     public long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
@@ -30,8 +30,16 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     }
 
     @Override
+    public IncomingDocument updateIncomingDocument(IncomingDocument incomingDocument) {
+        IncomingDocument updatingIncomingDocument = getIncomingDocumentById(incomingDocument.getId());
+        DocObjectUtils.copyNonNullProperties(incomingDocument, updatingIncomingDocument);
+        return incomingDocumentRepository.saveAndFlush(updatingIncomingDocument);
+    }
+
+    @Override
     public IncomingDocument createIncomingDocument(IncomingDocument incomingDocument) {
-        Folder folder = folderService.findById(incomingDocument.getFolder().getId());
+        Folder folder = folderRepository.findById(incomingDocument.getFolder().getId())
+                .orElseThrow(() -> new FolderNotFoundException(FolderNotFoundException.FOLDER_NOT_FOUND));
         folder.setNextNumber(folder.getNextNumber() + 1);
 
         return incomingDocumentRepository.save(incomingDocument);

@@ -10,6 +10,8 @@ public interface IncomingDocumentService {
 
   IncomingDocument createIncomingDocument(IncomingDocument incomingDocument);
 
+  IncomingDocument updateIncomingDocument(IncomingDocument incomingDocument);
+
   long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit);
 
   List<IncomingDocument> getIncomingDocuments(String query, long offset, long limit);
