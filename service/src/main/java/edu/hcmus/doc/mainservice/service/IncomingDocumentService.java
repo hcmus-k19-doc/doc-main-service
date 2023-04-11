@@ -17,6 +17,8 @@ public interface IncomingDocumentService {
   @Deprecated(since = "1.0.0", forRemoval = true)
   List<IncomingDocument> getIncomingDocuments(String query, long offset, long limit);
 
+  List<ProcessingDocument> getIncomingDocumentsByIds(List<Long> ids);
+
   IncomingDocument findById(Long id);
 
   IncomingDocument createIncomingDocument(IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto);

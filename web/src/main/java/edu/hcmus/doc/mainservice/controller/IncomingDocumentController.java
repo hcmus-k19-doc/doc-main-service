@@ -9,6 +9,7 @@ import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -42,6 +43,18 @@ public class IncomingDocumentController extends DocAbstractController {
         incomingDocumentService.getTotalElements(searchCriteria),
         incomingDocumentService.getTotalPages(searchCriteria, pageSize));
   }
+
+  @PostMapping("/get-by-ids")
+  public List<IncomingDocumentDto> getIncomingDocumentsByIds(
+      @RequestBody(required = false) List<Long> ids
+  ) {
+    return incomingDocumentService
+        .getIncomingDocumentsByIds(ids)
+        .stream()
+        .map(incomingDecoratorDocumentMapper::toDto)
+        .toList();
+  }
+
 
   @SneakyThrows
   @PostMapping("/create")

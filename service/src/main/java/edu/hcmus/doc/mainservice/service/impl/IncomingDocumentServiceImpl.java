@@ -65,6 +65,11 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   }
 
   @Override
+  public List<ProcessingDocument> getIncomingDocumentsByIds(List<Long> ids) {
+    return processingDocumentRepository.getIncomingDocumentsByIds(ids);
+  }
+
+  @Override
   public IncomingDocument findById(Long id) {
     return incomingDocumentRepository.findById(id).orElseThrow(
         () -> new IncomingDocumentNotFoundException(INCOMING_DOCUMENT_NOT_FOUND)
