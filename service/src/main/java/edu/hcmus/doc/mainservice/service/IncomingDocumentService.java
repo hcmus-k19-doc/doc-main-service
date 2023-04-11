@@ -24,5 +24,7 @@ public interface IncomingDocumentService {
 
   IncomingDocument createIncomingDocument(IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto);
 
+  IncomingDocument updateIncomingDocument(IncomingDocument incomingDocument);
+
   void transferDocumentsToDirector(TransferDocDto transferDocDto);
 }
