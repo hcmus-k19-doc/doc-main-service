@@ -6,6 +6,8 @@ import edu.hcmus.doc.mainservice.model.dto.ElasticSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPutDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
@@ -14,7 +16,10 @@ import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -80,4 +85,10 @@ public class IncomingDocumentController extends DocAbstractController {
   public void transferToDirector(@RequestBody TransferDocDto transferDocDto) {
     incomingDocumentService.transferDocumentsToDirector(transferDocDto);
   }
+
+    @PutMapping("/update")
+    public IncomingDocumentDto createIncomingDocument(@RequestBody IncomingDocumentPutDto incomingDocumentPutDto) {
+        IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(incomingDocumentPutDto);
+        return incomingDecoratorDocumentMapper.toDto(incomingDocumentService.updateIncomingDocument(incomingDocument));
+    }
 }

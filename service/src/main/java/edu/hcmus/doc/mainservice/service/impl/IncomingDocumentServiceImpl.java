@@ -22,6 +22,8 @@ import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundExcepti
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.DocNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.FolderNotFoundException;
+import edu.hcmus.doc.mainservice.repository.FolderRepository;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
@@ -37,6 +39,7 @@ import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator
 import java.util.List;
 
 import java.util.Objects;
+import edu.hcmus.doc.mainservice.util.DocObjectUtils;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import lombok.SneakyThrows;
@@ -75,10 +78,18 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     return processingDocumentRepository.getTotalElements(searchCriteriaDto);
   }
 
-  @Override
-  public IncomingDocument createIncomingDocument(IncomingDocument incomingDocument) {
-    Folder folder = folderService.findById(incomingDocument.getFolder().getId());
-    folder.setNextNumber(folder.getNextNumber() + 1);
+    @Override
+    public IncomingDocument updateIncomingDocument(IncomingDocument incomingDocument) {
+        IncomingDocument updatingIncomingDocument = getIncomingDocumentById(incomingDocument.getId());
+        DocObjectUtils.copyNonNullProperties(incomingDocument, updatingIncomingDocument);
+        return incomingDocumentRepository.saveAndFlush(updatingIncomingDocument);
+    }
+
+    @Override
+    public IncomingDocument createIncomingDocument(IncomingDocument incomingDocument) {
+        Folder folder = folderRepository.findById(incomingDocument.getFolder().getId())
+                .orElseThrow(() -> new FolderNotFoundException(FolderNotFoundException.FOLDER_NOT_FOUND));
+        folder.setNextNumber(folder.getNextNumber() + 1);
 
     return incomingDocumentRepository.save(incomingDocument);
   }
