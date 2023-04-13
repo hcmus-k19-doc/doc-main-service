@@ -73,6 +73,5 @@ public class IncomingDocumentController extends DocAbstractController {
   @PostMapping("/transfer-to-director")
   public void transferToDirector(@RequestBody TransferDocDto transferDocDto) {
     incomingDocumentService.transferDocumentsToDirector(transferDocDto);
-    throw new RuntimeException("test");
   }
 }
