@@ -12,5 +12,4 @@ public interface DocAbstractSearchRepository<T> {
 
   List<T> searchByCriteria(SearchCriteriaDto criteria, long offset, long limit);
 
-  List<ProcessingDocument> getIncomingDocumentsByIds(List<Long> ids);
 }

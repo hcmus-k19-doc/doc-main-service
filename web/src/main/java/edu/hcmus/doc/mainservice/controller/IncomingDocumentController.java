@@ -7,9 +7,9 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
-import java.util.List;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -44,18 +44,6 @@ public class IncomingDocumentController extends DocAbstractController {
         incomingDocumentService.getTotalPages(searchCriteria, pageSize));
   }
 
-  @PostMapping("/get-by-ids")
-  public List<IncomingDocumentDto> getIncomingDocumentsByIds(
-      @RequestBody(required = false) List<Long> ids
-  ) {
-    return incomingDocumentService
-        .getIncomingDocumentsByIds(ids)
-        .stream()
-        .map(incomingDecoratorDocumentMapper::toDto)
-        .toList();
-  }
-
-
   @SneakyThrows
   @PostMapping("/create")
   public IncomingDocumentDto createIncomingDocument(
@@ -79,5 +67,12 @@ public class IncomingDocumentController extends DocAbstractController {
             .toList(),
         processingDocumentSearchResultDto.getTotalElements(),
         processingDocumentSearchResultDto.getTotalPages());
+  }
+
+  // transfer document to DIRECTOR
+  @PostMapping("/transfer-to-director")
+  public void transferToDirector(@RequestBody TransferDocDto transferDocDto) {
+    incomingDocumentService.transferDocumentsToDirector(transferDocDto);
+    throw new RuntimeException("test");
   }
 }
