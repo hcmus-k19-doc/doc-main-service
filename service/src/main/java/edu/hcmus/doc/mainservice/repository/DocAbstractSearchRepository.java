@@ -1,7 +1,6 @@
 package edu.hcmus.doc.mainservice.repository;
 
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
-import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import java.util.List;
 
 public interface DocAbstractSearchRepository<T> {

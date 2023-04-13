@@ -109,7 +109,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     AttachmentPostDto attachmentPostDto = attachmentMapperDecorator.toAttachmentPostDto(
         savedIncomingDocument.getId(), incomingDocumentWithAttachmentPostDto.getAttachments());
 
-    List<AttachmentDto> attachmentDtos = attachmentService.saveAttachmentsByIncomingDocId(
+    attachmentService.saveAttachmentsByIncomingDocId(
         attachmentPostDto);
     return savedIncomingDocument;
   }
