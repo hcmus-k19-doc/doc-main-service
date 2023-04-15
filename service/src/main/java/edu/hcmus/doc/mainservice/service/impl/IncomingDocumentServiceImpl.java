@@ -3,7 +3,6 @@ package edu.hcmus.doc.mainservice.service.impl;
 import static edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException.INCOMING_DOCUMENT_NOT_FOUND;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
@@ -20,7 +19,6 @@ import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
-import edu.hcmus.doc.mainservice.model.exception.DocNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.FolderNotFoundException;
 import edu.hcmus.doc.mainservice.repository.FolderRepository;
@@ -73,6 +71,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
   private final ReturnRequestRepository returnRequestRepository;
 
+  private final FolderRepository folderRepository;
+
   @Override
   public long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
     return processingDocumentRepository.getTotalElements(searchCriteriaDto);
@@ -97,11 +97,6 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     @Override
     public long getTotalPages(SearchCriteriaDto searchCriteriaDto, long limit) {
         return getTotalElements(searchCriteriaDto) / limit;
-    }
-
-    @Override
-    public List<IncomingDocument> getIncomingDocuments(String query, long offset, long limit) {
-        return incomingDocumentRepository.getIncomingDocuments(query, offset, limit);
     }
 
     @Override
