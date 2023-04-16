@@ -80,8 +80,8 @@ public class IncomingDocumentController extends DocAbstractController {
         processingDocumentSearchResultDto.getTotalPages());
   }
 
-  // transfer document to DIRECTOR
-  @PostMapping("/transfer-to-director")
+  // transfer document to GIAM_DOC
+  @PostMapping("/transfer-to-giam-doc")
   public void transferToDirector(@RequestBody TransferDocDto transferDocDto) {
     incomingDocumentService.transferDocumentsToDirector(transferDocDto);
   }
