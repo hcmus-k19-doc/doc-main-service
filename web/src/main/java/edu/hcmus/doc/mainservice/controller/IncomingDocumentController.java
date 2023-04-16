@@ -81,7 +81,7 @@ public class IncomingDocumentController extends DocAbstractController {
   }
 
   // transfer document to GIAM_DOC
-  @PostMapping("/transfer-to-giam-doc")
+  @PostMapping("/transfer-to-director")
   public void transferToDirector(@RequestBody TransferDocDto transferDocDto) {
     incomingDocumentService.transferDocumentsToDirector(transferDocDto);
   }

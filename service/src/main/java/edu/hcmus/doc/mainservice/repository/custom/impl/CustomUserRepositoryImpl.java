@@ -77,4 +77,26 @@ public class CustomUserRepositoryImpl
         .stream()
         .toList();
   }
+
+  @Override
+  public List<User> getExperts() {
+    return selectFrom(QUserRole.userRole)
+        .select(QUser.user)
+        .innerJoin(QUserRole.userRole.user, QUser.user)
+        .where(QUserRole.userRole.role.eq(DocSystemRoleEnum.CHUYEN_VIEN))
+        .fetch()
+        .stream()
+        .toList();
+  }
+
+  @Override
+  public List<User> getManagers() {
+    return selectFrom(QUserRole.userRole)
+        .select(QUser.user)
+        .innerJoin(QUserRole.userRole.user, QUser.user)
+        .where(QUserRole.userRole.role.eq(DocSystemRoleEnum.TRUONG_PHONG))
+        .fetch()
+        .stream()
+        .toList();
+  }
 }
