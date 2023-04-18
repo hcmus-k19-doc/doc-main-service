@@ -87,7 +87,7 @@ public class IncomingDocumentController extends DocAbstractController {
 
   @PostMapping("/transfer-to-manager")
   public void transferToManager(@RequestBody TransferDocDto transferDocDto) {
-    incomingDocumentService.transferDocumentsToDirector(transferDocDto);
+    incomingDocumentService.transferDocumentsToManager(transferDocDto);
   }
 
   @PutMapping("/update")
