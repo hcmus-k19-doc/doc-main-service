@@ -20,6 +20,12 @@ spec:
         - name: doc-main-service
           image: hcmusdoc/doc-main-service:latest
           imagePullPolicy: Never
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health/liveness
+            initialDelaySeconds: 30
+            periodSeconds: 10
           ports:
             - containerPort: 8080
           env:

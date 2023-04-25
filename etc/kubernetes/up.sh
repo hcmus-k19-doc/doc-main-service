@@ -2,6 +2,7 @@
 
 # doc-keycloak
 kubectl apply -f ./doc-keycloak/doc-keycloak.config.yaml
+kubectl apply -f ./doc-keycloak/doc-keycloak.deployment.yaml
 kubectl apply -f ./doc-keycloak/doc-keycloak.secret.yaml
 
 # doc-main-postgres
