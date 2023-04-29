@@ -142,22 +142,3 @@ spec:
                 secretKeyRef:
                   name: doc-keycloak-secret
                   key: doc-main-service-keycloak-client-secret
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  name: doc-main-service
-  labels:
-    app: doc-main-service
-    tier: service
-spec:
-  selector:
-    app: doc-main-service
-  ports:
-    - protocol: TCP
-      port: 8080
-      targetPort: 8080
-      nodePort: 30080
-  type: NodePort

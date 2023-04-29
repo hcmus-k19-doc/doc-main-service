@@ -77,6 +77,3 @@ spec:
   ports:
     - port: 8180
       targetPort: 8180
-      protocol: TCP
-      nodePort: 31080
-  type: NodePort
