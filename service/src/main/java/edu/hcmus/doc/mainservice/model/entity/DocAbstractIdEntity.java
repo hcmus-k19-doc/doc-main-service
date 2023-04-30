@@ -6,7 +6,6 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
-import javax.validation.constraints.NotNull;
 import lombok.Data;
 import org.hibernate.Hibernate;
 
@@ -17,7 +16,6 @@ public abstract class DocAbstractIdEntity extends DocAbstractVersionEntity {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "id", nullable = false, columnDefinition = "SERIAL")
-  @NotNull
   protected Long id;
 
   @Override

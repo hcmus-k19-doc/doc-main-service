@@ -7,7 +7,6 @@ import javax.persistence.Column;
 import javax.persistence.EntityListeners;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Version;
-import javax.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -36,7 +35,6 @@ public abstract class DocAbstractVersionEntity {
 
   @Version
   @Column(name = "version", nullable = false, columnDefinition = "INT DEFAULT 0")
-  @NotNull
   protected Long version;
 
   @CreationTimestamp
