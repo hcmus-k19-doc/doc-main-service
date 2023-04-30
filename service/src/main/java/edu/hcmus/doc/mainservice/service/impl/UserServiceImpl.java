@@ -73,4 +73,9 @@ public class UserServiceImpl implements UserService {
   public List<UserDepartmentDto> getUsersByRoleWithDepartment(DocSystemRoleEnum role) {
     return userRepository.getUsersByRoleWithDepartment(role);
   }
+
+  @Override
+  public Long updateCurrentUser(User user) {
+    return userRepository.save(user).getId();
+  }
 }
