@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -41,6 +42,11 @@ public class UserController extends DocAbstractController {
   @GetMapping("/current-principal")
   public UserDto getCurrentName() {
     return userMapper.toDto(SecurityUtils.getCurrentUser());
+  }
+
+  @PutMapping("/current/password")
+  public Long updateCurrentUserPassword(@RequestParam String oldPassword, @RequestParam String newPassword) {
+    return userService.updateCurrentUserPassword(oldPassword, newPassword);
   }
 
   @PutMapping("/current")

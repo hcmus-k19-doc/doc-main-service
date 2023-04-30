@@ -26,4 +26,6 @@ public interface UserService {
   List<UserDepartmentDto> getUsersByRoleWithDepartment(DocSystemRoleEnum role);
 
   Long updateCurrentUser(User user);
+
+  Long updateCurrentUserPassword(String oldPassword, String newPassword);
 }
