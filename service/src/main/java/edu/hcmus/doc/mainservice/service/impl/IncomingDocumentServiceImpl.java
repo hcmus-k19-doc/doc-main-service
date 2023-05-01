@@ -18,6 +18,7 @@ import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.ProcessMethod;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
+import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.FolderNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
@@ -152,7 +153,15 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   }
 
   @Override
-  public void transferDocumentsToDirector(TransferDocDto transferDocDto) {
+  public void transferDocuments(TransferDocDto transferDocDto) {
+    if (transferDocDto.getTransferDocumentType() == TransferDocumentType.TRANSFER_TO_GIAM_DOC) {
+      transferDocumentsToDirector(transferDocDto);
+    } else {
+      transferDocumentsToManager(transferDocDto);
+    }
+  }
+
+  private void transferDocumentsToDirector(TransferDocDto transferDocDto) {
     User reporter = getUserByIdOrThrow(transferDocDto.getReporterId());
     User assignee = getUserByIdOrThrow(transferDocDto.getAssigneeId());
 
@@ -203,8 +212,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     });
   }
 
-  @Override
-  public void transferDocumentsToManager(TransferDocDto transferDocDto) {
+  private void transferDocumentsToManager(TransferDocDto transferDocDto) {
     User reporter = getUserByIdOrThrow(transferDocDto.getReporterId());
     User assignee = getUserByIdOrThrow(transferDocDto.getAssigneeId());
 
@@ -249,7 +257,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
       // update processing document duration if time is not infinite
       if (Boolean.FALSE.equals(transferDocDto.getIsInfiniteProcessingTime())) {
-        processingDocument.setProcessingDuration(LocalDate.parse(transferDocDto.getProcessingTime(), DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+        processingDocument.setProcessingDuration(LocalDate.parse(transferDocDto.getProcessingTime(),
+            DateTimeFormatter.ofPattern("dd/MM/yyyy")));
         processingDocumentRepository.save(processingDocument);
       }
     });
