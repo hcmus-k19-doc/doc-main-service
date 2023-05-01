@@ -62,6 +62,8 @@ public class CustomUserRepositoryImpl
   @Override
   public List<User> getUsersByRole(DocSystemRoleEnum role) {
     return selectFrom(QUser.user)
+        .innerJoin(QUser.user.department, QDepartment.department)
+        .fetchJoin()
         .where(QUser.user.role.eq(role))
         .fetch();
   }
