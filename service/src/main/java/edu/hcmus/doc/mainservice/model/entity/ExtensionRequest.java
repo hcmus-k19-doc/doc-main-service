@@ -1,11 +1,12 @@
 package edu.hcmus.doc.mainservice.model.entity;
 
-import edu.hcmus.doc.mainservice.model.enums.RequestStatus;
+import edu.hcmus.doc.mainservice.model.enums.ExtensionRequestStatus;
 import java.time.LocalDate;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -18,7 +19,7 @@ public class ExtensionRequest extends DocAbstractIdEntity {
 
   @OneToOne
   @JoinColumn(name = "processing_doc_id", referencedColumnName = "id", nullable = false)
-  private ProcessingDocument processingDoc = new ProcessingDocument();
+  private ProcessingDocument processingDoc;
 
   @Column(name = "reason", nullable = false, length = 200)
   private String reason;
@@ -28,5 +29,12 @@ public class ExtensionRequest extends DocAbstractIdEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
-  private RequestStatus status;
+  private ExtensionRequestStatus status;
+
+  @JoinColumn(name = "approved_by", referencedColumnName = "id")
+  @OneToOne(fetch = FetchType.LAZY)
+  private User approvedBy;
+
+  @Column(name = "old_expired_date", nullable = false)
+  private LocalDate oldExpiredDate;
 }
