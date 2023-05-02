@@ -15,7 +15,6 @@ import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
 import edu.hcmus.doc.mainservice.model.entity.ReturnRequest;
 import edu.hcmus.doc.mainservice.model.entity.User;
-import edu.hcmus.doc.mainservice.model.enums.ProcessMethod;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
@@ -157,7 +156,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     if (transferDocDto.getTransferDocumentType() == TransferDocumentType.TRANSFER_TO_GIAM_DOC) {
       transferDocumentsToDirector(transferDocDto);
     } else {
-      transferDocumentsToManager(transferDocDto);
+      transferDocumentsToManagerOrSecretary(transferDocDto);
     }
   }
 
@@ -186,7 +185,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
       collaborators.forEach(collaborator -> {
         ProcessingUser processingUser1 = createProcessingUser(savedProcessingDocument, collaborator,
-            1, returnRequest, transferDocDto.getProcessMethod());
+            1, returnRequest, transferDocDto);
         ProcessingUser savedProcessingUser1 = processingUserRepository.save(processingUser1);
         ProcessingUserRole processingUserRole1 = createProcessingUserRole(savedProcessingUser1,
             ProcessingDocumentRoleEnum.COLLABORATOR);
@@ -195,9 +194,9 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
       });
 
       ProcessingUser processingUser2 = createProcessingUser(savedProcessingDocument, assignee, 1,
-          returnRequest, transferDocDto.getProcessMethod());
+          returnRequest, transferDocDto);
       ProcessingUser processingUser3 = createProcessingUser(savedProcessingDocument, reporter, 1,
-          returnRequest, transferDocDto.getProcessMethod());
+          returnRequest, transferDocDto);
 
       ProcessingUser savedProcessingUser2 = processingUserRepository.save(processingUser2);
       ProcessingUser savedProcessingUser3 = processingUserRepository.save(processingUser3);
@@ -212,7 +211,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     });
   }
 
-  private void transferDocumentsToManager(TransferDocDto transferDocDto) {
+  private void transferDocumentsToManagerOrSecretary(TransferDocDto transferDocDto) {
     User reporter = getUserByIdOrThrow(transferDocDto.getReporterId());
     User assignee = getUserByIdOrThrow(transferDocDto.getAssigneeId());
 
@@ -231,7 +230,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
         // check if collaborator is already assigned to this document
 
         ProcessingUser processingUser1 = createProcessingUser(processingDocument, collaborator, 2,
-            returnRequest, transferDocDto.getProcessMethod());
+            returnRequest, transferDocDto);
         ProcessingUser savedProcessingUser1 = processingUserRepository.save(processingUser1);
 
         ProcessingUserRole processingUserRole1 = createProcessingUserRole(savedProcessingUser1,
@@ -240,9 +239,9 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
       });
 
       ProcessingUser processingUser2 = createProcessingUser(processingDocument, assignee, 2,
-          returnRequest, transferDocDto.getProcessMethod());
+          returnRequest, transferDocDto);
       ProcessingUser processingUser3 = createProcessingUser(processingDocument, reporter, 2,
-          returnRequest, transferDocDto.getProcessMethod());
+          returnRequest, transferDocDto);
 
       ProcessingUser savedProcessingUser2 = processingUserRepository.save(processingUser2);
       ProcessingUser savedProcessingUser3 = processingUserRepository.save(processingUser3);
@@ -254,13 +253,6 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
       processingUserRoleRepository.save(processingUserRole2);
       processingUserRoleRepository.save(processingUserRole3);
-
-      // update processing document duration if time is not infinite
-      if (Boolean.FALSE.equals(transferDocDto.getIsInfiniteProcessingTime())) {
-        processingDocument.setProcessingDuration(LocalDate.parse(transferDocDto.getProcessingTime(),
-            DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-        processingDocumentRepository.save(processingDocument);
-      }
     });
 
   }
@@ -281,14 +273,19 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   }
 
   private ProcessingUser createProcessingUser(ProcessingDocument processingDocument, User user,
-      Integer step, ReturnRequest returnRequest, ProcessMethod processMethod) {
+      Integer step, ReturnRequest returnRequest, TransferDocDto transferDocDto) {
     ProcessingUser processingUser = new ProcessingUser();
     processingUser.setProcessingDocument(processingDocument);
     processingUser.setUser(user);
     processingUser.setStep(step);
     processingUser.setReturnRequest(returnRequest);
-    processingUser.setProcessMethod(processMethod);
+    processingUser.setProcessMethod(transferDocDto.getProcessMethod());
 
+    if (Boolean.FALSE.equals(transferDocDto.getIsInfiniteProcessingTime())) {
+      processingUser.setProcessingDuration(LocalDate.parse(
+          Objects.requireNonNull(transferDocDto.getProcessingTime()),
+          DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+    }
     return processingUser;
   }
 
