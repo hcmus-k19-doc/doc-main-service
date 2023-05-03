@@ -15,22 +15,22 @@ public interface ExtensionRequestMapper {
 
   @Mapping(target = "updatedDate", ignore = true)
   @Mapping(target = "updatedBy", ignore = true)
-  @Mapping(target = "processingDoc", ignore = true)
+  @Mapping(target = "processingUser", ignore = true)
   @Mapping(target = "deleted", ignore = true)
   @Mapping(target = "createdDate", ignore = true)
-  @Mapping(target = "approvedBy", ignore = true)
+  @Mapping(target = "validatedBy", ignore = true)
   ExtensionRequest toEntity(ExtensionRequestDto extensionRequestDto);
 
-  @Mapping(target = "processingDocId", ignore = true)
-  @Mapping(source = "approvedBy.id", target = "approverId")
+  @Mapping(target = "processingUserId", ignore = true)
+  @Mapping(source = "validatedBy.id", target = "validatorId")
   ExtensionRequestDto toDto(ExtensionRequest extensionRequest);
 
   @Mapping(target = "updatedDate", ignore = true)
   @Mapping(target = "updatedBy", ignore = true)
-  @Mapping(target = "processingDoc", ignore = true)
+  @Mapping(target = "processingUser", ignore = true)
   @Mapping(target = "deleted", ignore = true)
   @Mapping(target = "createdDate", ignore = true)
-  @Mapping(target = "approvedBy", ignore = true)
+  @Mapping(target = "validatedBy", ignore = true)
   @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
   ExtensionRequest partialUpdate(ExtensionRequestDto extensionRequestDto,
       @MappingTarget ExtensionRequest extensionRequest);

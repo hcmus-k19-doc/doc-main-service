@@ -15,12 +15,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ExtensionRequestDto extends DocAbstractDto {
 
-  private String createdBy;
-  private String reason;
   @FutureOrPresent
   private LocalDate extendedUntil;
+  private String reason;
   private ExtensionRequestStatus status;
-  private Long approverId;
+  private Long validatorId;
   private LocalDate oldExpiredDate;
-  private Long processingDocId;
+  private Long processingUserId;
 }

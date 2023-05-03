@@ -6,9 +6,9 @@ import java.util.List;
 
 public interface ExtensionRequestService {
 
-  List<ExtensionRequest> getCurrUserExtensionRequests();
+  List<ExtensionRequest> getExtensionRequestsByUsername(String username);
 
-  Long createExtensionRequest(Long processingDocId, ExtensionRequest entity);
+  Long createExtensionRequest(Long processingDocId, ExtensionRequest extensionRequest);
 
-  Long validateExtensionRequest(Long id, ExtensionRequestStatus validateCode);
+  Long validateExtensionRequest(Long id, Long validatorId, ExtensionRequestStatus status);
 }

@@ -4,13 +4,13 @@ import static edu.hcmus.doc.mainservice.model.exception.ExtensionRequestNotFound
 import static edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundException.PROCESSING_DOCUMENT_NOT_FOUND;
 
 import edu.hcmus.doc.mainservice.model.entity.ExtensionRequest;
-import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.enums.ExtensionRequestStatus;
 import edu.hcmus.doc.mainservice.model.exception.ExtensionRequestNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.repository.ExtensionRequestRepository;
-import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
-import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
+import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
+import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.service.ExtensionRequestService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -24,39 +24,45 @@ public class ExtensionRequestServiceImpl implements ExtensionRequestService {
 
   private final ExtensionRequestRepository extensionRequestRepository;
 
-  private final ProcessingDocumentRepository processingDocumentRepository;
+  private final ProcessingUserRepository processingUserRepository;
+  private final UserRepository userRepository;
 
   @Override
-  public List<ExtensionRequest> getCurrUserExtensionRequests() {
-    return extensionRequestRepository.getExtensionRequestsByUsername(SecurityUtils.getCurrentUser().getUsername());
+  public List<ExtensionRequest> getExtensionRequestsByUsername(String username) {
+    return extensionRequestRepository.getExtensionRequestsByUsername(username);
   }
 
   @Override
-  public Long createExtensionRequest(Long processingDocId, ExtensionRequest entity) {
-    processingDocumentRepository.findById(processingDocId)
-        .ifPresentOrElse(entity::setProcessingDoc,
+  public Long createExtensionRequest(Long processingDocId, ExtensionRequest extensionRequest) {
+    processingUserRepository.findById(processingDocId)
+        .ifPresentOrElse(processingUser -> {
+              extensionRequest.setProcessingUser(processingUser);
+              extensionRequest.setStatus(ExtensionRequestStatus.PENDING);
+            },
             () -> {
               throw new ProcessingDocumentNotFoundException(PROCESSING_DOCUMENT_NOT_FOUND);
             });
-    entity.setStatus(ExtensionRequestStatus.PENDING);
-    return extensionRequestRepository.save(entity).getId();
+    return extensionRequestRepository.save(extensionRequest).getId();
   }
 
   @Override
-  public Long validateExtensionRequest(Long id, ExtensionRequestStatus validateCode) {
+  public Long validateExtensionRequest(Long id, Long validatorId, ExtensionRequestStatus status) {
     ExtensionRequest extensionRequest = extensionRequestRepository
         .findById(id)
         .orElseThrow(() -> new ExtensionRequestNotFoundException(EXTENSION_REQUEST_NOT_FOUND));
 
-    if (validateCode == ExtensionRequestStatus.APPROVED) {
-      extensionRequest.getProcessingDoc()
+    if (status == ExtensionRequestStatus.APPROVED) {
+      extensionRequest.getProcessingUser()
           .setProcessingDuration(extensionRequest.getExtendedUntil());
     } else {
-      extensionRequest.getProcessingDoc()
+      extensionRequest.getProcessingUser()
           .setProcessingDuration(extensionRequest.getOldExpiredDate());
     }
 
-    extensionRequest.setStatus(validateCode);
+    extensionRequest.setValidatedBy(userRepository
+        .findById(validatorId)
+        .orElseThrow(UserNotFoundException::new));
+    extensionRequest.setStatus(status);
     return extensionRequestRepository.save(extensionRequest).getId();
   }
 }

@@ -25,9 +25,9 @@ public class ExtensionRequestController {
 
   private final ExtensionRequestMapper extensionRequestMapper;
 
-  @GetMapping("/current-user")
-  public List<ExtensionRequestDto> getCurrUserExtensionRequests() {
-    return extensionRequestService.getCurrUserExtensionRequests()
+  @GetMapping("/{username}")
+  public List<ExtensionRequestDto> getCurrUserExtensionRequests(@PathVariable String username) {
+    return extensionRequestService.getExtensionRequestsByUsername(username)
         .stream()
         .map(extensionRequestMapper::toDto)
         .toList();
@@ -36,12 +36,15 @@ public class ExtensionRequestController {
   @PostMapping
   public Long createExtensionRequest(@RequestBody @Valid ExtensionRequestDto extensionRequestDto) {
     return extensionRequestService.createExtensionRequest(
-        extensionRequestDto.getProcessingDocId(),
+        extensionRequestDto.getProcessingUserId(),
         extensionRequestMapper.toEntity(extensionRequestDto));
   }
 
-  @PutMapping("/{id}/{validateCode}")
-  public Long approveExtensionRequest(@PathVariable Long id, @PathVariable ExtensionRequestStatus validateCode) {
-    return extensionRequestService.validateExtensionRequest(id, validateCode);
+  @PutMapping("/{id}/{validatorId}/{status}")
+  public Long validateExtensionRequest(
+      @PathVariable Long id,
+      @PathVariable Long validatorId,
+      @PathVariable ExtensionRequestStatus status) {
+    return extensionRequestService.validateExtensionRequest(id, validatorId, status);
   }
 }

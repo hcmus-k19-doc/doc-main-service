@@ -18,8 +18,8 @@ import lombok.Data;
 public class ExtensionRequest extends DocAbstractIdEntity {
 
   @OneToOne
-  @JoinColumn(name = "processing_doc_id", referencedColumnName = "id", nullable = false)
-  private ProcessingDocument processingDoc;
+  @JoinColumn(name = "processing_user_id", referencedColumnName = "id", nullable = false)
+  private ProcessingUser processingUser;
 
   @Column(name = "reason", nullable = false, length = 200)
   private String reason;
@@ -31,9 +31,9 @@ public class ExtensionRequest extends DocAbstractIdEntity {
   @Column(name = "status", nullable = false)
   private ExtensionRequestStatus status;
 
-  @JoinColumn(name = "approved_by", referencedColumnName = "id")
+  @JoinColumn(name = "validated_by", referencedColumnName = "id")
   @OneToOne(fetch = FetchType.LAZY)
-  private User approvedBy;
+  private User validatedBy;
 
   @Column(name = "old_expired_date", nullable = false)
   private LocalDate oldExpiredDate;
