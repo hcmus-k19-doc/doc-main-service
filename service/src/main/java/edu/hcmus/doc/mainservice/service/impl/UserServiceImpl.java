@@ -1,13 +1,19 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.dto.UserDepartmentDto;
+import edu.hcmus.doc.mainservice.model.dto.UserDto;
+import edu.hcmus.doc.mainservice.model.dto.UserSearchCriteria;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
+import edu.hcmus.doc.mainservice.model.exception.UsernameExistedException;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserPasswordIncorrectException;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.UserService;
+import edu.hcmus.doc.mainservice.util.mapper.PaginationMapper;
+import edu.hcmus.doc.mainservice.util.mapper.UserMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -21,6 +27,8 @@ public class UserServiceImpl implements UserService {
 
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final UserMapper userMapper;
+  private final PaginationMapper paginationMapper;
 
   @Override
   public List<User> getUsers(String query, long first, long max) {
@@ -76,7 +84,21 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Long updateCurrentUser(User user) {
+  public Long createUser(User user) {
+    userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
+      throw new UsernameExistedException();
+    });
+    return userRepository.save(user).getId();
+  }
+
+  @Override
+  public Long updateUser(User user) {
+    User userFromDB = getUserById(user.getId());
+    if (!userFromDB.getUsername().equals(user.getUsername())) {
+      userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
+        throw new UsernameExistedException();
+      });
+    }
     return userRepository.save(user).getId();
   }
 
@@ -89,5 +111,18 @@ public class UserServiceImpl implements UserService {
 
     user.setPassword(passwordEncoder.encode(newPassword));
     return userRepository.save(user).getId();
+  }
+
+  @Override
+  public DocPaginationDto<UserDto> searchUsers(UserSearchCriteria userSearchCriteria, int page, int pageSize) {
+    long totalElements = userRepository.getTotalElements(userSearchCriteria);
+    long totalPages = (totalElements / pageSize) + (totalElements % pageSize == 0 ? 0 : 1);
+    List<UserDto> users = userRepository
+        .searchByCriteria(userSearchCriteria, page, pageSize)
+        .stream()
+        .map(userMapper::toDto)
+        .toList();
+
+    return paginationMapper.toDto(users, totalElements, totalPages);
   }
 }
