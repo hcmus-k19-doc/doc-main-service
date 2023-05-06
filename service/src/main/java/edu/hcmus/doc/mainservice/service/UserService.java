@@ -36,4 +36,6 @@ public interface UserService {
 
   DocPaginationDto<UserDto> searchUsers(UserSearchCriteria userSearchCriteria, int page,
       int pageSize);
+
+  void deleteUsers(List<Long> userIds);
 }

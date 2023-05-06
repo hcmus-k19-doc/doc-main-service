@@ -22,4 +22,5 @@ public interface CustomUserRepository extends DocAbstractSearchRepository<User, 
 
   List<UserDepartmentDto> getUsersByRoleWithDepartment(DocSystemRoleEnum role);
 
+  List<User> getUsersIn(List<Long> userIds);
 }

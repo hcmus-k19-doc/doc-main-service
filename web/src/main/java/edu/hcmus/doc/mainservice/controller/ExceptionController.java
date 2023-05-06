@@ -55,7 +55,7 @@ public class ExceptionController {
     FieldError errorField = exception.getFieldError();
     return ResponseEntity
         .badRequest()
-        .body(new ExceptionDto(Objects.requireNonNull(errorField).getField() + ": " + errorField.getDefaultMessage()));
+        .body(new ExceptionDto(Objects.requireNonNull(errorField).getDefaultMessage()));
   }
 
   @ExceptionHandler(Throwable.class)

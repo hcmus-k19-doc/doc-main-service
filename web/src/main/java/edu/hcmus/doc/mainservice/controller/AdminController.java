@@ -13,6 +13,7 @@ import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,5 +61,11 @@ public class AdminController extends DocAbstractController {
   public Long updateUser(@PathVariable Long id, @RequestBody @Valid UserDto userDto) {
     User user = userDecoratorMapper.partialUpdate(userDto, userService.getUserById(id));
     return userService.updateUser(user);
+  }
+
+  @DeleteMapping("/users")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteUsers(@RequestBody List<Long> userIds) {
+    userService.deleteUsers(userIds);
   }
 }

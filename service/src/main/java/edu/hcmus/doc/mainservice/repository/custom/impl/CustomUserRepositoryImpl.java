@@ -100,6 +100,13 @@ public class CustomUserRepositoryImpl
   }
 
   @Override
+  public List<User> getUsersIn(List<Long> userIds) {
+    return selectFrom(QUser.user)
+        .where(QUser.user.id.in(userIds))
+        .fetch();
+  }
+
+  @Override
   public long getTotalElements(UserSearchCriteria criteria) {
     return buildSearchQuery(criteria)
         .fetch()

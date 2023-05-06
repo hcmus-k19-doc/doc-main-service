@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import edu.hcmus.doc.mainservice.model.EmailExistedException;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.dto.UserDepartmentDto;
 import edu.hcmus.doc.mainservice.model.dto.UserDto;
@@ -88,17 +89,27 @@ public class UserServiceImpl implements UserService {
     userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
       throw new UsernameExistedException();
     });
+    userRepository.findByEmail(user.getEmail()).ifPresent(u -> {
+      throw new EmailExistedException();
+    });
+
     return userRepository.save(user).getId();
   }
 
   @Override
   public Long updateUser(User user) {
-    User userFromDB = getUserById(user.getId());
-    if (!userFromDB.getUsername().equals(user.getUsername())) {
+    User persistedUser = getUserById(user.getId());
+    if (!persistedUser.getUsername().equals(user.getUsername())) {
       userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
         throw new UsernameExistedException();
       });
     }
+    if (!persistedUser.getEmail().equals(user.getEmail())) {
+      userRepository.findByEmail(user.getEmail()).ifPresent(u -> {
+        throw new EmailExistedException();
+      });
+    }
+
     return userRepository.save(user).getId();
   }
 
@@ -124,5 +135,12 @@ public class UserServiceImpl implements UserService {
         .toList();
 
     return paginationMapper.toDto(users, totalElements, totalPages);
+  }
+
+  @Override
+  public void deleteUsers(List<Long> userIds) {
+    List<User> users = userRepository.getUsersIn(userIds);
+    users.parallelStream().forEach(user -> user.setDeleted(true));
+    userRepository.saveAll(users);
   }
 }
