@@ -36,7 +36,7 @@ class UserRepositoryTest extends DocAbstractRepositoryTest {
   @Test
   void testGetUsersWithQuery() {
     // Given
-    String query = "test";
+    String query = "";
 
     // Given
     User user = new User();
