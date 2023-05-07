@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentMenuConfig;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.Folder;
@@ -17,11 +19,13 @@ import edu.hcmus.doc.mainservice.model.entity.ReturnRequest;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
+import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.FolderNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.UserRoleNotFoundException;
 import edu.hcmus.doc.mainservice.repository.FolderRepository;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
@@ -29,6 +33,7 @@ import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingUserRoleRepository;
 import edu.hcmus.doc.mainservice.repository.ReturnRequestRepository;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
+import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
@@ -37,6 +42,7 @@ import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
@@ -282,4 +288,84 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     return processingUserRole;
   }
 
+  @Override
+  public TransferDocumentModalSettingDto getTransferDocumentModalSetting() {
+    TransferDocumentModalSettingDto settings = new TransferDocumentModalSettingDto();
+    List<TransferDocumentMenuConfig> menuConfigs = new ArrayList<>();
+    User currUser = SecurityUtils.getCurrentUser();
+    settings.setCurrentRole(currUser.getRole());
+    // TODO: i18n for backend response
+    switch (currUser.getRole()) {
+      case VAN_THU -> {
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("Trình văn bản lên ban Giám Đốc")
+            .component(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
+            .menuLabel("Ban giám đốc")
+            .menuKey(1)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
+            .build());
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("luân chuyển văn bản tới văn thư")
+            .component(TransferDocumentComponent.TRANSFER_TO_VAN_THU.value)
+            .menuLabel("Văn thư")
+            .menuKey(3)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_VAN_THU)
+            .build());
+        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
+        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
+      }
+      case GIAM_DOC -> {
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("phân công văn bản cho trưởng phòng")
+            .component(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
+            .menuLabel("Chánh văn phòng")
+            .menuKey(2)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
+            .build());
+        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG);
+        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value);
+      }
+      case TRUONG_PHONG -> {
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("phân công văn bản cho chuyên viên")
+            .component(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
+            .menuLabel("Chuyên viên")
+            .menuKey(4)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN)
+            .build());
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("Trình văn bản lên ban Giám Đốc")
+            .component(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
+            .menuLabel("Ban giám đốc")
+            .menuKey(1)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
+            .build());
+        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
+        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
+      }
+      case CHUYEN_VIEN -> {
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("Trình văn bản lên ban trưởng phòng")
+            .component(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
+            .menuLabel("Chánh văn phòng")
+            .menuKey(2)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
+            .build());
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("luân chuyển văn bản tới văn thư")
+            .component(TransferDocumentComponent.TRANSFER_TO_VAN_THU.value)
+            .menuLabel("Văn thư")
+            .menuKey(3)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_VAN_THU)
+            .build());
+        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG);
+        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value);
+      }
+      default -> {
+        throw new UserRoleNotFoundException(UserRoleNotFoundException.USER_ROLE_NOT_FOUND);
+      }
+    }
+    settings.setMenuConfigs(menuConfigs);
+    return settings;
+  }
 }
