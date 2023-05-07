@@ -12,4 +12,5 @@ public class TransferDocumentMenuConfig {
   private String menuLabel;
   private Integer menuKey;
   private TransferDocumentType transferDocumentType;
+  private Boolean isTransferToSameLevel;
 }

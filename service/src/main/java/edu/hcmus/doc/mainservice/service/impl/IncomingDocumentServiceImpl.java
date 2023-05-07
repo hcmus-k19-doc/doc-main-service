@@ -17,6 +17,7 @@ import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
 import edu.hcmus.doc.mainservice.model.entity.ReturnRequest;
 import edu.hcmus.doc.mainservice.model.entity.User;
+import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
@@ -159,19 +160,39 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
   @Override
   public void transferDocuments(TransferDocDto transferDocDto) {
+    User currentUser = SecurityUtils.getCurrentUser();
     User reporter = getUserByIdOrThrow(transferDocDto.getReporterId());
     User assignee = getUserByIdOrThrow(transferDocDto.getAssigneeId());
 
+    if (transferDocDto.getIsTransferToSameLevel()) {
+      transferToSameLevel(transferDocDto, assignee);
+      return;
+    }
+
     List<User> collaborators = userRepository.findAllById(
         Objects.requireNonNull(transferDocDto.getCollaboratorIds()));
-    if (transferDocDto.getTransferDocumentType() == TransferDocumentType.TRANSFER_TO_GIAM_DOC) {
-      transferDocumentsToDirector(transferDocDto, reporter, assignee, collaborators);
+
+    if (transferDocDto.getTransferDocumentType() == TransferDocumentType.TRANSFER_TO_GIAM_DOC
+        && currentUser.getRole() == DocSystemRoleEnum.VAN_THU) {
+      transferNewDocuments(transferDocDto, reporter, assignee, collaborators);
     } else {
-      transferDocumentsToManagerOrSecretary(transferDocDto, reporter, assignee, collaborators);
+      transferExistedDocuments(transferDocDto, reporter, assignee, collaborators);
     }
   }
 
-  private void transferDocumentsToDirector(TransferDocDto transferDocDto, User reporter,
+  private void transferToSameLevel(TransferDocDto transferDocDto, User assignee) {
+    List<IncomingDocument> incomingDocuments = incomingDocumentRepository
+        .getIncomingDocumentsByIds(transferDocDto.getDocumentIds());
+
+    // update the created_by field of incoming documents
+    incomingDocuments.forEach(incomingDocument -> {
+      incomingDocument.setCreatedBy(assignee.getId().toString());
+      incomingDocumentRepository.save(incomingDocument);
+    });
+
+  }
+
+  private void transferNewDocuments(TransferDocDto transferDocDto, User reporter,
       User assignee, List<User> collaborators) {
 
     List<IncomingDocument> incomingDocuments = incomingDocumentRepository
@@ -201,6 +222,27 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     });
   }
 
+  private void transferExistedDocuments(TransferDocDto transferDocDto, User reporter,
+      User assignee, List<User> collaborators) {
+    List<ProcessingDocument> processingDocuments = processingDocumentRepository.findAllByIds(
+        transferDocDto.getDocumentIds());
+
+    ReturnRequest returnRequest = returnRequestRepository.findById(1L).orElseThrow(
+        () -> new RuntimeException("Return request not found")
+    );
+
+    processingDocuments.forEach(processingDocument -> {
+
+      saveCollaboratorList(processingDocument, collaborators, returnRequest, transferDocDto, 2);
+
+      saveReporterOrAssignee(processingDocument, assignee, returnRequest, transferDocDto, 2,
+          ProcessingDocumentRoleEnum.ASSIGNEE);
+
+      saveReporterOrAssignee(processingDocument, reporter, returnRequest, transferDocDto, 2,
+          ProcessingDocumentRoleEnum.REPORTER);
+    });
+  }
+
   private void saveCollaboratorList(ProcessingDocument processingDocument, List<User> collaborators,
       ReturnRequest returnRequest, TransferDocDto transferDocDto, Integer step) {
     collaborators.forEach(collaborator -> {
@@ -223,28 +265,6 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
     ProcessingUserRole processingUserRole = createProcessingUserRole(savedProcessingUser, role);
     processingUserRoleRepository.save(processingUserRole);
-  }
-
-  private void transferDocumentsToManagerOrSecretary(TransferDocDto transferDocDto, User reporter,
-      User assignee, List<User> collaborators) {
-    List<ProcessingDocument> processingDocuments = processingDocumentRepository.findAllByIds(
-        transferDocDto.getDocumentIds());
-
-    ReturnRequest returnRequest = returnRequestRepository.findById(1L).orElseThrow(
-        () -> new RuntimeException("Return request not found")
-    );
-
-    processingDocuments.forEach(processingDocument -> {
-
-      saveCollaboratorList(processingDocument, collaborators, returnRequest, transferDocDto, 2);
-
-      saveReporterOrAssignee(processingDocument, assignee, returnRequest, transferDocDto, 2,
-          ProcessingDocumentRoleEnum.ASSIGNEE);
-
-      saveReporterOrAssignee(processingDocument, reporter, returnRequest, transferDocDto, 2,
-          ProcessingDocumentRoleEnum.REPORTER);
-    });
-
   }
 
   private User getUserByIdOrThrow(Long userId) {
@@ -303,6 +323,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .menuLabel("Ban giám đốc")
             .menuKey(1)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
+            .isTransferToSameLevel(false)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
             .transferDocumentTypeLabel("luân chuyển văn bản tới văn thư")
@@ -310,6 +331,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .menuLabel("Văn thư")
             .menuKey(3)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_VAN_THU)
+            .isTransferToSameLevel(true)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
         settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
@@ -321,24 +343,27 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .menuLabel("Chánh văn phòng")
             .menuKey(2)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
+            .isTransferToSameLevel(false)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG);
         settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value);
       }
       case TRUONG_PHONG -> {
         menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("phân công văn bản cho chuyên viên")
-            .component(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
-            .menuLabel("Chuyên viên")
-            .menuKey(4)
-            .transferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN)
-            .build());
-        menuConfigs.add(TransferDocumentMenuConfig.builder()
             .transferDocumentTypeLabel("Trình văn bản lên ban Giám Đốc")
             .component(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
             .menuLabel("Ban giám đốc")
             .menuKey(1)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
+            .isTransferToSameLevel(false)
+            .build());
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel("phân công văn bản cho chuyên viên")
+            .component(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
+            .menuLabel("Chuyên viên")
+            .menuKey(4)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN)
+            .isTransferToSameLevel(false)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
         settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
@@ -350,6 +375,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .menuLabel("Chánh văn phòng")
             .menuKey(2)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
+            .isTransferToSameLevel(false)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
             .transferDocumentTypeLabel("luân chuyển văn bản tới văn thư")
@@ -357,6 +383,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .menuLabel("Văn thư")
             .menuKey(3)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_VAN_THU)
+            .isTransferToSameLevel(false)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG);
         settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value);
