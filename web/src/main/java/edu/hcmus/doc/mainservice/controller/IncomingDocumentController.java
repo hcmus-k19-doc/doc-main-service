@@ -6,12 +6,15 @@ import edu.hcmus.doc.mainservice.model.dto.ElasticSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPutDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
+import edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
+import edu.hcmus.doc.mainservice.service.ProcessingUserRoleService;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -32,12 +35,19 @@ public class IncomingDocumentController extends DocAbstractController {
 
   private final ProcessingDocumentService processingDocumentService;
   private final IncomingDocumentService incomingDocumentService;
+  private final ProcessingUserRoleService processingUserRoleService;
 
   @GetMapping("/{id}")
   public IncomingDocumentDto getIncomingDocument(@PathVariable Long id) {
     return incomingDecoratorDocumentMapper
         .toDto(incomingDocumentService.getIncomingDocumentById(id));
   }
+
+  @GetMapping("/{incomingDocumentId}/processing-details")
+  public List<ProcessingDetailsDto> getProcessingDetails(@PathVariable Long incomingDocumentId) {
+    return processingUserRoleService.getProcessingUserRolesByIncomingDocumentId(incomingDocumentId);
+  }
+
 
   @PostMapping("/search")
   public DocPaginationDto<IncomingDocumentDto> getIncomingDocuments(
@@ -85,10 +95,8 @@ public class IncomingDocumentController extends DocAbstractController {
     incomingDocumentService.transferDocuments(transferDocDto);
   }
 
-
-
   @PutMapping("/update")
-  public IncomingDocumentDto createIncomingDocument(
+  public IncomingDocumentDto updateIncomingDocument(
       @RequestBody IncomingDocumentPutDto incomingDocumentPutDto) {
     IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(
         incomingDocumentPutDto);

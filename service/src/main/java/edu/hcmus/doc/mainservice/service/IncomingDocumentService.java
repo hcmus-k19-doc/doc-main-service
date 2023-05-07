@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
@@ -24,7 +25,8 @@ public interface IncomingDocumentService {
 
   IncomingDocument findById(Long id);
 
-  IncomingDocument createIncomingDocument(IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto);
+  IncomingDocument createIncomingDocument(IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto)
+      throws JsonProcessingException;
 
   IncomingDocument updateIncomingDocument(IncomingDocument incomingDocument);
 
