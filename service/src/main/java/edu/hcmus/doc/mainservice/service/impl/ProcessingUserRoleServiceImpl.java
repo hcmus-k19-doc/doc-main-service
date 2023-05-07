@@ -16,7 +16,7 @@ public class ProcessingUserRoleServiceImpl implements ProcessingUserRoleService 
   private final ProcessingUserRoleRepository processingUserRoleRepository;
 
   @Override
-  public List<ProcessingDetailsDto> getProcessingUserRolesByIncomingDocumentId(Long incomingDocumentId) {
-    return processingUserRoleRepository.getProcessingUserRolesByIncomingDocumentId(incomingDocumentId);
+  public List<ProcessingDetailsDto> getProcessingUserRolesByIncomingDocumentId(Long incomingDocumentId, boolean onlyAssignee) {
+    return processingUserRoleRepository.getProcessingUserRolesByIncomingDocumentId(incomingDocumentId, onlyAssignee);
   }
 }

@@ -1,5 +1,6 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
+import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -20,9 +21,15 @@ public class CustomProcessingUserRoleRepositoryImpl
     implements CustomProcessingUserRoleRepository {
 
   @Override
-  public List<ProcessingDetailsDto> getProcessingUserRolesByIncomingDocumentId(Long incomingDocumentId) {
+  public List<ProcessingDetailsDto> getProcessingUserRolesByIncomingDocumentId(Long incomingDocumentId, boolean onlyAssignee) {
     QProcessingUser qProcessingUser = new QProcessingUser(QProcessingUserRole.processingUserRole.processingUser.getMetadata().getName());
     QProcessingDocument qProcessingDocument = new QProcessingDocument(qProcessingUser.processingDocument.getMetadata().getName());
+
+    BooleanBuilder onlyAssigneeBuilder = new BooleanBuilder();
+    if (onlyAssignee) {
+      onlyAssigneeBuilder.and(QProcessingUserRole.processingUserRole.role.eq(ProcessingDocumentRoleEnum.ASSIGNEE));
+    }
+
     return selectFrom(QProcessingUserRole.processingUserRole)
         .select(
             qProcessingDocument.incomingDoc.incomingNumber,
@@ -33,7 +40,7 @@ public class CustomProcessingUserRoleRepositoryImpl
             qProcessingUser.user.department.departmentName)
         .innerJoin(QProcessingUserRole.processingUserRole.processingUser, qProcessingUser)
         .innerJoin(qProcessingUser.processingDocument, qProcessingDocument)
-        .where(qProcessingDocument.id.eq(incomingDocumentId))
+        .where(qProcessingDocument.id.eq(incomingDocumentId).and(onlyAssigneeBuilder))
         .orderBy(qProcessingUser.step.asc())
         .orderBy(roleOrder())
         .stream()

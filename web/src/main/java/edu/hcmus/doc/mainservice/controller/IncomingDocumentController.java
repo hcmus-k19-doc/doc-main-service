@@ -44,8 +44,10 @@ public class IncomingDocumentController extends DocAbstractController {
   }
 
   @GetMapping("/{incomingDocumentId}/processing-details")
-  public List<ProcessingDetailsDto> getProcessingDetails(@PathVariable Long incomingDocumentId) {
-    return processingUserRoleService.getProcessingUserRolesByIncomingDocumentId(incomingDocumentId);
+  public List<ProcessingDetailsDto> getProcessingDetails(
+      @PathVariable Long incomingDocumentId,
+      @RequestParam(required = false) boolean onlyAssignee) {
+    return processingUserRoleService.getProcessingUserRolesByIncomingDocumentId(incomingDocumentId, onlyAssignee);
   }
 
 

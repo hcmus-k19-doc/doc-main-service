@@ -5,5 +5,5 @@ import java.util.List;
 
 public interface CustomProcessingUserRoleRepository {
 
-  List<ProcessingDetailsDto> getProcessingUserRolesByIncomingDocumentId(Long incomingDocumentId);
+  List<ProcessingDetailsDto> getProcessingUserRolesByIncomingDocumentId(Long incomingDocumentId, boolean onlyAssignee);
 }
