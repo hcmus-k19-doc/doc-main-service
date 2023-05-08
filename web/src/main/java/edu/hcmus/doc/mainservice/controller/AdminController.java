@@ -3,10 +3,13 @@ package edu.hcmus.doc.mainservice.controller;
 import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.DepartmentDto;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
+import edu.hcmus.doc.mainservice.model.dto.DocumentTypeDto;
+import edu.hcmus.doc.mainservice.model.dto.DocumentTypeSearchCriteria;
 import edu.hcmus.doc.mainservice.model.dto.UserDto;
 import edu.hcmus.doc.mainservice.model.dto.UserSearchCriteria;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.service.DepartmentService;
+import edu.hcmus.doc.mainservice.service.DocumentTypeService;
 import edu.hcmus.doc.mainservice.service.UserService;
 import edu.hcmus.doc.mainservice.util.mapper.DepartmentMapper;
 import java.util.List;
@@ -31,16 +34,8 @@ public class AdminController extends DocAbstractController {
 
   private final UserService userService;
   private final DepartmentService departmentService;
+  private final DocumentTypeService documentTypeService;
   private final DepartmentMapper departmentMapper;
-
-  @PostMapping("/search/users")
-  public DocPaginationDto<UserDto> searchUsers(
-      @RequestBody UserSearchCriteria userSearchCriteria,
-      @RequestParam(required = false, defaultValue = "0") int page,
-      @RequestParam(required = false, defaultValue = "10") int pageSize
-  ) {
-    return userService.searchUsers(userSearchCriteria, page, pageSize);
-  }
 
   @GetMapping("/selection/departments")
   public List<DepartmentDto> getDepartmentsForSelection() {
@@ -48,6 +43,24 @@ public class AdminController extends DocAbstractController {
         .stream()
         .map(departmentMapper::toDto)
         .toList();
+  }
+
+  @PostMapping("/search/document-types")
+  public DocPaginationDto<DocumentTypeDto> searchDocumentTypes(
+      @RequestBody(required = false) DocumentTypeSearchCriteria documentTypeSearchCriteria,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "10") int pageSize
+  ) {
+    return documentTypeService.search(documentTypeSearchCriteria, page, pageSize);
+  }
+
+  @PostMapping("/search/users")
+  public DocPaginationDto<UserDto> searchUsers(
+      @RequestBody UserSearchCriteria userSearchCriteria,
+      @RequestParam(required = false, defaultValue = "0") int page,
+      @RequestParam(required = false, defaultValue = "10") int pageSize
+  ) {
+    return userService.search(userSearchCriteria, page, pageSize);
   }
 
   @PostMapping("/users")
