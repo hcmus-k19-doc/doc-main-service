@@ -19,6 +19,7 @@ import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
 import edu.hcmus.doc.mainservice.model.entity.ReturnRequest;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
@@ -40,6 +41,7 @@ import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.util.DocObjectUtils;
+import edu.hcmus.doc.mainservice.util.ResourceBundleUtils;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
 import java.time.LocalDate;
@@ -314,79 +316,93 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     List<TransferDocumentMenuConfig> menuConfigs = new ArrayList<>();
     User currUser = SecurityUtils.getCurrentUser();
     settings.setCurrentRole(currUser.getRole());
-    // TODO: i18n for backend response
+
     switch (currUser.getRole()) {
       case VAN_THU -> {
         menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("Trình văn bản lên ban Giám Đốc")
-            .component(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
-            .menuLabel("Ban giám đốc")
-            .menuKey(1)
+            .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
+                MESSAGE.submit_document_to_giam_doc_type_label))
+            .componentKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
+            .menuLabel(ResourceBundleUtils.getContent(
+                    MESSAGE.submit_document_to_giam_doc_menu_label))
+            .menuKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
             .isTransferToSameLevel(false)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("luân chuyển văn bản tới văn thư")
-            .component(TransferDocumentComponent.TRANSFER_TO_VAN_THU.value)
-            .menuLabel("Văn thư")
-            .menuKey(3)
+            .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_van_thu_type_label))
+            .componentKey(TransferDocumentComponent.TRANSFER_TO_VAN_THU.value)
+            .menuLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_van_thu_menu_label))
+            .menuKey(TransferDocumentComponent.TRANSFER_TO_VAN_THU.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_VAN_THU)
             .isTransferToSameLevel(true)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
-        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
+        settings.setDefaultComponentKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
       }
       case GIAM_DOC -> {
         menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("phân công văn bản cho trưởng phòng")
-            .component(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
-            .menuLabel("Chánh văn phòng")
-            .menuKey(2)
-            .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
-            .isTransferToSameLevel(false)
-            .build());
-        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG);
-        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value);
-      }
-      case TRUONG_PHONG -> {
-        menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("Trình văn bản lên ban Giám Đốc")
-            .component(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
-            .menuLabel("Ban giám đốc")
-            .menuKey(1)
+            .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_giam_doc_type_label))
+            .componentKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
+            .menuLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_giam_doc_menu_label))
+            .menuKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
             .isTransferToSameLevel(false)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("phân công văn bản cho chuyên viên")
-            .component(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
-            .menuLabel("Chuyên viên")
-            .menuKey(4)
-            .transferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN)
+            .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
+                MESSAGE.assign_document_to_truong_phong_type_label))
+            .componentKey(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
+            .menuLabel(ResourceBundleUtils.getContent(
+                MESSAGE.assign_document_to_truong_phong_menu_label))
+            .menuKey(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
             .isTransferToSameLevel(false)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
-        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
+        settings.setDefaultComponentKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
       }
-      case CHUYEN_VIEN -> {
+      case TRUONG_PHONG -> {
         menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("Trình văn bản lên ban trưởng phòng")
-            .component(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
-            .menuLabel("Chánh văn phòng")
-            .menuKey(2)
+            .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_truong_phong_type_label))
+            .componentKey(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
+            .menuLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_truong_phong_menu_label))
+            .menuKey(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
             .isTransferToSameLevel(false)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
-            .transferDocumentTypeLabel("luân chuyển văn bản tới văn thư")
-            .component(TransferDocumentComponent.TRANSFER_TO_VAN_THU.value)
-            .menuLabel("Văn thư")
-            .menuKey(3)
-            .transferDocumentType(TransferDocumentType.TRANSFER_TO_VAN_THU)
+            .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
+                MESSAGE.assign_document_to_chuyen_vien_type_label))
+            .componentKey(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
+            .menuLabel(ResourceBundleUtils.getContent(
+                MESSAGE.assign_document_to_chuyen_vien_menu_label))
+            .menuKey(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN)
             .isTransferToSameLevel(false)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG);
-        settings.setDefaultComponent(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value);
+        settings.setDefaultComponentKey(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value);
+      }
+      case CHUYEN_VIEN -> {
+        menuConfigs.add(TransferDocumentMenuConfig.builder()
+            .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_chuyen_vien_type_label))
+            .componentKey(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
+            .menuLabel(ResourceBundleUtils.getContent(
+                MESSAGE.transfer_document_to_chuyen_vien_menu_label))
+            .menuKey(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
+            .transferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN)
+            .isTransferToSameLevel(false)
+            .build());
+        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN);
+        settings.setDefaultComponentKey(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value);
       }
       default -> {
         throw new UserRoleNotFoundException(UserRoleNotFoundException.USER_ROLE_NOT_FOUND);
