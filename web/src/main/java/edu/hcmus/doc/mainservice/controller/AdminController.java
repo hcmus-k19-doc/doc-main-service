@@ -7,6 +7,7 @@ import edu.hcmus.doc.mainservice.model.dto.DocumentTypeDto;
 import edu.hcmus.doc.mainservice.model.dto.DocumentTypeSearchCriteria;
 import edu.hcmus.doc.mainservice.model.dto.UserDto;
 import edu.hcmus.doc.mainservice.model.dto.UserSearchCriteria;
+import edu.hcmus.doc.mainservice.model.entity.DocumentType;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.service.DepartmentService;
 import edu.hcmus.doc.mainservice.service.DocumentTypeService;
@@ -68,6 +69,13 @@ public class AdminController extends DocAbstractController {
   public Long createUser(@RequestBody @Valid UserDto userDto) {
     User user = userDecoratorMapper.toEntity(userDto);
     return userService.createUser(user);
+  }
+
+  @PostMapping("document-types")
+  @ResponseStatus(HttpStatus.CREATED)
+  public Long saveDocumentType(@RequestBody @Valid DocumentTypeDto documentTypeDto) {
+    DocumentType documentType = documentTypeMapper.toEntity(documentTypeDto);
+    return documentTypeService.saveDocumentType(documentType).getId();
   }
 
   @PutMapping("/users/{id}")

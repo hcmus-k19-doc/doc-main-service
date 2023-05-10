@@ -11,5 +11,5 @@ public interface DocumentTypeService extends SearchService<DocumentTypeDto, Docu
 
   DocumentType findById(Long id);
 
-  DocumentType createDocumentType(DocumentType documentType);
+  DocumentType saveDocumentType(DocumentType documentType);
 }

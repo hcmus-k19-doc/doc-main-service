@@ -34,7 +34,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
   }
 
   @Override
-  public DocumentType createDocumentType(DocumentType documentType) {
+  public DocumentType saveDocumentType(DocumentType documentType) {
     return documentTypeRepository.save(documentType);
   }
 
