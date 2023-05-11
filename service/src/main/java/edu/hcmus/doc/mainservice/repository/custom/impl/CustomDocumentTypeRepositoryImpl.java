@@ -33,7 +33,8 @@ public class CustomDocumentTypeRepositoryImpl
         .fetch();
   }
 
-  private JPAQuery<DocumentType> buildSearchQuery(DocumentTypeSearchCriteria criteria) {
+  @Override
+  public JPAQuery<DocumentType> buildSearchQuery(DocumentTypeSearchCriteria criteria) {
     return selectFrom(QDocumentType.documentType);
   }
 }
