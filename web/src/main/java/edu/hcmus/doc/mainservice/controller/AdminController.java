@@ -74,7 +74,12 @@ public class AdminController extends DocAbstractController {
   @PostMapping("document-types")
   @ResponseStatus(HttpStatus.CREATED)
   public Long saveDocumentType(@RequestBody @Valid DocumentTypeDto documentTypeDto) {
-    DocumentType documentType = documentTypeMapper.toEntity(documentTypeDto);
+    DocumentType documentType;
+    if (documentTypeDto.getId() == null) {
+      documentType = documentTypeMapper.toEntity(documentTypeDto);
+    } else {
+      documentType = documentTypeMapper.partialUpdate(documentTypeDto, documentTypeService.findById(documentTypeDto.getId()));
+    }
     return documentTypeService.saveDocumentType(documentType).getId();
   }
 
