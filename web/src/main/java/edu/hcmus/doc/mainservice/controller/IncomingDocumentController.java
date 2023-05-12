@@ -11,6 +11,7 @@ import edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
@@ -110,5 +111,10 @@ public class IncomingDocumentController extends DocAbstractController {
   @GetMapping("/transfer-documents-setting")
   public TransferDocumentModalSettingDto getTransferDocumentModalSetting() {
     return incomingDocumentService.getTransferDocumentModalSetting();
+  }
+
+  @PostMapping("/validate-user-role")
+  public Boolean checkUserRole(@RequestBody GetTransferDocumentDetailRequest request) {
+    return processingDocumentService.isUserWorkingOnDocumentWithRole(request);
   }
 }

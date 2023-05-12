@@ -4,7 +4,10 @@ import edu.hcmus.doc.mainservice.model.dto.ElasticSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailResponse;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import java.util.List;
@@ -90,4 +93,10 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
     return processingDocumentSearchResultDto;
   }
 
+  @Override
+  public Boolean isUserWorkingOnDocumentWithRole(GetTransferDocumentDetailRequest request) {
+    GetTransferDocumentDetailResponse detail = processingDocumentRepository.findTransferDocumentDetail(
+        request);
+    return detail != null;
+  }
 }

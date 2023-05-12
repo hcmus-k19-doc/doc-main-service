@@ -11,6 +11,7 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentMenu
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
 import edu.hcmus.doc.mainservice.model.entity.Folder;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
@@ -167,7 +168,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     User assignee = getUserByIdOrThrow(transferDocDto.getAssigneeId());
 
     if (transferDocDto.getIsTransferToSameLevel()) {
-      transferToSameLevel(transferDocDto, assignee);
+      transferToSameLevel(transferDocDto, reporter, assignee, currentUser.getRole());
       return;
     }
 
@@ -182,16 +183,33 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     }
   }
 
-  private void transferToSameLevel(TransferDocDto transferDocDto, User assignee) {
-    List<IncomingDocument> incomingDocuments = incomingDocumentRepository
-        .getIncomingDocumentsByIds(transferDocDto.getDocumentIds());
+  private void transferToSameLevel(TransferDocDto transferDocDto, User reporter, User assignee,
+      DocSystemRoleEnum role) {
+    if (role == DocSystemRoleEnum.VAN_THU) {
+      List<IncomingDocument> incomingDocuments = incomingDocumentRepository
+          .getIncomingDocumentsByIds(transferDocDto.getDocumentIds());
 
-    // update the created_by field of incoming documents
-    incomingDocuments.forEach(incomingDocument -> {
-      incomingDocument.setCreatedBy(assignee.getId().toString());
-      incomingDocumentRepository.save(incomingDocument);
-    });
+      // update the created_by field of incoming documents
+      incomingDocuments.forEach(incomingDocument -> {
+        incomingDocument.setCreatedBy(assignee.getId().toString());
+        incomingDocumentRepository.save(incomingDocument);
+      });
+    } else {
+      List<ProcessingDocument> processingDocuments = processingDocumentRepository
+          .findAllByIds(transferDocDto.getDocumentIds());
 
+      // update the user_id field of processing_user
+      processingDocuments.forEach(processingDocument -> {
+        List<ProcessingUser> processingUserList = processingUserRepository.findAllByUserIdAndProcessingDocumentId(
+            reporter.getId(),
+            processingDocument.getId());
+        processingUserList.forEach(processingUser -> {
+          // neu user da co o trong van ban do roi => throw exception
+          processingUser.setUser(assignee);
+          processingUserRepository.save(processingUser);
+        });
+      });
+    }
   }
 
   private void transferNewDocuments(TransferDocDto transferDocDto, User reporter,
@@ -324,7 +342,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
                 MESSAGE.submit_document_to_giam_doc_type_label))
             .componentKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
             .menuLabel(ResourceBundleUtils.getContent(
-                    MESSAGE.submit_document_to_giam_doc_menu_label))
+                MESSAGE.submit_document_to_giam_doc_menu_label))
             .menuKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
             .isTransferToSameLevel(false)
@@ -351,7 +369,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
                 MESSAGE.transfer_document_to_giam_doc_menu_label))
             .menuKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
-            .isTransferToSameLevel(false)
+            .isTransferToSameLevel(true)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
             .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
@@ -375,7 +393,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
                 MESSAGE.transfer_document_to_truong_phong_menu_label))
             .menuKey(TransferDocumentComponent.TRANSFER_TO_TRUONG_PHONG.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
-            .isTransferToSameLevel(false)
+            .isTransferToSameLevel(true)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
             .transferDocumentTypeLabel(ResourceBundleUtils.getContent(
@@ -399,7 +417,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
                 MESSAGE.transfer_document_to_chuyen_vien_menu_label))
             .menuKey(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value)
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN)
-            .isTransferToSameLevel(false)
+            .isTransferToSameLevel(true)
             .build());
         settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_CHUYEN_VIEN);
         settings.setDefaultComponentKey(TransferDocumentComponent.TRANSFER_TO_CHUYEN_VIEN.value);
