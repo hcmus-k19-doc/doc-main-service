@@ -87,6 +87,7 @@
             <classPattern>edu.hcmus.doc.mainservice.model.dto.ProcessingUserDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DocumentTypeSearchCriteria</classPattern>
+            <classPattern>edu.hcmus.doc.mainservice.model.dto.DepartmentSearchCriteria</classPattern>
           </classPatterns>
           <excludeClasses>
             <class>java.io.Serializable</class>
