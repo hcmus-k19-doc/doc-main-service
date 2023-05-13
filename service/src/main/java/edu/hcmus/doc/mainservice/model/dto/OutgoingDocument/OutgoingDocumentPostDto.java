@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Data
 public class OutgoingDocumentPostDto {
     private Long documentType;
+    private String originalSymbolNumber;
     private Long folder;
     private Long publishingDepartment;
     private String recipient;

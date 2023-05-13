@@ -12,7 +12,9 @@ import java.time.LocalDate;
 @Data
 public class OutgoingDocumentGetDto {
     private String outgoingNumber;
+    private String originalSymbolNumber;
     private String recipient;
+    private String signer;
     private String summary;
     private Urgency urgency;
     private Confidentiality confidentiality;
