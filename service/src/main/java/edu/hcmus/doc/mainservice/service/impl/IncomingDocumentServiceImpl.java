@@ -15,32 +15,13 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWith
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentMenuConfig;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
-import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
-import edu.hcmus.doc.mainservice.model.entity.Folder;
-import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
-import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
-import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
-import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
-import edu.hcmus.doc.mainservice.model.entity.ReturnRequest;
-import edu.hcmus.doc.mainservice.model.entity.User;
-import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
-import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
-import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
-import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
-import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
-import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;import edu.hcmus.doc.mainservice.model.entity.*;
+import edu.hcmus.doc.mainservice.model.enums.*;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
-import edu.hcmus.doc.mainservice.model.exception.FolderNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserRoleNotFoundException;
-import edu.hcmus.doc.mainservice.repository.FolderRepository;
-import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
-import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
-import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
-import edu.hcmus.doc.mainservice.repository.ProcessingUserRoleRepository;
-import edu.hcmus.doc.mainservice.repository.ReturnRequestRepository;
-import edu.hcmus.doc.mainservice.repository.UserRepository;
+import edu.hcmus.doc.mainservice.repository.*;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.FolderService;
@@ -49,13 +30,18 @@ import edu.hcmus.doc.mainservice.util.DocObjectUtils;
 import edu.hcmus.doc.mainservice.util.ResourceBundleUtils;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+import static edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException.INCOMING_DOCUMENT_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Service
@@ -96,15 +82,6 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     IncomingDocument updatingIncomingDocument = getIncomingDocumentById(incomingDocument.getId());
     DocObjectUtils.copyNonNullProperties(incomingDocument, updatingIncomingDocument);
     return incomingDocumentRepository.saveAndFlush(updatingIncomingDocument);
-  }
-
-  @Override
-  public IncomingDocument createIncomingDocument(IncomingDocument incomingDocument) {
-    Folder folder = folderRepository.findById(incomingDocument.getFolder().getId())
-        .orElseThrow(() -> new FolderNotFoundException(FolderNotFoundException.FOLDER_NOT_FOUND));
-    folder.setNextNumber(folder.getNextNumber() + 1);
-
-    return incomingDocumentRepository.save(incomingDocument);
   }
 
   @Override
