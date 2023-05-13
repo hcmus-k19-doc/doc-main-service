@@ -1,6 +1,8 @@
 package edu.hcmus.doc.mainservice.util;
 
 import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
+import java.text.MessageFormat;
+import java.util.Objects;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.NoSuchMessageException;
 import org.springframework.context.i18n.LocaleContextHolder;
@@ -33,6 +35,13 @@ public class ResourceBundleUtils {
       System.out.println(e.getMessage());
       content = getDefaultContent(msgKey);
     }
+    return content;
+  }
+
+  public static String getDynamicContent(MESSAGE messageKey, Object... arguments) {
+    String content = getContent(messageKey);
+    MessageFormat messageFormat = new MessageFormat(content);
+    content = messageFormat.format(arguments);
     return content;
   }
 

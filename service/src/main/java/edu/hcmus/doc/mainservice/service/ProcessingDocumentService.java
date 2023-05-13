@@ -4,6 +4,8 @@ import edu.hcmus.doc.mainservice.model.dto.ElasticSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import java.util.List;
@@ -21,4 +23,6 @@ public interface ProcessingDocumentService {
       throws ExecutionException, InterruptedException;
 
   Boolean isUserWorkingOnDocumentWithRole(GetTransferDocumentDetailRequest request);
+
+  ValidateTransferDocDto validateTransferDocument(TransferDocDto transferDocDto);
 }

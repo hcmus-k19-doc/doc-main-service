@@ -271,6 +271,7 @@ public class CustomProcessingDocumentRepositoryImpl
         .join(processingUser).on(processingDocument.id.eq(processingUser.processingDocument.id))
         .join(processingUserRole).on(processingUser.id.eq(processingUserRole.processingUser.id))
         .where(processingUser.user.id.eq(request.getUserId())
+            .and(processingUser.step.eq(request.getStep()))
             .and(processingUserRole.role.eq(request.getRole())))
         .fetch()
         .stream()

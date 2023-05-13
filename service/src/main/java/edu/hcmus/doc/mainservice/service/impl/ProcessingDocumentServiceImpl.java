@@ -1,14 +1,23 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.getStep;
+
 import edu.hcmus.doc.mainservice.model.dto.ElasticSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailResponse;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
+import edu.hcmus.doc.mainservice.model.entity.User;
+import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
+import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
+import edu.hcmus.doc.mainservice.repository.UserRepository;
+import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import java.util.List;
 import java.util.Objects;
@@ -30,6 +39,8 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
   private final ProcessingDocumentRepository processingDocumentRepository;
 
   private final AsyncRabbitTemplate asyncRabbitTemplate;
+
+  private final UserRepository userRepository;
 
   @Value("${spring.rabbitmq.template.exchange}")
   private String exchange;
@@ -98,5 +109,32 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
     GetTransferDocumentDetailResponse detail = processingDocumentRepository.findTransferDocumentDetail(
         request);
     return detail != null;
+  }
+
+  @Override
+  public ValidateTransferDocDto validateTransferDocument(TransferDocDto transferDocDto) {
+
+    User currentUser = SecurityUtils.getCurrentUser();
+    User reporter = userRepository.findById(transferDocDto.getReporterId())
+        .orElseThrow(() -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
+
+    User assignee = userRepository.findById(transferDocDto.getAssigneeId())
+        .orElseThrow(() -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
+
+    List<User> collaborators = userRepository.findAllById(
+        Objects.requireNonNull(transferDocDto.getCollaboratorIds()));
+
+    int step = getStep(reporter, assignee);
+
+    if (transferDocDto.getIsTransferToSameLevel()) {
+      // neu la van thu, khong can kiem tra
+      if (currentUser.getRole() != DocSystemRoleEnum.VAN_THU) {
+        // kiem tra xem current user co phai la assignee cua van ban nay khong
+        // kiem tra xem reporter hay collaborator co dang xu ly van ban nay khong
+      }
+    } else {
+        // kiem tra xem tai step hien tai, assignee, reporter, collaborator co dang xu ly van ban nay khong
+    }
+    return null;
   }
 }

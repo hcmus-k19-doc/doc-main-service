@@ -8,4 +8,5 @@ public class GetTransferDocumentDetailRequest {
   private Long incomingDocumentId;
   private Long userId;
   private ProcessingDocumentRoleEnum role;
+  private Integer step;
 }

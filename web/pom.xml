@@ -75,7 +75,7 @@
             <classPattern>edu.hcmus.doc.mainservice.model.dto.SendingLevelDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.UserDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto</classPattern>
-            <classPattern>edu.hcmus.doc.mainservice.model.dto.TransferDocDto</classPattern>
+            <classPattern>edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DocumentReminderDetailsDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.UserDepartmentDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.CommentDto</classPattern>

@@ -1,6 +1,15 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.GIAM_DOC;
+import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.VAN_THU;
+import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.CHUYEN_VIEN;
+import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.TRUONG_PHONG;
+
 import static edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException.INCOMING_DOCUMENT_NOT_FOUND;
+import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingDocument;
+import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingUser;
+import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingUserRole;
+import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.getStep;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -10,8 +19,7 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWith
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentMenuConfig;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
-import edu.hcmus.doc.mainservice.model.dto.TransferDocDto;
-import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.Folder;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
@@ -43,6 +51,7 @@ import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.util.DocObjectUtils;
 import edu.hcmus.doc.mainservice.util.ResourceBundleUtils;
+import edu.hcmus.doc.mainservice.util.TransferDocumentUtils;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
 import java.time.LocalDate;
@@ -176,7 +185,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
         Objects.requireNonNull(transferDocDto.getCollaboratorIds()));
 
     if (transferDocDto.getTransferDocumentType() == TransferDocumentType.TRANSFER_TO_GIAM_DOC
-        && currentUser.getRole() == DocSystemRoleEnum.VAN_THU) {
+        && currentUser.getRole() == VAN_THU) {
+      // neu la van thu chuyen cho giam doc => new document
       transferNewDocuments(transferDocDto, reporter, assignee, collaborators);
     } else {
       transferExistedDocuments(transferDocDto, reporter, assignee, collaborators);
@@ -185,7 +195,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
   private void transferToSameLevel(TransferDocDto transferDocDto, User reporter, User assignee,
       DocSystemRoleEnum role) {
-    if (role == DocSystemRoleEnum.VAN_THU) {
+    if (role == VAN_THU) {
       List<IncomingDocument> incomingDocuments = incomingDocumentRepository
           .getIncomingDocumentsByIds(transferDocDto.getDocumentIds());
 
@@ -204,7 +214,6 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             reporter.getId(),
             processingDocument.getId());
         processingUserList.forEach(processingUser -> {
-          // neu user da co o trong van ban do roi => throw exception
           processingUser.setUser(assignee);
           processingUserRepository.save(processingUser);
         });
@@ -222,6 +231,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
         () -> new RuntimeException("Return request not found")
     );
 
+    int step = getStep(reporter, assignee);
+
     // TODO: validate incomingDocuments to make sure they are not processed yet.
     // save processing documents with status IN_PROGRESS
     incomingDocuments.forEach(incomingDocument -> {
@@ -232,18 +243,19 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
           processingDocument);
 
       saveCollaboratorList(savedProcessingDocument, collaborators, returnRequest, transferDocDto,
-          1);
+          step);
 
-      saveReporterOrAssignee(savedProcessingDocument, assignee, returnRequest, transferDocDto, 1,
+      saveReporterOrAssignee(savedProcessingDocument, assignee, returnRequest, transferDocDto, step,
           ProcessingDocumentRoleEnum.ASSIGNEE);
 
-      saveReporterOrAssignee(savedProcessingDocument, reporter, returnRequest, transferDocDto, 1,
+      saveReporterOrAssignee(savedProcessingDocument, reporter, returnRequest, transferDocDto, step,
           ProcessingDocumentRoleEnum.REPORTER);
     });
   }
 
   private void transferExistedDocuments(TransferDocDto transferDocDto, User reporter,
       User assignee, List<User> collaborators) {
+    int step = getStep(reporter, assignee);
     List<ProcessingDocument> processingDocuments = processingDocumentRepository.findAllByIds(
         transferDocDto.getDocumentIds());
 
@@ -253,12 +265,12 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
     processingDocuments.forEach(processingDocument -> {
 
-      saveCollaboratorList(processingDocument, collaborators, returnRequest, transferDocDto, 2);
+      saveCollaboratorList(processingDocument, collaborators, returnRequest, transferDocDto, step);
 
-      saveReporterOrAssignee(processingDocument, assignee, returnRequest, transferDocDto, 2,
+      saveReporterOrAssignee(processingDocument, assignee, returnRequest, transferDocDto, step,
           ProcessingDocumentRoleEnum.ASSIGNEE);
 
-      saveReporterOrAssignee(processingDocument, reporter, returnRequest, transferDocDto, 2,
+      saveReporterOrAssignee(processingDocument, reporter, returnRequest, transferDocDto, step,
           ProcessingDocumentRoleEnum.REPORTER);
     });
   }
@@ -290,42 +302,6 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   private User getUserByIdOrThrow(Long userId) {
     return userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
-  }
-
-  private ProcessingDocument createProcessingDocument(IncomingDocument incomingDocument,
-      ProcessingStatus processingStatus) {
-    ProcessingDocument processingDocument = new ProcessingDocument();
-    processingDocument.setIncomingDoc(incomingDocument);
-    processingDocument.setStatus(processingStatus);
-    processingDocument.setOpened(true);
-    processingDocument.setProcessingRequest("processing_request");
-    return processingDocument;
-  }
-
-  private ProcessingUser createProcessingUser(ProcessingDocument processingDocument, User user,
-      Integer step, ReturnRequest returnRequest, TransferDocDto transferDocDto) {
-    ProcessingUser processingUser = new ProcessingUser();
-    processingUser.setProcessingDocument(processingDocument);
-    processingUser.setUser(user);
-    processingUser.setStep(step);
-    processingUser.setReturnRequest(returnRequest);
-    processingUser.setProcessMethod(transferDocDto.getProcessMethod());
-
-    if (Boolean.FALSE.equals(transferDocDto.getIsInfiniteProcessingTime())) {
-      processingUser.setProcessingDuration(LocalDate.parse(
-          Objects.requireNonNull(transferDocDto.getProcessingTime()),
-          DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-    }
-    return processingUser;
-  }
-
-  private ProcessingUserRole createProcessingUserRole(ProcessingUser processingUser,
-      ProcessingDocumentRoleEnum role) {
-    ProcessingUserRole processingUserRole = new ProcessingUserRole();
-    processingUserRole.setProcessingUser(processingUser);
-    processingUserRole.setRole(role);
-
-    return processingUserRole;
   }
 
   @Override
