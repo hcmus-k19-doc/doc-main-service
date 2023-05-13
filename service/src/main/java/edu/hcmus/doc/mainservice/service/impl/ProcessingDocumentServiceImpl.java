@@ -13,12 +13,14 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocD
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
+import edu.hcmus.doc.mainservice.util.ResourceBundleUtils;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ExecutionException;
@@ -104,8 +106,14 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
     return processingDocumentSearchResultDto;
   }
 
+  /**
+   * Kiem tra xem user co dang xu ly van ban nay khong, neu co => true, nguoc lai => false
+   *
+   * @param request
+   * @return
+   */
   @Override
-  public Boolean isUserWorkingOnDocumentWithRole(GetTransferDocumentDetailRequest request) {
+  public Boolean isUserWorkingOnDocumentWithSpecificRole(GetTransferDocumentDetailRequest request) {
     GetTransferDocumentDetailResponse detail = processingDocumentRepository.findTransferDocumentDetail(
         request);
     return detail != null;
@@ -121,20 +129,116 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
     User assignee = userRepository.findById(transferDocDto.getAssigneeId())
         .orElseThrow(() -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
 
-    List<User> collaborators = userRepository.findAllById(
-        Objects.requireNonNull(transferDocDto.getCollaboratorIds()));
+    int step = getStep(reporter, assignee, false);
 
-    int step = getStep(reporter, assignee);
+    ValidateTransferDocDto response = new ValidateTransferDocDto();
+    response.setMessage("");
+    response.setIsValid(true);
+
+    // neu la van thu, khong can kiem tra
+    if (currentUser.getRole() == DocSystemRoleEnum.VAN_THU) {
+      return response;
+    }
 
     if (transferDocDto.getIsTransferToSameLevel()) {
-      // neu la van thu, khong can kiem tra
-      if (currentUser.getRole() != DocSystemRoleEnum.VAN_THU) {
-        // kiem tra xem current user co phai la assignee cua van ban nay khong
-        // kiem tra xem reporter hay collaborator co dang xu ly van ban nay khong
+
+      // kiem tra xem current user co phai la assignee cua van ban nay khong
+      for (Long incomingDocId : transferDocDto.getDocumentIds()) {
+        Boolean currentUserCheck = isUserWorkingOnDocumentWithSpecificRole(
+            GetTransferDocumentDetailRequest.builder()
+                .incomingDocumentId(incomingDocId)
+                .step(step)
+                .userId(currentUser.getId())
+                .role(ProcessingDocumentRoleEnum.ASSIGNEE)
+                .build()
+        );
+        if (!currentUserCheck) {
+          Object[] arguments = new Object[]{incomingDocId};
+          response.setIsValid(false);
+          response.setMessage(ResourceBundleUtils.getDynamicContent(
+              MESSAGE.user_not_have_permission_to_transfer_document_in_same_level, arguments));
+          break;
+        }
+        // kiem tra xem assignee co dang xu ly van ban nay khong
+        Boolean assigneeCheck = isUserWorkingOnDocumentWithSpecificRole(
+            GetTransferDocumentDetailRequest.builder()
+                .incomingDocumentId(incomingDocId)
+                .step(step)
+                .userId(assignee.getId())
+                .role(null)
+                .build()
+        );
+        if (assigneeCheck) {
+          Object[] arguments = {assignee.getFullName(), incomingDocId};
+          response.setIsValid(false);
+          response.setMessage(ResourceBundleUtils.getDynamicContent(
+              MESSAGE.user_has_already_exists_in_the_flow_of_document, arguments));
+          break;
+        }
       }
     } else {
+      List<User> collaborators = userRepository.findAllById(
+          Objects.requireNonNull(transferDocDto.getCollaboratorIds()));
+      // current user phai la assignee thi moi duoc phep transfer
+      for (Long incomingDocId : transferDocDto.getDocumentIds()) {
+        Boolean currentUserCheck = isUserWorkingOnDocumentWithSpecificRole(
+            GetTransferDocumentDetailRequest.builder()
+                .incomingDocumentId(incomingDocId)
+                .step(step)
+                .userId(currentUser.getId())
+                .role(ProcessingDocumentRoleEnum.ASSIGNEE)
+                .build()
+        );
+        if (!currentUserCheck) {
+          Object[] arguments = {incomingDocId};
+          response.setIsValid(false);
+          response.setMessage(ResourceBundleUtils.getDynamicContent(
+              MESSAGE.user_not_have_permission_to_transfer_this_document, arguments));
+          break;
+        }
+
         // kiem tra xem tai step hien tai, assignee, reporter, collaborator co dang xu ly van ban nay khong
+        Boolean assigneeCheck = isUserWorkingOnDocumentWithSpecificRole(
+            GetTransferDocumentDetailRequest.builder()
+                .incomingDocumentId(incomingDocId)
+                .step(step)
+                .userId(assignee.getId())
+                .role(ProcessingDocumentRoleEnum.ASSIGNEE)
+                .build()
+        );
+        if (assigneeCheck) {
+          Object[] arguments = {assignee.getFullName(), incomingDocId};
+          response.setIsValid(false);
+          response.setMessage(ResourceBundleUtils.getDynamicContent(
+              MESSAGE.user_has_already_exists_in_the_flow_of_document, arguments));
+          break;
+        }
+        StringBuilder collaboratorNames = new StringBuilder();
+        boolean isCollaboratorsValid = true;
+        for (User collaborator : collaborators) {
+          Boolean collaboratorCheck = isUserWorkingOnDocumentWithSpecificRole(
+              GetTransferDocumentDetailRequest.builder()
+                  .incomingDocumentId(incomingDocId)
+                  .step(step)
+                  .userId(collaborator.getId())
+                  .role(ProcessingDocumentRoleEnum.COLLABORATOR)
+                  .build()
+          );
+          if (collaboratorCheck) {
+            isCollaboratorsValid = false;
+            collaboratorNames.append(collaborator.getFullName()).append(", ");
+          }
+        }
+        if (!isCollaboratorsValid) {
+          Object[] arguments = {collaboratorNames.substring(0, collaboratorNames.length() - 2)};
+          response.setIsValid(false);
+          response.setMessage(ResourceBundleUtils.getDynamicContent(
+              MESSAGE.user_has_already_exists_in_the_flow_of_document, arguments));
+          break;
+        }
+      }
     }
-    return null;
+
+    return response;
   }
 }

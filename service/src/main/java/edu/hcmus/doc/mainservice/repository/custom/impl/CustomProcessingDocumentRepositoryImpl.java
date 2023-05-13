@@ -6,8 +6,6 @@ import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingU
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingUserRole.processingUserRole;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.ConstructorExpression;
-import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -255,6 +253,12 @@ public class CustomProcessingDocumentRepositoryImpl
   @Override
   public GetTransferDocumentDetailResponse findTransferDocumentDetail(
       GetTransferDocumentDetailRequest request) {
+    BooleanBuilder where = new BooleanBuilder();
+    where.and(processingUser.user.id.eq(request.getUserId())
+        .and(processingUser.step.eq(request.getStep())));
+    if (request.getRole() != null) {
+      where.and(processingUserRole.role.eq(request.getRole()));
+    }
 
     return select(
         incomingDocument.id,
@@ -270,9 +274,7 @@ public class CustomProcessingDocumentRepositoryImpl
         .join(processingDocument).on(incomingDocument.id.eq(processingDocument.incomingDoc.id))
         .join(processingUser).on(processingDocument.id.eq(processingUser.processingDocument.id))
         .join(processingUserRole).on(processingUser.id.eq(processingUserRole.processingUser.id))
-        .where(processingUser.user.id.eq(request.getUserId())
-            .and(processingUser.step.eq(request.getStep()))
-            .and(processingUserRole.role.eq(request.getRole())))
+        .where(where)
         .fetch()
         .stream()
         .findFirst()

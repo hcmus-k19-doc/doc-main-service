@@ -1,9 +1,6 @@
 package edu.hcmus.doc.mainservice.util;
 
-import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.CHUYEN_VIEN;
 import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.GIAM_DOC;
-import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.TRUONG_PHONG;
-import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.VAN_THU;
 
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
@@ -20,16 +17,38 @@ import java.util.Objects;
 
 public class TransferDocumentUtils {
 
-  public static int getStep(User reporter, User assignee) {
-    int step;
-    if (reporter.getRole() == VAN_THU && assignee.getRole() == GIAM_DOC) {
-      step = 1;
-    } else if (reporter.getRole() == GIAM_DOC && assignee.getRole() == TRUONG_PHONG) {
-      step = 2;
-    } else if (reporter.getRole() == TRUONG_PHONG && assignee.getRole() == CHUYEN_VIEN) {
-      step = 3;
-    } else {
-      step = 0;
+  public static int getStep(User reporter, User assignee, Boolean isCreate) {
+    int step = 1;
+    switch (reporter.getRole()) {
+      case VAN_THU:
+        if (assignee.getRole() == GIAM_DOC) {
+          step = 1;
+        }
+        break;
+      case GIAM_DOC:
+        if (isCreate) {
+          step = 2;
+        } else {
+          step = 1;
+        }
+        break;
+      case TRUONG_PHONG:
+        if (isCreate) {
+          step = 3;
+        } else {
+          step = 2;
+        }
+        break;
+      case CHUYEN_VIEN:
+        if (isCreate) {
+          step = 4;
+        } else {
+          step = 3;
+        }
+        break;
+      default:
+        step = 1;
+        break;
     }
     return step;
   }

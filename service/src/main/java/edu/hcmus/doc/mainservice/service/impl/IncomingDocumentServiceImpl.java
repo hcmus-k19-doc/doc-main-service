@@ -1,10 +1,6 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
-import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.GIAM_DOC;
 import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.VAN_THU;
-import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.CHUYEN_VIEN;
-import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.TRUONG_PHONG;
-
 import static edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException.INCOMING_DOCUMENT_NOT_FOUND;
 import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingDocument;
 import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingUser;
@@ -51,11 +47,8 @@ import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.util.DocObjectUtils;
 import edu.hcmus.doc.mainservice.util.ResourceBundleUtils;
-import edu.hcmus.doc.mainservice.util.TransferDocumentUtils;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -231,7 +224,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
         () -> new RuntimeException("Return request not found")
     );
 
-    int step = getStep(reporter, assignee);
+    int step = getStep(reporter, assignee, true);
 
     // TODO: validate incomingDocuments to make sure they are not processed yet.
     // save processing documents with status IN_PROGRESS
@@ -255,7 +248,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
   private void transferExistedDocuments(TransferDocDto transferDocDto, User reporter,
       User assignee, List<User> collaborators) {
-    int step = getStep(reporter, assignee);
+    int step = getStep(reporter, assignee, true);
     List<ProcessingDocument> processingDocuments = processingDocumentRepository.findAllByIds(
         transferDocDto.getDocumentIds());
 
