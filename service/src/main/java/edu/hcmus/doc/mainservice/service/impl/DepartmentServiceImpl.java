@@ -5,12 +5,13 @@ import edu.hcmus.doc.mainservice.model.dto.DepartmentSearchCriteria;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.entity.Department;
 import edu.hcmus.doc.mainservice.repository.DepartmentRepository;
+import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.service.DepartmentService;
 import edu.hcmus.doc.mainservice.util.mapper.DepartmentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.PaginationMapper;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,10 +23,11 @@ public class DepartmentServiceImpl implements DepartmentService {
   private final DepartmentRepository departmentRepository;
   private final DepartmentMapper departmentMapper;
   private final PaginationMapper paginationMapper;
+  private final UserRepository userRepository;
 
   @Override
   public List<Department> findAll() {
-    return departmentRepository.findAll();
+    return departmentRepository.findAll(Sort.by("departmentName").ascending()).stream().toList();
   }
 
   @Override
@@ -34,8 +36,30 @@ public class DepartmentServiceImpl implements DepartmentService {
   }
 
   @Override
-  public Long saveDepartment(Department entity) {
-    return departmentRepository.save(entity).getId();
+  public Long saveDepartment(Department department, Long newTruongPhongId) {
+    if (isUserTruongPhongOfAnotherDepartment(department.getTruongPhong().getId(), department.getId())) {
+      Department userPrevDepartment = departmentRepository.getDepartmentByUserId(department.getTruongPhong().getId());
+      userPrevDepartment.setTruongPhong(null);
+      departmentRepository.save(userPrevDepartment);
+    }
+
+    return departmentRepository.save(department).getId();
+  }
+
+  @Override
+  public void deleteDepartments(List<Long> departmentIds) {
+    List<Department> departments = departmentRepository.findAllById(departmentIds);
+    departments.parallelStream().forEach(department -> department.setDeleted(true));
+    departmentRepository.saveAll(departments);
+  }
+
+  @Override
+  public boolean isUserTruongPhongOfAnotherDepartment(Long userId, Long departmentId) {
+    if (departmentId == null) {
+      return false;
+    }
+
+    return departmentRepository.isUserIsTruongPhongOfAnotherDepartment(userId, departmentId);
   }
 
   @Override

@@ -48,6 +48,12 @@ public class AdminController extends DocAbstractController {
         .toList();
   }
 
+  @GetMapping("/already-assigned/truong-phong/{userId}/departments/{departmentId}")
+  public boolean isUserTruongPhongOfAnotherDepartment(@PathVariable Long userId, @PathVariable Long departmentId) {
+    return departmentService.isUserTruongPhongOfAnotherDepartment(userId, departmentId);
+  }
+
+
   @PostMapping("/search/document-types")
   public DocPaginationDto<DocumentTypeDto> searchDocumentTypes(
       @RequestBody(required = false) DocumentTypeSearchCriteria documentTypeSearchCriteria,
@@ -82,7 +88,7 @@ public class AdminController extends DocAbstractController {
     return userService.createUser(user);
   }
 
-  @PostMapping("document-types")
+  @PostMapping("/document-types")
   @ResponseStatus(HttpStatus.CREATED)
   public Long saveDocumentType(@RequestBody @Valid DocumentTypeDto documentTypeDto) {
     DocumentType documentType;
@@ -104,7 +110,7 @@ public class AdminController extends DocAbstractController {
       department = departmentMapper.partialUpdate(departmentDto, departmentService.getDepartmentById(departmentDto.getId()));
     }
 
-    return departmentService.saveDepartment(department);
+    return departmentService.saveDepartment(department, departmentDto.getTruongPhong().getId());
   }
 
   @PutMapping("/users/{id}")
@@ -123,5 +129,11 @@ public class AdminController extends DocAbstractController {
   @ResponseStatus(HttpStatus.NO_CONTENT)
   public void deleteDocumentTypes(@RequestBody List<Long> documentTypeIds) {
     documentTypeService.deleteDocumentTypes(documentTypeIds);
+  }
+
+  @DeleteMapping("/departments")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  public void deleteDepartments(@RequestBody List<Long> departmentIds) {
+    departmentService.deleteDepartments(departmentIds);
   }
 }

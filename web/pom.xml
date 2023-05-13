@@ -88,6 +88,7 @@
             <classPattern>edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DocumentTypeSearchCriteria</classPattern>
             <classPattern>edu.hcmus.doc.mainservice.model.dto.DepartmentSearchCriteria</classPattern>
+            <classPattern>edu.hcmus.doc.mainservice.model.dto.TruongPhongDto</classPattern>
           </classPatterns>
           <excludeClasses>
             <class>java.io.Serializable</class>

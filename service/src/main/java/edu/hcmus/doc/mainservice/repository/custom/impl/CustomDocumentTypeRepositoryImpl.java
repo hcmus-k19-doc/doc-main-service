@@ -27,6 +27,7 @@ public class CustomDocumentTypeRepositoryImpl
   @Override
   public List<DocumentType> searchByCriteria(DocumentTypeSearchCriteria criteria, long offset, long limit) {
     return buildSearchQuery(criteria)
+        .orderBy(QDocumentType.documentType.type.asc())
         .orderBy(QDocumentType.documentType.id.asc())
         .offset(offset * limit)
         .limit(limit)
