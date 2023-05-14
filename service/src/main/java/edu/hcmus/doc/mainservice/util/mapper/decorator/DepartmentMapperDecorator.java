@@ -21,7 +21,7 @@ public abstract class DepartmentMapperDecorator implements DepartmentMapper {
   @Override
   public Department toEntity(DepartmentDto departmentDto) {
     Department entity = delegate.toEntity(departmentDto);
-    if (departmentDto.getTruongPhong() != null) {
+    if (departmentDto.getTruongPhong() != null && departmentDto.getTruongPhong().getId() != null) {
       entity.setTruongPhong(userService.getUserById(departmentDto.getTruongPhong().getId()));
     }
     return entity;

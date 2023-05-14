@@ -23,8 +23,6 @@ public interface DepartmentMapper {
   @Mapping(target = "truongPhong", ignore = true)
   Department toEntity(DepartmentDto departmentDto);
 
-  @Mapping(target = "createdDate", ignore = true)
-  @Mapping(target = "createdBy", ignore = true)
   DepartmentDto toDto(Department department);
 
   @Mapping(target = "createdDate", ignore = true)

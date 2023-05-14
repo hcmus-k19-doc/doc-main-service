@@ -13,4 +13,7 @@ public class DepartmentDto extends DocAbstractDto {
 
   @Nullable
   private TruongPhongDto truongPhong;
+
+  @Nullable
+  private String description;
 }

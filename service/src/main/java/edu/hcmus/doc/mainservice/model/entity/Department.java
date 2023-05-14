@@ -21,4 +21,7 @@ public class Department extends DocAbstractIdEntity {
   @OneToOne
   @JoinColumn(name = "truong_phong_id", columnDefinition = "BIGINT")
   private User truongPhong;
+
+  @Column(name = "description", columnDefinition = "TEXT")
+  private String description;
 }

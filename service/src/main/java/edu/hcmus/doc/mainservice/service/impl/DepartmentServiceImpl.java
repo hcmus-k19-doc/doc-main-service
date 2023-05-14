@@ -5,7 +5,6 @@ import edu.hcmus.doc.mainservice.model.dto.DepartmentSearchCriteria;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.entity.Department;
 import edu.hcmus.doc.mainservice.repository.DepartmentRepository;
-import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.service.DepartmentService;
 import edu.hcmus.doc.mainservice.util.mapper.DepartmentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.PaginationMapper;
@@ -23,7 +22,6 @@ public class DepartmentServiceImpl implements DepartmentService {
   private final DepartmentRepository departmentRepository;
   private final DepartmentMapper departmentMapper;
   private final PaginationMapper paginationMapper;
-  private final UserRepository userRepository;
 
   @Override
   public List<Department> findAll() {
@@ -49,7 +47,9 @@ public class DepartmentServiceImpl implements DepartmentService {
   @Override
   public void deleteDepartments(List<Long> departmentIds) {
     List<Department> departments = departmentRepository.findAllById(departmentIds);
-    departments.parallelStream().forEach(department -> department.setDeleted(true));
+    departments.parallelStream()
+        .filter(department -> !department.getDepartmentName().equals("RA"))
+        .forEach(department -> department.setDeleted(true));
     departmentRepository.saveAll(departments);
   }
 
