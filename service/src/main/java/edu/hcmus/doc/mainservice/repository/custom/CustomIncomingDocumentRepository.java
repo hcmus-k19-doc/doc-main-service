@@ -3,6 +3,7 @@ package edu.hcmus.doc.mainservice.repository.custom;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import java.util.List;
+import java.util.Map;
 
 public interface CustomIncomingDocumentRepository {
 
@@ -13,4 +14,6 @@ public interface CustomIncomingDocumentRepository {
   IncomingDocument getIncomingDocumentById(Long id);
 
   List<IncomingDocument> getIncomingDocumentsByIds(List<Long> ids);
+
+  Map<String, Integer> getStatistics();
 }

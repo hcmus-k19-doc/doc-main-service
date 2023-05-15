@@ -15,6 +15,7 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWith
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentMenuConfig;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
+import edu.hcmus.doc.mainservice.model.dto.StatisticsDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.Folder;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
@@ -50,6 +51,7 @@ import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
@@ -387,5 +389,12 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     }
     settings.setMenuConfigs(menuConfigs);
     return settings;
+  }
+
+  @Override
+  public StatisticsDto getStatistics() {
+    Map<String, Integer> statistics = incomingDocumentRepository.getStatistics();
+    StatisticsDto statisticsDto = new StatisticsDto();
+    return statisticsDto;
   }
 }

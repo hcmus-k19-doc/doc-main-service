@@ -1,14 +1,30 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
+import static com.querydsl.core.group.GroupBy.groupBy;
+
+import com.querydsl.core.types.dsl.Expressions;
+import com.querydsl.core.types.dsl.StringExpression;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.*;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.repository.custom.CustomIncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import java.util.List;
+import java.util.Map;
 
 public class CustomIncomingDocumentRepositoryImpl
     extends DocAbstractCustomRepository<IncomingDocument>
     implements CustomIncomingDocumentRepository {
+
+  private final StringExpression processingStatusEnumExpression = Expressions
+      .cases()
+      .when(QProcessingDocument.processingDocument.status.eq(ProcessingStatus.IN_PROGRESS))
+      .then(ProcessingStatus.IN_PROGRESS.value)
+      .when(QProcessingDocument.processingDocument.status.eq(ProcessingStatus.CLOSED))
+      .then(ProcessingStatus.CLOSED.value)
+      .otherwise(ProcessingStatus.UNPROCESSED.value)
+      .as("status");
+
 
   @Override
   public Long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
@@ -74,5 +90,18 @@ public class CustomIncomingDocumentRepositoryImpl
     return selectFrom(QIncomingDocument.incomingDocument)
         .where(QIncomingDocument.incomingDocument.id.in(ids))
         .fetch();
+  }
+
+  @Override
+  public Map<String, Integer> getStatistics() {
+    QIncomingDocument qIncomingDocument = QIncomingDocument.incomingDocument;
+    QProcessingDocument qProcessingDocument = new QProcessingDocument(qIncomingDocument.getMetadata().getName());
+
+    return selectFrom(qIncomingDocument)
+        .select(processingStatusEnumExpression, qIncomingDocument.id.count())
+        .innerJoin(qProcessingDocument)
+        .on(qIncomingDocument.id.eq(qProcessingDocument.incomingDoc.id))
+        .transform(groupBy(processingStatusEnumExpression)
+            .as(QIncomingDocument.incomingDocument.id.count().intValue()));
   }
 }
