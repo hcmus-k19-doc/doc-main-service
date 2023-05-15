@@ -26,7 +26,8 @@ public class IncomingDocument extends DocAbstractIdEntity {
   @JoinColumn(name = "document_type_id", referencedColumnName = "id", nullable = false)
   private DocumentType documentType;
 
-  @Column(name = "original_symbol_number", nullable = false, columnDefinition = "VARCHAR(255) NOT NULL")
+  @Column(name = "original_symbol_number", nullable = false,
+          columnDefinition = "VARCHAR(255) NOT NULL")
   private String originalSymbolNumber;
 
   @ManyToOne(fetch = FetchType.LAZY)

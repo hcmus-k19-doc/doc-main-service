@@ -5,6 +5,10 @@ import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWith
 import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
 
 public interface OutgoingDocumentService {
+  OutgoingDocument getOutgoingDocumentById(Long id);
+
   OutgoingDocument createOutgoingDocument(OutgoingDocumentWithAttachmentPostDto outgoingDocumentWithAttachmentPostDto)
           throws JsonProcessingException;
+
+  OutgoingDocument updateOutgoingDocument(OutgoingDocument outgoingDocument);
 }

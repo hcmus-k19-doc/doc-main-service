@@ -2,6 +2,7 @@ package edu.hcmus.doc.mainservice.util.mapper;
 
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentPostDto;
+import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentPutDto;
 import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.OutgoingDocumentMapperDecorator;
 import org.mapstruct.DecoratedWith;
@@ -29,4 +30,9 @@ public interface OutgoingDocumentMapper {
   @Mapping(target = "documentType", ignore = true)
   @Mapping(target = "publishingDepartment", ignore = true)
   OutgoingDocument toEntity(OutgoingDocumentPostDto outgoingDocumentDto);
+
+  @Mapping(target = "folder", ignore = true)
+  @Mapping(target = "documentType", ignore = true)
+  @Mapping(target = "publishingDepartment", ignore = true)
+  OutgoingDocument toEntity(OutgoingDocumentPutDto outgoingDocumentDto);
 }
