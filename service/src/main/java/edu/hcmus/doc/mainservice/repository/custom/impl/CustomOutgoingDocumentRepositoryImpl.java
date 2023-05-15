@@ -21,8 +21,8 @@ public class CustomOutgoingDocumentRepositoryImpl
   @Override
   public long getTotalElements(OutgoingDocSearchCriteriaDto searchCriteriaDto) {
     return buildSearchQuery(searchCriteriaDto)
-        .select(outgoingDocument.id.count())
-        .fetchFirst();
+        .fetch()
+        .size();
   }
 
   @Override
@@ -62,15 +62,17 @@ public class CustomOutgoingDocumentRepositoryImpl
           searchCriteriaDto.getReleaseDateTo().plusDays(1).atStartOfDay().toLocalDate()
       ));
     }
-
     if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getSummary())) {
       where.and(outgoingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
 
     return selectFrom(outgoingDocument)
         .innerJoin(outgoingDocument.documentType, QDocumentType.documentType)
+        .fetchJoin()
         .innerJoin(outgoingDocument.publishingDepartment, QDepartment.department)
+        .fetchJoin()
         .innerJoin(outgoingDocument.folder, QFolder.folder)
+        .fetchJoin()
         .distinct()
         .where(where);
   }

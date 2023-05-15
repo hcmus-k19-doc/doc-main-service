@@ -5,7 +5,6 @@ import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWithAttachmentPostDto;
-import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
 import edu.hcmus.doc.mainservice.service.OutgoingDocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
@@ -31,14 +30,17 @@ public class OutgoingDocumentController extends DocAbstractController {
   }
 
   @PostMapping("/search")
-  public DocPaginationDto<OutgoingDocument> getOutgoingDocuments(
+  public DocPaginationDto<OutgoingDocumentGetDto> getOutgoingDocuments(
       @RequestBody(required = false) OutgoingDocSearchCriteriaDto searchCriteria,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "3") int pageSize
   ) {
     return paginationMapper.toDto(
         outgoingDocumentService
-            .searchOutgoingDocuments(searchCriteria, page, pageSize),
+            .searchOutgoingDocuments(searchCriteria, page, pageSize)
+            .stream()
+            .map(outgoingDecoratorDocumentMapper::toDto)
+            .toList(),
         outgoingDocumentService.getTotalElements(searchCriteria),
         outgoingDocumentService.getTotalPages(searchCriteria, pageSize));
   }
