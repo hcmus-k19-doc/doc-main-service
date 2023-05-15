@@ -4,6 +4,7 @@ import edu.hcmus.doc.mainservice.model.dto.DepartmentDto;
 import edu.hcmus.doc.mainservice.model.dto.DocumentTypeDto;
 import edu.hcmus.doc.mainservice.model.dto.FolderDto;
 import edu.hcmus.doc.mainservice.model.enums.Confidentiality;
+import edu.hcmus.doc.mainservice.model.enums.OutgoingDocumentStatusEnum;
 import edu.hcmus.doc.mainservice.model.enums.Urgency;
 import lombok.Data;
 
@@ -20,4 +21,5 @@ public class OutgoingDocumentGetDto {
     private FolderDto folder;
     private LocalDate releaseDate;
     private DepartmentDto publishingDepartment;
+    private OutgoingDocumentStatusEnum status;
 }
