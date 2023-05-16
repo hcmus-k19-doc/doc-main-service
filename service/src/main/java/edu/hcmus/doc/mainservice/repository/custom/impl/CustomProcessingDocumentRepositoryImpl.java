@@ -259,8 +259,10 @@ public class CustomProcessingDocumentRepositoryImpl
   public GetTransferDocumentDetailResponse findTransferDocumentDetail(
       GetTransferDocumentDetailRequest request) {
     BooleanBuilder where = new BooleanBuilder();
-    where.and(processingUser.user.id.eq(request.getUserId())
+    where.and(incomingDocument.id.eq(request.getIncomingDocumentId()))
+        .and(processingUser.user.id.eq(request.getUserId())
         .and(processingUser.step.eq(request.getStep())));
+    // if role is null, get all roles
     if (request.getRole() != null) {
       where.and(processingUserRole.role.eq(request.getRole()));
     }
