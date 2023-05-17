@@ -21,11 +21,15 @@ import edu.hcmus.doc.mainservice.model.entity.QProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QSendingLevel;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.repository.custom.CustomProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
 public class CustomProcessingDocumentRepositoryImpl
@@ -256,12 +260,12 @@ public class CustomProcessingDocumentRepositoryImpl
   }
 
   @Override
-  public GetTransferDocumentDetailResponse findTransferDocumentDetail(
+  public GetTransferDocumentDetailResponse getTransferDocumentDetail(
       GetTransferDocumentDetailRequest request) {
     BooleanBuilder where = new BooleanBuilder();
     where.and(incomingDocument.id.eq(request.getIncomingDocumentId()))
         .and(processingUser.user.id.eq(request.getUserId())
-        .and(processingUser.step.eq(request.getStep())));
+            .and(processingUser.step.eq(request.getStep())));
     // if role is null, get all roles
     if (request.getRole() != null) {
       where.and(processingUserRole.role.eq(request.getRole()));
@@ -269,9 +273,11 @@ public class CustomProcessingDocumentRepositoryImpl
 
     return select(
         incomingDocument.id,
+        incomingDocument.incomingNumber,
         incomingDocument.summary,
         processingDocument.id,
         processingDocument.status,
+        processingDocument.createdDate,
         processingUser.processingDuration,
         processingUser.step,
         processingUser.processMethod,
@@ -292,6 +298,8 @@ public class CustomProcessingDocumentRepositoryImpl
           instance.setIncomingSummary(tuple.get(incomingDocument.summary));
           instance.setProcessingDocumentId(tuple.get(processingDocument.id));
           instance.setProcessingStatus(tuple.get(processingDocument.status));
+          instance.setTransferDate(LocalDate.from(
+              Objects.requireNonNull(tuple.get(processingDocument.createdDate))));
           instance.setProcessingDuration(tuple.get(processingUser.processingDuration));
           instance.setIsInfiniteProcessingTime(
               tuple.get(processingUser.processingDuration) == null);
@@ -304,4 +312,22 @@ public class CustomProcessingDocumentRepositoryImpl
         .orElse(null);
   }
 
+  @Override
+  public List<Long> getListOfUserIdRelatedToTransferredDocument(Long processingDocumentId,
+      Integer step,
+      ProcessingDocumentRoleEnum role) {
+    return select(processingUser.user.id)
+        .from(processingUser)
+        .join(processingUserRole)
+        .on(processingUser.id.eq(processingUserRole.processingUser.id))
+        .where(processingUser.processingDocument.id.eq(processingDocumentId)
+            .and(processingUser.step.eq(step))
+            .and(processingUserRole.role.eq(role)))
+        .fetch()
+        .stream()
+        .map(tuple -> {
+          return tuple.get(processingUser.user.id);
+        })
+        .collect(Collectors.toList());
+  }
 }

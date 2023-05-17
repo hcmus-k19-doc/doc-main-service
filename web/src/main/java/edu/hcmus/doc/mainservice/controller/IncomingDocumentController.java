@@ -10,8 +10,9 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModa
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
-import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailCustomResponse;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
@@ -122,6 +123,12 @@ public class IncomingDocumentController extends DocAbstractController {
   @PostMapping("/validate-transfer-documents")
   public ValidateTransferDocDto validateTransferDocuments(@RequestBody TransferDocDto transferDocDto) {
     return processingDocumentService.validateTransferDocument(transferDocDto);
+  }
+
+  @PostMapping("/get-transfer-documents-detail")
+  public GetTransferDocumentDetailCustomResponse getTransferDocumentsDetail(@RequestBody GetTransferDocumentDetailRequest request) {
+    GetTransferDocumentDetailCustomResponse response = processingDocumentService.getTransferDocumentDetail(request);
+    return response;
   }
 
 }
