@@ -130,6 +130,7 @@ public class IncomingDocumentController extends DocAbstractController {
   public StatisticsWrapperDto getStatistics() {
     return incomingDocumentService.getCurrentUserStatistics();
   }
+
   // TODO: xu ly them case readonly cho collaborators
   @PostMapping("/get-transfer-documents-detail")
   public GetTransferDocumentDetailCustomResponse getTransferDocumentsDetail(@RequestBody GetTransferDocumentDetailRequest request) {
