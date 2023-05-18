@@ -10,6 +10,7 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModa
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
+import edu.hcmus.doc.mainservice.model.dto.StatisticsWrapperDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailCustomResponse;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
@@ -125,6 +126,10 @@ public class IncomingDocumentController extends DocAbstractController {
     return processingDocumentService.validateTransferDocument(transferDocDto);
   }
 
+  @GetMapping("/statistics")
+  public StatisticsWrapperDto getStatistics() {
+    return incomingDocumentService.getCurrentUserStatistics();
+  }
   // TODO: xu ly them case readonly cho collaborators
   @PostMapping("/get-transfer-documents-detail")
   public GetTransferDocumentDetailCustomResponse getTransferDocumentsDetail(@RequestBody GetTransferDocumentDetailRequest request) {
