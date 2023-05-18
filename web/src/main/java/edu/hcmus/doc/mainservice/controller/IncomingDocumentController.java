@@ -125,6 +125,7 @@ public class IncomingDocumentController extends DocAbstractController {
     return processingDocumentService.validateTransferDocument(transferDocDto);
   }
 
+  // TODO: xu ly them case readonly cho collaborators
   @PostMapping("/get-transfer-documents-detail")
   public GetTransferDocumentDetailCustomResponse getTransferDocumentsDetail(@RequestBody GetTransferDocumentDetailRequest request) {
     GetTransferDocumentDetailCustomResponse response = processingDocumentService.getTransferDocumentDetail(request);
