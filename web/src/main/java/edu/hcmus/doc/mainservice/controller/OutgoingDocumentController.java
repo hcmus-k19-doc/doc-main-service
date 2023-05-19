@@ -2,6 +2,7 @@ package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentPutDto;
@@ -63,5 +64,10 @@ public class OutgoingDocumentController extends DocAbstractController {
             .toList(),
         outgoingDocumentService.getTotalElements(searchCriteria),
         outgoingDocumentService.getTotalPages(searchCriteria, pageSize));
+  }
+
+  @GetMapping("/transfer-outgoing-documents-setting")
+  public TransferDocumentModalSettingDto getTransferOutgoingDocumentModalSetting() {
+    return outgoingDocumentService.getTransferOutgoingDocumentModalSetting();
   }
 }
