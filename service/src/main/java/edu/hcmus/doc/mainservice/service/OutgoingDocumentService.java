@@ -10,6 +10,8 @@ import java.util.List;
 public interface OutgoingDocumentService {
   OutgoingDocument getOutgoingDocumentById(Long id);
 
+  OutgoingDocument releaseDocument(OutgoingDocument document);
+
   OutgoingDocument createOutgoingDocument(OutgoingDocumentWithAttachmentPostDto outgoingDocumentWithAttachmentPostDto)
           throws JsonProcessingException;
 
