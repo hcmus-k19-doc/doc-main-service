@@ -6,6 +6,7 @@ import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingU
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingUserRole.processingUserRole;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -29,6 +30,7 @@ import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -329,5 +331,17 @@ public class CustomProcessingDocumentRepositoryImpl
           return tuple.get(processingUser.user.id);
         })
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public Optional<ProcessingStatus> getProcessingStatus(Long documentId) {
+    String result = selectFrom(processingDocument)
+        .rightJoin(processingDocument.incomingDoc, incomingDocument)
+        .select(processingStatusCases)
+        .where(incomingDocument.id.eq(documentId))
+        .fetchOne();
+
+      return Optional.ofNullable(result)
+          .map(ProcessingStatus::valueOf);
   }
 }
