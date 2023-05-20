@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
 
@@ -326,10 +327,17 @@ public class CustomProcessingDocumentRepositoryImpl
             .and(processingUserRole.role.eq(role)))
         .fetch()
         .stream()
-        .map(tuple -> {
-          return tuple.get(processingUser.user.id);
-        })
-        .collect(Collectors.toList());
+        .map(tuple -> tuple.get(processingUser.user.id))
+        .toList();
+  }
+
+  @Override
+  public Optional<ProcessingDocument> findByIncomingDocumentId(Long incomingDocumentId) {
+    return Optional.ofNullable(
+        selectFrom(processingDocument)
+            .where(processingDocument.incomingDoc.id.eq(incomingDocumentId))
+            .fetchOne()
+    );
   }
 
   @Override

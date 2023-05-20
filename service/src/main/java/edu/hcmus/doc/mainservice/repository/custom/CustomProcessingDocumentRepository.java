@@ -24,5 +24,7 @@ public interface CustomProcessingDocumentRepository
 
   List<Long> getListOfUserIdRelatedToTransferredDocument(Long processingDocumentId, Integer step, ProcessingDocumentRoleEnum role);
 
+  Optional<ProcessingDocument> findByIncomingDocumentId(Long incomingDocumentId);
+
   Optional<ProcessingStatus> getProcessingStatus(Long documentId);
 }
