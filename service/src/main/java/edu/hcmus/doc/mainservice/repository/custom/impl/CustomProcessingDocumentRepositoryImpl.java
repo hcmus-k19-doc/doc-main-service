@@ -6,7 +6,6 @@ import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingU
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingUserRole.processingUserRole;
 
 import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQuery;
