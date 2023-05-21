@@ -21,4 +21,7 @@ public interface CustomProcessingDocumentRepository
   GetTransferDocumentDetailResponse getTransferDocumentDetail(GetTransferDocumentDetailRequest request);
 
   List<Long> getListOfUserIdRelatedToTransferredDocument(Long processingDocumentId, Integer step, ProcessingDocumentRoleEnum role);
+
+  GetTransferDocumentDetailResponse getTransferOutgoingDocumentDetail(GetTransferDocumentDetailRequest request);
+
 }

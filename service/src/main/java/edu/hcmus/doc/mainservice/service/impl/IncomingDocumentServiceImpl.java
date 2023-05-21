@@ -225,8 +225,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     // TODO: validate incomingDocuments to make sure they are not processed yet.
     // save processing documents with status IN_PROGRESS
     incomingDocuments.forEach(incomingDocument -> {
-      ProcessingDocument processingDocument = createProcessingDocument(incomingDocument,
-          ProcessingStatus.IN_PROGRESS);
+      ProcessingDocument processingDocument = createProcessingDocument(incomingDocument, null, ProcessingStatus.IN_PROGRESS);
 
       ProcessingDocument savedProcessingDocument = processingDocumentRepository.save(
           processingDocument);
@@ -264,7 +263,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     });
   }
 
-  private void saveCollaboratorList(ProcessingDocument processingDocument, List<User> collaborators,
+  @Override
+  public void saveCollaboratorList(ProcessingDocument processingDocument, List<User> collaborators,
       ReturnRequest returnRequest, TransferDocDto transferDocDto, Integer step) {
     collaborators.forEach(collaborator -> {
       ProcessingUser processingUser1 = createProcessingUser(processingDocument, collaborator, step,
@@ -277,7 +277,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     });
   }
 
-  private void saveReporterOrAssignee(ProcessingDocument processingDocument, User user,
+  @Override
+  public void saveReporterOrAssignee(ProcessingDocument processingDocument, User user,
       ReturnRequest returnRequest, TransferDocDto transferDocDto, Integer step,
       ProcessingDocumentRoleEnum role) {
     ProcessingUser processingUser = createProcessingUser(processingDocument, user, step,
@@ -288,7 +289,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     processingUserRoleRepository.save(processingUserRole);
   }
 
-  private User getUserByIdOrThrow(Long userId) {
+  @Override
+  public User getUserByIdOrThrow(Long userId) {
     return userRepository.findById(userId)
         .orElseThrow(() -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
   }

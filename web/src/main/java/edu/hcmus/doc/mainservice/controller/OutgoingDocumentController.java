@@ -8,10 +8,14 @@ import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetD
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentPutDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.PublishDocumentDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
 import edu.hcmus.doc.mainservice.service.OutgoingDocumentService;
+import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping(DocURL.API_V1 + "/outgoing-documents")
 public class OutgoingDocumentController extends DocAbstractController {
   private final OutgoingDocumentService outgoingDocumentService;
+  private final ProcessingDocumentService processingDocumentService;
 
   @GetMapping("/{id}")
   public OutgoingDocumentGetDto getOutgoingDocument(@PathVariable Long id) {
@@ -54,6 +59,7 @@ public class OutgoingDocumentController extends DocAbstractController {
 
   @SneakyThrows
   @PostMapping("/create")
+  @PreAuthorize("hasAuthority('CHUYEN_VIEN')")
   public OutgoingDocumentGetDto createIncomingDocument(
           @ModelAttribute OutgoingDocumentWithAttachmentPostDto outgoingDocumentWithAttachmentPostDto) {
     return outgoingDecoratorDocumentMapper.toDto(
@@ -79,5 +85,15 @@ public class OutgoingDocumentController extends DocAbstractController {
   @GetMapping("/transfer-outgoing-documents-setting")
   public TransferDocumentModalSettingDto getTransferOutgoingDocumentModalSetting() {
     return outgoingDocumentService.getTransferOutgoingDocumentModalSetting();
+  }
+
+  @PostMapping("/validate-transfer-documents")
+  public ValidateTransferDocDto validateTransferDocuments(@RequestBody TransferDocDto transferDocDto) {
+    return processingDocumentService.validateTransferOutgoingDocument(transferDocDto);
+  }
+
+  @PostMapping("/transfer-documents")
+  public void transferDocuments(@RequestBody TransferDocDto transferDocDto) {
+    outgoingDocumentService.transferDocuments(transferDocDto);
   }
 }

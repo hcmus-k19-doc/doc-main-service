@@ -1,6 +1,7 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
 import static edu.hcmus.doc.mainservice.model.entity.QIncomingDocument.incomingDocument;
+import static edu.hcmus.doc.mainservice.model.entity.QOutgoingDocument.outgoingDocument;
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingDocument.processingDocument;
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingUser;
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingUserRole.processingUserRole;
@@ -226,11 +227,7 @@ public class CustomProcessingDocumentRepositoryImpl
       where.and(incomingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
 
-    BooleanBuilder filter = new BooleanBuilder();
     User currUser = SecurityUtils.getCurrentUser();
-    if (currUser.getRole() != DocSystemRoleEnum.VAN_THU) {
-      filter.and(processingUser.user.id.eq(currUser.getId()));
-    }
 
     JPAQuery<IncomingDocument> query = selectFrom(incomingDocument)
         .leftJoin(processingDocument)
@@ -263,7 +260,7 @@ public class CustomProcessingDocumentRepositoryImpl
   public GetTransferDocumentDetailResponse getTransferDocumentDetail(
       GetTransferDocumentDetailRequest request) {
     BooleanBuilder where = new BooleanBuilder();
-    where.and(incomingDocument.id.eq(request.getIncomingDocumentId()))
+    where.and(incomingDocument.id.eq(request.getDocumentId()))
         .and(processingUser.user.id.eq(request.getUserId())
             .and(processingUser.step.eq(request.getStep())));
     // if role is null, get all roles
@@ -293,9 +290,60 @@ public class CustomProcessingDocumentRepositoryImpl
         .findFirst()
         .map(tuple -> {
           GetTransferDocumentDetailResponse instance = new GetTransferDocumentDetailResponse();
-          instance.setIncomingDocumentId(tuple.get(incomingDocument.id));
-          instance.setIncomingNumber(tuple.get(incomingDocument.incomingNumber));
-          instance.setIncomingSummary(tuple.get(incomingDocument.summary));
+          instance.setDocumentId(tuple.get(incomingDocument.id));
+          instance.setDocumentNumber(tuple.get(incomingDocument.incomingNumber));
+          instance.setSummary(tuple.get(incomingDocument.summary));
+          instance.setProcessingDocumentId(tuple.get(processingDocument.id));
+          instance.setProcessingStatus(tuple.get(processingDocument.status));
+          instance.setTransferDate(LocalDate.from(
+              Objects.requireNonNull(tuple.get(processingDocument.createdDate))));
+          instance.setProcessingDuration(tuple.get(processingUser.processingDuration));
+          instance.setIsInfiniteProcessingTime(
+              tuple.get(processingUser.processingDuration) == null);
+          instance.setStep(tuple.get(processingUser.step));
+          instance.setProcessMethod(tuple.get(processingUser.processMethod));
+          instance.setUserId(tuple.get(processingUser.user.id));
+          instance.setRole(tuple.get(processingUserRole.role));
+          return instance;
+        })
+        .orElse(null);
+  }
+
+  @Override
+  public GetTransferDocumentDetailResponse getTransferOutgoingDocumentDetail(GetTransferDocumentDetailRequest request) {
+    BooleanBuilder where = new BooleanBuilder();
+    where.and(outgoingDocument.id.eq(request.getDocumentId()))
+        .and(processingUser.user.id.eq(request.getUserId())
+            .and(processingUser.step.eq(request.getStep())));
+    if (request.getRole() != null) {
+      where.and(processingUserRole.role.eq(request.getRole()));
+    }
+
+    return select(
+        outgoingDocument.id,
+        outgoingDocument.outgoingNumber,
+        outgoingDocument.summary,
+        processingDocument.id,
+        processingDocument.status,
+        processingDocument.createdDate,
+        processingUser.processingDuration,
+        processingUser.step,
+        processingUser.processMethod,
+        processingUser.user.id,
+        processingUserRole.role)
+        .from(outgoingDocument)
+        .join(processingDocument).on(outgoingDocument.id.eq(processingDocument.outgoingDocument.id))
+        .join(processingUser).on(processingDocument.id.eq(processingUser.processingDocument.id))
+        .join(processingUserRole).on(processingUser.id.eq(processingUserRole.processingUser.id))
+        .where(where)
+        .fetch()
+        .stream()
+        .findFirst()
+        .map(tuple -> {
+          GetTransferDocumentDetailResponse instance = new GetTransferDocumentDetailResponse();
+          instance.setDocumentId(tuple.get(outgoingDocument.id));
+          instance.setDocumentNumber(tuple.get(outgoingDocument.outgoingNumber));
+          instance.setSummary(tuple.get(outgoingDocument.summary));
           instance.setProcessingDocumentId(tuple.get(processingDocument.id));
           instance.setProcessingStatus(tuple.get(processingDocument.status));
           instance.setTransferDate(LocalDate.from(
@@ -325,9 +373,7 @@ public class CustomProcessingDocumentRepositoryImpl
             .and(processingUserRole.role.eq(role)))
         .fetch()
         .stream()
-        .map(tuple -> {
-          return tuple.get(processingUser.user.id);
-        })
+        .map(tuple -> tuple.get(processingUser.user.id))
         .collect(Collectors.toList());
   }
 }
