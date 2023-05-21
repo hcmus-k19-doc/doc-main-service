@@ -1,9 +1,9 @@
 package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
-import edu.hcmus.doc.mainservice.model.dto.ExtensionRequestDto;
-import edu.hcmus.doc.mainservice.model.enums.ExtensionRequestStatus;
-import edu.hcmus.doc.mainservice.service.ExtensionRequestService;
+import edu.hcmus.doc.mainservice.model.dto.ExtendRequestDto;
+import edu.hcmus.doc.mainservice.model.enums.ExtendRequestStatus;
+import edu.hcmus.doc.mainservice.service.ExtendRequestService;
 import edu.hcmus.doc.mainservice.util.mapper.ExtensionRequestMapper;
 import java.util.List;
 import javax.validation.Valid;
@@ -19,32 +19,32 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping(DocURL.API_V1 + "/extension-requests")
-public class ExtensionRequestController {
+public class ExtendRequestController {
 
-  private final ExtensionRequestService extensionRequestService;
+  private final ExtendRequestService extendRequestService;
 
   private final ExtensionRequestMapper extensionRequestMapper;
 
   @GetMapping("/{username}")
-  public List<ExtensionRequestDto> getCurrUserExtensionRequests(@PathVariable String username) {
-    return extensionRequestService.getExtensionRequestsByUsername(username)
+  public List<ExtendRequestDto> getCurrUserExtensionRequests(@PathVariable String username) {
+    return extendRequestService.getExtensionRequestsByUsername(username)
         .stream()
         .map(extensionRequestMapper::toDto)
         .toList();
   }
 
   @PostMapping
-  public Long createExtensionRequest(@RequestBody @Valid ExtensionRequestDto extensionRequestDto) {
-    return extensionRequestService.createExtensionRequest(
-        extensionRequestDto.getProcessingUserId(),
-        extensionRequestMapper.toEntity(extensionRequestDto));
+  public Long createExtensionRequest(@RequestBody @Valid ExtendRequestDto extendRequestDto) {
+    return extendRequestService.createExtensionRequest(
+        extendRequestDto.getProcessingUserId(),
+        extensionRequestMapper.toEntity(extendRequestDto));
   }
 
   @PutMapping("/{id}/{validatorId}/{status}")
   public Long validateExtensionRequest(
       @PathVariable Long id,
       @PathVariable Long validatorId,
-      @PathVariable ExtensionRequestStatus status) {
-    return extensionRequestService.validateExtensionRequest(id, validatorId, status);
+      @PathVariable ExtendRequestStatus status) {
+    return extendRequestService.validateExtensionRequest(id, validatorId, status);
   }
 }
