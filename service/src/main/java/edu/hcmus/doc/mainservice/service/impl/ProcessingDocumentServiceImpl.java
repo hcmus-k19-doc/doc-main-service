@@ -272,6 +272,7 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
     if (currentUser.getRole() == DocSystemRoleEnum.CHUYEN_VIEN) {
       return response;
     }
+
     // neu la van thu, khong duoc phep chuyen van ban
     if(currentUser.getRole() == DocSystemRoleEnum.VAN_THU){
       Object[] arguments = {currentUser.getUsername()};
@@ -360,5 +361,10 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
     response.setCollaboratorIds(collaboratorIds);
 
     return response;
+  }
+
+  @Override
+  public Integer getCurrentStep(Long documentId){
+    return processingDocumentRepository.getCurrentStep(documentId).get(0, Integer.class);
   }
 }

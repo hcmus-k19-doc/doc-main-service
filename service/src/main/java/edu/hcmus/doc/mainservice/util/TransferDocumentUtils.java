@@ -70,13 +70,6 @@ public class TransferDocumentUtils {
           step = 2;
         }
       }
-      case VAN_THU -> {
-        if (isCreate) {
-          step = 4;
-        } else {
-          step = 3;
-        }
-      }
       default -> step = 1;
     }
     return step;

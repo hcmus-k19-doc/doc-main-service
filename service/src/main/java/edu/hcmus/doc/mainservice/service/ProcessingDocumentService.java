@@ -31,4 +31,6 @@ public interface ProcessingDocumentService {
   ValidateTransferDocDto validateTransferOutgoingDocument(TransferDocDto transferDocDto);
 
   GetTransferDocumentDetailCustomResponse getTransferDocumentDetail(GetTransferDocumentDetailRequest request);
+
+  Integer getCurrentStep(Long documentId);
 }

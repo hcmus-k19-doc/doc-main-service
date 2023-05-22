@@ -7,6 +7,7 @@ import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingU
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingUserRole.processingUserRole;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.Expressions;
 import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -257,6 +258,14 @@ public class CustomProcessingDocumentRepositoryImpl
   }
 
   @Override
+  public List<ProcessingDocument> findAllOutgoingByIds(List<Long> ids) {
+    return selectFrom(processingDocument)
+        .from(processingDocument)
+        .where(processingDocument.outgoingDocument.id.in(ids))
+        .fetch();
+  }
+
+  @Override
   public GetTransferDocumentDetailResponse getTransferDocumentDetail(
       GetTransferDocumentDetailRequest request) {
     BooleanBuilder where = new BooleanBuilder();
@@ -375,5 +384,14 @@ public class CustomProcessingDocumentRepositoryImpl
         .stream()
         .map(tuple -> tuple.get(processingUser.user.id))
         .collect(Collectors.toList());
+  }
+
+  @Override
+  public Tuple getCurrentStep(Long processingDocumentId){
+    return select(processingUser.step)
+        .from(processingUser)
+        .where(processingUser.processingDocument.id.eq(processingDocumentId))
+        .orderBy(processingUser.step.desc())
+        .fetchFirst();
   }
 }

@@ -1,6 +1,7 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
 import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.CHUYEN_VIEN;
+import static edu.hcmus.doc.mainservice.model.enums.MESSAGE.user_has_already_exists_in_the_flow_of_document;
 import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingDocument;
 import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.getStepOutgoingDocument;
 
@@ -254,14 +255,16 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
   private void transferExistedDocuments(TransferDocDto transferDocDto, User reporter,
       User assignee, List<User> collaborators) {
     int step = getStepOutgoingDocument(reporter, true);
-    List<ProcessingDocument> processingDocuments = processingDocumentRepository.findAllByIds(
-        transferDocDto.getDocumentIds());
+    List<ProcessingDocument> processingDocuments = processingDocumentRepository.findAllOutgoingByIds(transferDocDto.getDocumentIds());
 
     ReturnRequest returnRequest = returnRequestRepository.findById(1L).orElseThrow(
         () -> new RuntimeException("Return request not found")
     );
 
     processingDocuments.forEach(processingDocument -> {
+      if(processingDocumentService.getCurrentStep(processingDocument.getId()) >= step) {
+        throw new TransferDocumentException(user_has_already_exists_in_the_flow_of_document.toString());
+      }
 
       incomingDocumentService.saveCollaboratorList(processingDocument, collaborators, returnRequest, transferDocDto, step);
 
