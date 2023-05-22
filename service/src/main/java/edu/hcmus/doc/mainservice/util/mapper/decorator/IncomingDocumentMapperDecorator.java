@@ -9,6 +9,7 @@ import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.DistributionOrganizationService;
@@ -44,7 +45,35 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
 
   @Override
   public IncomingDocumentDto toDto(IncomingDocument incomingDocument) {
-    return delegate.toDto(incomingDocument);
+    IncomingDocumentDto dto = delegate.toDto(incomingDocument);
+    User currentUser = SecurityUtils.getCurrentUser();
+
+    int step = TransferDocumentUtils.getStep(currentUser, null, true);
+    Boolean isDocTransferred = processingDocumentService.isUserWorkingOnDocumentWithSpecificRole(
+        GetTransferDocumentDetailRequest.builder()
+            .incomingDocumentId(incomingDocument.getId())
+            .userId(currentUser.getId())
+            .role(ProcessingDocumentRoleEnum.REPORTER)
+            .step(step)
+            .build());
+
+    ProcessingStatus status = processingDocumentService.getProcessingStatus(
+        incomingDocument.getId());
+
+    int collabStep = TransferDocumentUtils.getStep(currentUser, null, false);
+    Boolean isDocCollaborator = processingDocumentService.isUserWorkingOnDocumentWithSpecificRole(
+        GetTransferDocumentDetailRequest.builder()
+            .incomingDocumentId(incomingDocument.getId())
+            .userId(currentUser.getId())
+            .role(ProcessingDocumentRoleEnum.COLLABORATOR)
+            .step(collabStep)
+            .build());
+
+    dto.setStatus(status);
+    dto.setIsDocTransferred(isDocTransferred);
+    dto.setIsDocCollaborator(isDocCollaborator);
+
+    return dto;
   }
 
   @Override
@@ -66,6 +95,17 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
             .step(step)
             .build());
     dto.setIsDocTransferred(isDocTransferred);
+
+    int collabStep = TransferDocumentUtils.getStep(currentUser, null, false);
+    Boolean isDocCollaborator = processingDocumentService.isUserWorkingOnDocumentWithSpecificRole(
+        GetTransferDocumentDetailRequest.builder()
+            .incomingDocumentId(processingDocument.getIncomingDoc().getId())
+            .userId(currentUser.getId())
+            .role(ProcessingDocumentRoleEnum.COLLABORATOR)
+            .step(collabStep)
+            .build());
+
+    dto.setIsDocCollaborator(isDocCollaborator);
 
     return dto;
   }

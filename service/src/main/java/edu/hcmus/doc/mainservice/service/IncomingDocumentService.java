@@ -39,6 +39,8 @@ public interface IncomingDocumentService {
 
   StatisticsWrapperDto getCurrentUserStatistics();
 
+  String closeDocument(Long incomingDocumentId);
+
   void saveCollaboratorList(ProcessingDocument processingDocument, List<User> collaborators,
       ReturnRequest returnRequest, TransferDocDto transferDocDto, Integer step);
 
