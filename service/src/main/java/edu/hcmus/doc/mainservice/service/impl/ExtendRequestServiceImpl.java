@@ -1,16 +1,16 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
-import static edu.hcmus.doc.mainservice.model.exception.ExtensionRequestNotFoundException.EXTENSION_REQUEST_NOT_FOUND;
 import static edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundException.PROCESSING_DOCUMENT_NOT_FOUND;
 
 import edu.hcmus.doc.mainservice.model.entity.ExtendRequest;
 import edu.hcmus.doc.mainservice.model.enums.ExtendRequestStatus;
-import edu.hcmus.doc.mainservice.model.exception.ExtensionRequestNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.ExtendRequestNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
-import edu.hcmus.doc.mainservice.repository.ExtensionRequestRepository;
+import edu.hcmus.doc.mainservice.repository.ExtendRequestRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
+import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.ExtendRequestService;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,14 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Throwable.class)
 public class ExtendRequestServiceImpl implements ExtendRequestService {
 
-  private final ExtensionRequestRepository extensionRequestRepository;
+  private final ExtendRequestRepository extendRequestRepository;
 
   private final ProcessingUserRepository processingUserRepository;
   private final UserRepository userRepository;
 
   @Override
   public List<ExtendRequest> getExtensionRequestsByUsername(String username) {
-    return extensionRequestRepository.getExtensionRequestsByUsername(username);
+    return extendRequestRepository.getExtendRequestsByUsername(username);
   }
 
   @Override
@@ -42,14 +42,14 @@ public class ExtendRequestServiceImpl implements ExtendRequestService {
             () -> {
               throw new ProcessingDocumentNotFoundException(PROCESSING_DOCUMENT_NOT_FOUND);
             });
-    return extensionRequestRepository.save(extendRequest).getId();
+    return extendRequestRepository.save(extendRequest).getId();
   }
 
   @Override
-  public Long validateExtensionRequest(Long id, Long validatorId, ExtendRequestStatus status) {
-    ExtendRequest extendRequest = extensionRequestRepository
+  public Long validateExtensionRequest(Long id, ExtendRequestStatus status) {
+    ExtendRequest extendRequest = extendRequestRepository
         .findById(id)
-        .orElseThrow(() -> new ExtensionRequestNotFoundException(EXTENSION_REQUEST_NOT_FOUND));
+        .orElseThrow(ExtendRequestNotFoundException::new);
 
     if (status == ExtendRequestStatus.APPROVED) {
       extendRequest.getProcessingUser()
@@ -60,9 +60,14 @@ public class ExtendRequestServiceImpl implements ExtendRequestService {
     }
 
     extendRequest.setValidatedBy(userRepository
-        .findById(validatorId)
+        .findById(SecurityUtils.getCurrentUserId())
         .orElseThrow(UserNotFoundException::new));
     extendRequest.setStatus(status);
-    return extensionRequestRepository.save(extendRequest).getId();
+    return extendRequestRepository.save(extendRequest).getId();
+  }
+
+  @Override
+  public boolean canCurrentUserValidateExtendRequest(Long extendRequestId) {
+    return extendRequestRepository.canValidateExtendRequest(extendRequestId, SecurityUtils.getCurrentUserId());
   }
 }

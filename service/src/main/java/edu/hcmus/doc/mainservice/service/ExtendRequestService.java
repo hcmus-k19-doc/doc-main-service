@@ -10,5 +10,7 @@ public interface ExtendRequestService {
 
   Long createExtensionRequest(Long processingDocId, ExtendRequest extendRequest);
 
-  Long validateExtensionRequest(Long id, Long validatorId, ExtendRequestStatus status);
+  Long validateExtensionRequest(Long id, ExtendRequestStatus status);
+
+  boolean canCurrentUserValidateExtendRequest(Long extendRequestId);
 }

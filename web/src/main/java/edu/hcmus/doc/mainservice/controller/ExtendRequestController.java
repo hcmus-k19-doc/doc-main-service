@@ -4,7 +4,7 @@ import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.ExtendRequestDto;
 import edu.hcmus.doc.mainservice.model.enums.ExtendRequestStatus;
 import edu.hcmus.doc.mainservice.service.ExtendRequestService;
-import edu.hcmus.doc.mainservice.util.mapper.ExtensionRequestMapper;
+import edu.hcmus.doc.mainservice.util.mapper.ExtendRequestMapper;
 import java.util.List;
 import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -18,33 +18,37 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping(DocURL.API_V1 + "/extension-requests")
+@RequestMapping(DocURL.API_V1 + "/extend-requests")
 public class ExtendRequestController {
 
   private final ExtendRequestService extendRequestService;
 
-  private final ExtensionRequestMapper extensionRequestMapper;
+  private final ExtendRequestMapper extendRequestMapper;
 
   @GetMapping("/{username}")
   public List<ExtendRequestDto> getCurrUserExtensionRequests(@PathVariable String username) {
     return extendRequestService.getExtensionRequestsByUsername(username)
         .stream()
-        .map(extensionRequestMapper::toDto)
+        .map(extendRequestMapper::toDto)
         .toList();
+  }
+
+  @GetMapping("/can-validate/{extendRequestId}")
+  public boolean canValidateExtendRequest(@PathVariable Long extendRequestId) {
+    return extendRequestService.canCurrentUserValidateExtendRequest(extendRequestId);
   }
 
   @PostMapping
   public Long createExtensionRequest(@RequestBody @Valid ExtendRequestDto extendRequestDto) {
     return extendRequestService.createExtensionRequest(
         extendRequestDto.getProcessingUserId(),
-        extensionRequestMapper.toEntity(extendRequestDto));
+        extendRequestMapper.toEntity(extendRequestDto));
   }
 
-  @PutMapping("/{id}/{validatorId}/{status}")
+  @PutMapping("/{id}/{status}")
   public Long validateExtensionRequest(
       @PathVariable Long id,
-      @PathVariable Long validatorId,
       @PathVariable ExtendRequestStatus status) {
-    return extendRequestService.validateExtensionRequest(id, validatorId, status);
+    return extendRequestService.validateExtensionRequest(id, status);
   }
 }
