@@ -86,7 +86,7 @@ public class DocumentReminderServiceImpl implements DocumentReminderService {
               .stream()
               .map(processingDocument -> {
                 DocumentReminderDetailsDto dto = new DocumentReminderDetailsDto();
-                dto.setProcessingDocumentId(processingDocument.getId());
+                dto.setIncomingDocumentId(processingDocument.getIncomingDoc().getId());
                 dto.setVersion(processingDocument.getVersion());
                 dto.setIncomingNumber(processingDocument.getIncomingDoc().getIncomingNumber());
                 dto.setSummary(processingDocument.getIncomingDoc().getSummary());
@@ -124,7 +124,7 @@ public class DocumentReminderServiceImpl implements DocumentReminderService {
                     dto.setIncomingNumber(processingDocument.getIncomingDoc().getIncomingNumber());
                     dto.setSummary(processingDocument.getIncomingDoc().getSummary());
                     dto.setExpirationDate(processingEntry.getKey());
-                    dto.setProcessingDocumentId(processingDocument.getId());
+                    dto.setIncomingDocumentId(processingDocument.getId());
                     return dto;
                   })
                   .collect(Collectors.toSet()))
