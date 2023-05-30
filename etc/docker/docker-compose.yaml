@@ -1,28 +1,5 @@
 version: '3.7'
 services:
-  # Databases
-  doc-main-postgres:
-    container_name: doc-main-postgres
-    image: postgres:15.1-alpine3.17
-    ports:
-      - "5432:5432"
-    volumes:
-      - doc-main-data:/data/postgres
-      - doc-keycloak-data:/var/lib/postgresql
-    environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: doc
-      PGDATA: /data/postgres
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 512M
-        reservations:
-          cpus: '1'
-          memory: 256M
-
   # Keycloak
   doc-keycloak:
     container_name: doc-keycloak
@@ -93,8 +70,6 @@ services:
       DOC_DATABASE: doc
 
 volumes:
-  doc-main-data:
-    name: doc-main-data
   doc-keycloak-data:
     name: doc-keycloak-data
     driver: local

@@ -34,7 +34,7 @@ spring:
     allow-circular-references: true
 
   liquibase:
-    url: jdbc:postgresql://localhost:5432/doc
+    url: jdbc:postgresql://13.215.56.216:5432/doc?stringtype=unspecified
     user: admin
     password: admin
     driver-class-name: org.postgresql.Driver
