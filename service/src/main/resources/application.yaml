@@ -3,13 +3,3 @@ spring:
     active: dev
   config:
     import: application-batch-job.yaml
-  liquibase:
-    url: jdbc:postgresql://localhost:5432/doc
-    user: admin
-    password: admin
-    driver-class-name: org.postgresql.Driver
-    change-log: classpath:db.changelog-master.xml
-    database-change-log-lock-table: database_changelog_lock
-    database-change-log-table: database_changelog
-    enabled: true
-    drop-first: false

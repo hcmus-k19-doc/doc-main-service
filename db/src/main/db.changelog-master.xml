@@ -19,7 +19,7 @@
   <include id="012" file="sql/012_init_work_folder_table.sql" relativeToChangelogFile="true" />
   <include id="013" file="sql/013_update_users_name.sql" relativeToChangelogFile="true" />
   <include id="014" file="sql/014_init_attachment_table.sql" relativeToChangelogFile="true" />
-  <changeSet id="016" author="" dbms="postgresql">
+  <changeSet id="016" author="doc" dbms="postgresql">
     <sqlFile path="/sql/016_add_more_sample_data.sql" splitStatements="false" />
   </changeSet>
   <include id="017" file="sql/017_add_mime_type.sql" relativeToChangelogFile="true" />
@@ -42,4 +42,5 @@
   <include id="034" file="sql/034_update_folder_name_format.sql" relativeToChangelogFile="true" />
   <include id="035" file="sql/035_add_test_user_and_refactor_extend_request_table.sql" relativeToChangelogFile="true" />
   <include id="036" file="sql/036_update_document_reminder_structure.sql" relativeToChangelogFile="true" />
+  <include id="037" file="sql/037_update_incoming_folder.sql" relativeToChangelogFile="true" />
 </databaseChangeLog>

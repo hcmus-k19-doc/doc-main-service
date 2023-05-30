@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset author:017
+--changeset doc:017
 
 SET SEARCH_PATH TO doc_main;
 

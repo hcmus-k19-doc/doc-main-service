@@ -23,10 +23,6 @@
       <resource>
         <directory>src/main</directory>
         <filtering>true</filtering>
-        <includes>
-          <include>**/*.sql</include>
-          <include>**/db.changelog-master.xml</include>
-        </includes>
       </resource>
     </resources>
     <plugins>

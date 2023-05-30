@@ -1,5 +1,5 @@
 --liquibase formatted sql
---changeset author:001
+--changeset doc:001
 
 DROP SCHEMA IF EXISTS doc_main CASCADE;
 
