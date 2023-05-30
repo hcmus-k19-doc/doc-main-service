@@ -6,9 +6,11 @@ import static edu.hcmus.doc.mainservice.DocConst.SCHEMA_NAME;
 import edu.hcmus.doc.mainservice.model.custom.ProcessMethodConverter;
 import edu.hcmus.doc.mainservice.model.enums.ProcessMethod;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.List;
+import javax.persistence.CollectionTable;
 import javax.persistence.Column;
 import javax.persistence.Convert;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
@@ -29,13 +31,15 @@ public class TransferHistory extends DocAbstractIdEntity {
   @JoinColumn(name = "receiver_id", columnDefinition = "BIGINT", nullable = false)
   private User receiver;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id")
-  private IncomingDocument incomingDocument;
+  @ElementCollection(fetch = FetchType.LAZY, targetClass = Long.class)
+  @CollectionTable(name = "transfer_history_incoming_document", joinColumns = @JoinColumn(name = "transfer_history_id"), catalog = CATALOG_NAME, schema = SCHEMA_NAME)
+  @Column(name = "incoming_doc_id", columnDefinition = "BIGINT")
+  private List<Long> incomingDocumentIds;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "outgoing_doc_id", referencedColumnName = "id")
-  private OutgoingDocument outgoingDocument;
+  @ElementCollection(fetch = FetchType.LAZY, targetClass = Long.class)
+  @CollectionTable(name = "transfer_history_outgoing_document", joinColumns = @JoinColumn(name = "transfer_history_id"), catalog = CATALOG_NAME, schema = SCHEMA_NAME)
+  @Column(name = "outgoing_doc_id", columnDefinition = "BIGINT")
+  private List<Long> outgoingDocumentIds;
 
   @Column(name = "process_method", nullable = false)
   @Convert(converter = ProcessMethodConverter.class)
@@ -45,5 +49,5 @@ public class TransferHistory extends DocAbstractIdEntity {
   private LocalDate processingDuration;
 
   @Column(name = "is_infinite_processing_time", columnDefinition = "BOOLEAN")
-  private LocalDate isInfiniteProcessingTime;
+  private Boolean isInfiniteProcessingTime;
 }
