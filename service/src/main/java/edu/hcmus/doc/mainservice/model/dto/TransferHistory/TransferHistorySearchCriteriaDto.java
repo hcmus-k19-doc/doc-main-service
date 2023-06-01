@@ -1,4 +1,4 @@
-package edu.hcmus.doc.mainservice.model.dto.TransferDocument;
+package edu.hcmus.doc.mainservice.model.dto.TransferHistory;
 
 import lombok.Data;
 

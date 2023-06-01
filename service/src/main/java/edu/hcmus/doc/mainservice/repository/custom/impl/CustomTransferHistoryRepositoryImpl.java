@@ -4,8 +4,9 @@ import static edu.hcmus.doc.mainservice.model.entity.QTransferHistory.transferHi
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
-import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentHistoryResponse;
-import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferHistorySearchCriteriaDto;
+
+import edu.hcmus.doc.mainservice.model.dto.TransferHistory.GetTransferDocumentHistoryResponse;
+import edu.hcmus.doc.mainservice.model.dto.TransferHistory.TransferHistorySearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.QUser;
 import edu.hcmus.doc.mainservice.model.entity.TransferHistory;
 import edu.hcmus.doc.mainservice.repository.custom.CustomTransferHistoryRepository;
@@ -37,9 +38,11 @@ public class CustomTransferHistoryRepositoryImpl extends
   @Override
   public List<TransferHistory> searchByCriteria(TransferHistorySearchCriteriaDto criteria,
       long offset, long limit) {
-//    return searchQueryByCriteria(criteria)
-//        .select()
-    return null;
+    JPAQuery<TransferHistory> jpaQuery = searchQueryByCriteria(criteria)
+        .offset(offset)
+        .limit(limit)
+        .fetchJoin();
+    return jpaQuery.fetch();
   }
 
   @Override

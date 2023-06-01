@@ -13,6 +13,7 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentD
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
+import edu.hcmus.doc.mainservice.model.entity.TransferHistory;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
@@ -23,6 +24,7 @@ import edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundExcep
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
+import edu.hcmus.doc.mainservice.repository.TransferHistoryRepository;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
@@ -53,6 +55,8 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
   private final AsyncRabbitTemplate asyncRabbitTemplate;
 
   private final UserRepository userRepository;
+
+  private final TransferHistoryRepository transferHistoryRepository;
 
   @Value("${spring.rabbitmq.template.exchange}")
   private String exchange;

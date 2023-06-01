@@ -31,12 +31,12 @@ public class TransferHistory extends DocAbstractIdEntity {
   @JoinColumn(name = "receiver_id", columnDefinition = "BIGINT", nullable = false)
   private User receiver;
 
-  @ElementCollection(fetch = FetchType.LAZY, targetClass = Long.class)
+  @ElementCollection
   @CollectionTable(name = "transfer_history_incoming_document", joinColumns = @JoinColumn(name = "transfer_history_id"), catalog = CATALOG_NAME, schema = SCHEMA_NAME)
   @Column(name = "incoming_doc_id", columnDefinition = "BIGINT")
   private List<Long> incomingDocumentIds;
 
-  @ElementCollection(fetch = FetchType.LAZY, targetClass = Long.class)
+  @ElementCollection
   @CollectionTable(name = "transfer_history_outgoing_document", joinColumns = @JoinColumn(name = "transfer_history_id"), catalog = CATALOG_NAME, schema = SCHEMA_NAME)
   @Column(name = "outgoing_doc_id", columnDefinition = "BIGINT")
   private List<Long> outgoingDocumentIds;

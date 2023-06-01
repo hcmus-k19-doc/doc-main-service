@@ -1,12 +1,16 @@
-package edu.hcmus.doc.mainservice.model.dto.TransferDocument;
+package edu.hcmus.doc.mainservice.model.dto.TransferHistory;
 
 import edu.hcmus.doc.mainservice.model.enums.ProcessMethod;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
+import lombok.Data;
 
-public class TransferHistoryDetailDto {
+@Data
+public class TransferHistoryDto {
 
-  private Long documentId;
-  private LocalDate createdDate;
+  private List<Long> documentIds;
+  private LocalDateTime createdDate;
   private LocalDate processingDuration;
   private Boolean isInfiniteProcessingTime = false;
   private ProcessMethod processMethod;
