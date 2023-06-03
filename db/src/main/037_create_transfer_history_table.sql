@@ -14,3 +14,13 @@ CREATE TABLE doc_main.transfer_history (
 	CONSTRAINT transfer_history_sender_user_fk FOREIGN KEY (sender_id) REFERENCES doc_main."user"(id)
 )
 INHERITS (doc_main.doc_base_table);
+
+CREATE TABLE doc_main.transfer_history_incoming_document (
+	transfer_history_id int8 NOT NULL,
+	incoming_doc_id int8 NULL
+) inherits ("doc_base_table");
+
+CREATE TABLE doc_main.transfer_history_outgoing_document (
+	transfer_history_id int8 NOT NULL,
+	outgoing_doc_id int8 NULL
+) inherits ("doc_base_table");

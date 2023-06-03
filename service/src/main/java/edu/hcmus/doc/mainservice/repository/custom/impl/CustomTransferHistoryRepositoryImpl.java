@@ -38,11 +38,10 @@ public class CustomTransferHistoryRepositoryImpl extends
   @Override
   public List<TransferHistory> searchByCriteria(TransferHistorySearchCriteriaDto criteria,
       long offset, long limit) {
-    JPAQuery<TransferHistory> jpaQuery = searchQueryByCriteria(criteria)
+    return searchQueryByCriteria(criteria)
         .offset(offset)
         .limit(limit)
-        .fetchJoin();
-    return jpaQuery.fetch();
+        .fetch();
   }
 
   @Override
@@ -61,7 +60,9 @@ public class CustomTransferHistoryRepositoryImpl extends
 
     JPAQuery<TransferHistory> query = selectFrom(transferHistory)
         .leftJoin(QUser.user).on(transferHistory.sender.id.eq(QUser.user.id))
+        .fetchJoin()
         .leftJoin(QUser.user).on(transferHistory.receiver.id.eq(QUser.user.id))
+        .fetchJoin()
         .where(where)
         .orderBy(transferHistory.createdDate.desc());
     return query;

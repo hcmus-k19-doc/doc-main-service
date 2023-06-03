@@ -8,6 +8,7 @@ import lombok.Data;
 
 @Data
 public class TransferHistoryDto {
+  private Long id;
 
   private List<Long> documentIds;
   private LocalDateTime createdDate;

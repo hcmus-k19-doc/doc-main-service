@@ -21,9 +21,11 @@ import edu.hcmus.doc.mainservice.util.mapper.TransferHistoryMapper;
 import edu.hcmus.doc.mainservice.util.mapper.UserMapper;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Pageable;
 
 @RequiredArgsConstructor
 @Service
@@ -157,8 +159,8 @@ public class UserServiceImpl implements UserService {
   @Transactional
   public List<TransferHistoryDto> getTransferHistoryByUser(
       TransferHistorySearchCriteriaDto criteriaDto, int offset, int limit) {
-    return transferHistoryRepository.searchByCriteria(
-            criteriaDto, offset, limit).stream()
+    Pageable pageable = PageRequest.of(offset, limit);
+    return transferHistoryRepository.findAllByUserId(criteriaDto.getUserId(), pageable)
         .map(transferHistoryMapper::toDto).toList();
   }
 }

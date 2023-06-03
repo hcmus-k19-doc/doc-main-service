@@ -23,7 +23,7 @@ public abstract class TransferHistoryMapperDecorator implements TransferHistoryM
     if (entity.getOutgoingDocumentIds() != null && !entity.getOutgoingDocumentIds().isEmpty()) {
       dto.setDocumentIds(entity.getOutgoingDocumentIds());
     }
-
+    dto.setId(entity.getId());
     dto.setCreatedDate(entity.getCreatedDate());
     dto.setProcessingDuration(entity.getProcessingDuration());
     dto.setIsInfiniteProcessingTime(entity.getIsInfiniteProcessingTime());
