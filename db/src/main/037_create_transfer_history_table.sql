@@ -18,10 +18,16 @@ INHERITS (doc_main.doc_base_table);
 
 CREATE TABLE doc_main.transfer_history_incoming_document (
 	transfer_history_id int8 NOT NULL,
-	incoming_doc_id int8 NULL
-) inherits ("doc_base_table");
+	incoming_doc_id int8 NULL,
+	id serial4 NOT NULL,
+	CONSTRAINT transfer_history_incoming_document_id PRIMARY KEY (id)
+)
+INHERITS (doc_main.doc_base_table);
 
 CREATE TABLE doc_main.transfer_history_outgoing_document (
 	transfer_history_id int8 NOT NULL,
-	outgoing_doc_id int8 NULL
-) inherits ("doc_base_table");
+	outgoing_doc_id int8 NULL,
+	id serial4 NOT NULL,
+	CONSTRAINT transfer_history_outgoing_document_id PRIMARY KEY (id)
+)
+INHERITS (doc_main.doc_base_table);
