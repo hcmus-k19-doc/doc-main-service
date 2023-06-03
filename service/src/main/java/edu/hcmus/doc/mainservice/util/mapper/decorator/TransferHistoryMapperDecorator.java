@@ -14,7 +14,7 @@ public abstract class TransferHistoryMapperDecorator implements TransferHistoryM
 
   @Override
   public TransferHistoryDto toDto(TransferHistory entity) {
-    System.out.println("entity: " + entity);
+
     TransferHistoryDto dto = new TransferHistoryDto();
     if (entity.getIncomingDocumentIds() != null && !entity.getIncomingDocumentIds().isEmpty()) {
       dto.setDocumentIds(entity.getIncomingDocumentIds());
@@ -27,6 +27,7 @@ public abstract class TransferHistoryMapperDecorator implements TransferHistoryM
     dto.setCreatedDate(entity.getCreatedDate());
     dto.setProcessingDuration(entity.getProcessingDuration());
     dto.setIsInfiniteProcessingTime(entity.getIsInfiniteProcessingTime());
+    dto.setIsTransferToSameLevel(entity.getIsTransferToSameLevel());
     dto.setProcessMethod(entity.getProcessMethod());
     dto.setSenderId(entity.getSender().getId());
     dto.setReceiverId(entity.getReceiver().getId());

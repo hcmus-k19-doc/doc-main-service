@@ -181,6 +181,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     transferHistory.setSender(reporter);
     transferHistory.setReceiver(assignee);
     transferHistory.setIncomingDocumentIds(transferDocDto.getDocumentIds());
+    transferHistory.setIsTransferToSameLevel(transferDocDto.getIsTransferToSameLevel());
 
     if (transferDocDto.getIsTransferToSameLevel()) {
       transferToSameLevel(transferDocDto, reporter, assignee, currentUser.getRole());

@@ -9,6 +9,7 @@ CREATE TABLE doc_main.transfer_history (
 	processing_duration timestamp NULL,
 	is_infinite_processing_time bool NULL,
 	"process_method" doc_main."process_method" NULL,
+	is_transfer_to_same_level bool NULL,
 	CONSTRAINT transfer_history_pk PRIMARY KEY (id),
 	CONSTRAINT transfer_history_receiver_user_fk FOREIGN KEY (receiver_id) REFERENCES doc_main."user"(id),
 	CONSTRAINT transfer_history_sender_user_fk FOREIGN KEY (sender_id) REFERENCES doc_main."user"(id)

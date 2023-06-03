@@ -21,6 +21,7 @@ public interface TransferHistoryMapper {
   @Mapping(target = "receiverId", ignore = true)
   @Mapping(target = "senderName", ignore = true)
   @Mapping(target = "receiverName", ignore = true)
+  @Mapping(target = "isTransferToSameLevel", ignore = true)
   TransferHistoryDto toDto(TransferHistory entity);
 
 }

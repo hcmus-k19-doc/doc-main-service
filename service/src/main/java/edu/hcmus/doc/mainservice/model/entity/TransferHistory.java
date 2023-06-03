@@ -50,4 +50,7 @@ public class TransferHistory extends DocAbstractIdEntity {
 
   @Column(name = "is_infinite_processing_time", columnDefinition = "BOOLEAN")
   private Boolean isInfiniteProcessingTime;
+
+  @Column(name = "is_transfer_to_same_level", columnDefinition = "BOOLEAN")
+  private Boolean isTransferToSameLevel;
 }

@@ -14,6 +14,7 @@ public class TransferHistoryDto {
   private LocalDateTime createdDate;
   private LocalDate processingDuration;
   private Boolean isInfiniteProcessingTime = false;
+  private Boolean isTransferToSameLevel = false;
   private ProcessMethod processMethod;
   private Long senderId;
   private String senderName;
