@@ -45,7 +45,7 @@ public class TransferHistory extends DocAbstractIdEntity {
   @Convert(converter = ProcessMethodConverter.class)
   private ProcessMethod processMethod;
 
-  @Column(name = "processing_duration", columnDefinition = "DATE")
+  @Column(name = "processing_duration", columnDefinition = "TIMESTAMP")
   private LocalDate processingDuration;
 
   @Column(name = "is_infinite_processing_time", columnDefinition = "BOOLEAN")
