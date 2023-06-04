@@ -3,6 +3,7 @@ package edu.hcmus.doc.mainservice.service.impl;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.FileDto;
+import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
 import edu.hcmus.doc.mainservice.repository.AttachmentRepository;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.OutgoingDocumentRepository;
@@ -33,13 +34,16 @@ public class AttachmentServiceImpl implements AttachmentService {
   @Value("${spring.rabbitmq.template.attachment-routing-key}")
   private String routingkey;
 
+  @Value("${spring.rabbitmq.template.s3-attachment-routing-key}")
+  private String s3AttachmentRoutingKey;
+
   private final AttachmentRepository attachmentRepository;
 
   private final IncomingDocumentRepository incomingDocumentRepository;
 
   private final OutgoingDocumentRepository outgoingDocumentRepository;
 
-    private final AsyncRabbitTemplate asyncRabbitTemplate;
+  private final AsyncRabbitTemplate asyncRabbitTemplate;
 
   private final AttachmentMapperDecorator attachmentMapperDecorator;
 
@@ -56,6 +60,7 @@ public class AttachmentServiceImpl implements AttachmentService {
       return List.of();
     }
 
+    attachmentPostDto.setParentFolder(ParentFolderEnum.ICD);
     RabbitConverterFuture<List<FileDto>> rabbitConverterFuture = asyncRabbitTemplate
         .convertSendAndReceiveAsType(exchange, routingkey, attachmentPostDto,
             new ParameterizedTypeReference<>() {
