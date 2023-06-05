@@ -4,6 +4,7 @@ import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentDto;
 import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.FileDto;
 import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
+import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
 import edu.hcmus.doc.mainservice.repository.AttachmentRepository;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.OutgoingDocumentRepository;
@@ -14,10 +15,12 @@ import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate.RabbitConverterFuture;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFutureCallback;
@@ -56,7 +59,7 @@ public class AttachmentServiceImpl implements AttachmentService {
   @SneakyThrows
   @Override
   public List<AttachmentDto> saveAttachmentsByIncomingDocId(AttachmentPostDto attachmentPostDto) {
-    if (attachmentPostDto.getAttachments().size() == 0) {
+    if (CollectionUtils.isEmpty(attachmentPostDto.getAttachments())) {
       return List.of();
     }
 
@@ -71,11 +74,13 @@ public class AttachmentServiceImpl implements AttachmentService {
         new ListenableFutureCallback<>() {
           @Override
           public void onFailure(Throwable ex) {
-            throw new RuntimeException(ex);
+            log.error("Error when saving attachments", ex);
+            throw new DocMainServiceRuntimeException("Error when saving attachments", ex);
           }
 
           @Override
           public void onSuccess(List<FileDto> result) {
+            log.info("Save attachments successfully");
           }
         }
     );
@@ -88,12 +93,11 @@ public class AttachmentServiceImpl implements AttachmentService {
             attachmentPostDto.getDocId(), fileDto)).toList();
 
     incomingDocumentRepository.findById(attachmentPostDto.getDocId())
-        .ifPresent(incomingDoc -> {
-          attachmentDtos.stream().map(attachmentMapperDecorator::toEntity).forEach(attachment -> {
-            attachment.setIncomingDoc(incomingDoc);
-            attachmentRepository.save(attachment);
-          });
-        });
+        .ifPresent(incomingDoc ->
+            attachmentDtos.stream().map(attachmentMapperDecorator::toEntity).forEach(attachment -> {
+              attachment.setIncomingDoc(incomingDoc);
+              attachmentRepository.save(attachment);
+            }));
 
     return attachmentDtos;
   }

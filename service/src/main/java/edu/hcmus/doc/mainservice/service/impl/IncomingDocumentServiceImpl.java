@@ -162,11 +162,13 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     folder.setNextNumber(folder.getNextNumber() + 1);
     IncomingDocument savedIncomingDocument = incomingDocumentRepository.save(incomingDocument);
 
-    AttachmentPostDto attachmentPostDto = attachmentMapperDecorator.toAttachmentPostDto(
-        savedIncomingDocument.getId(), incomingDocumentWithAttachmentPostDto.getAttachments());
+    AttachmentPostDto attachmentPostDto =
+        attachmentMapperDecorator.toAttachmentPostDto(
+            savedIncomingDocument.getId(),
+            incomingDocumentWithAttachmentPostDto.getAttachments()
+        );
 
-    attachmentService.saveAttachmentsByIncomingDocId(
-        attachmentPostDto);
+    attachmentService.saveAttachmentsByIncomingDocId(attachmentPostDto);
     return savedIncomingDocument;
   }
 
