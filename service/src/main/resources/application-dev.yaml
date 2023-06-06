@@ -21,7 +21,7 @@ spring:
           issuer-uri: http://host.docker.internal:8180/realms/doc-realm
 
   rabbitmq:
-    host: localhost
+    host: 13.215.56.216
     port: 5672
     username: guest
     password: guest
@@ -29,8 +29,6 @@ spring:
       exchange: doc.exchange
       routing-key: doc.routingkey
       attachment-routing-key: doc.attachment-routing-key
-      s3-attachment-queue: doc.s3-attachment-queue
-      s3-attachment-routing-key: doc.s3-attachment-routing-key
 
   main:
     allow-circular-references: true

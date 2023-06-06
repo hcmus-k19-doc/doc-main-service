@@ -20,7 +20,6 @@ import org.springframework.amqp.rabbit.AsyncRabbitTemplate;
 import org.springframework.amqp.rabbit.AsyncRabbitTemplate.RabbitConverterFuture;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.lang.NonNullApi;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFutureCallback;
@@ -35,10 +34,7 @@ public class AttachmentServiceImpl implements AttachmentService {
   private String exchange;
 
   @Value("${spring.rabbitmq.template.attachment-routing-key}")
-  private String routingkey;
-
-  @Value("${spring.rabbitmq.template.s3-attachment-routing-key}")
-  private String s3AttachmentRoutingKey;
+  private String routingKey;
 
   private final AttachmentRepository attachmentRepository;
 
@@ -58,14 +54,15 @@ public class AttachmentServiceImpl implements AttachmentService {
 
   @SneakyThrows
   @Override
-  public List<AttachmentDto> saveAttachmentsByIncomingDocId(AttachmentPostDto attachmentPostDto) {
+  public void saveAttachmentsByProcessingDocumentTypeAndDocId(
+      ParentFolderEnum parentFolder, AttachmentPostDto attachmentPostDto) {
     if (CollectionUtils.isEmpty(attachmentPostDto.getAttachments())) {
-      return List.of();
+      return;
     }
 
     attachmentPostDto.setParentFolder(ParentFolderEnum.ICD);
     RabbitConverterFuture<List<FileDto>> rabbitConverterFuture = asyncRabbitTemplate
-        .convertSendAndReceiveAsType(exchange, routingkey, attachmentPostDto,
+        .convertSendAndReceiveAsType(exchange, routingKey, attachmentPostDto,
             new ParameterizedTypeReference<>() {
             }
         );
@@ -92,57 +89,22 @@ public class AttachmentServiceImpl implements AttachmentService {
         .map(fileDto -> attachmentMapperDecorator.convertFileDtoToAttachmentDto(
             attachmentPostDto.getDocId(), fileDto)).toList();
 
-    incomingDocumentRepository.findById(attachmentPostDto.getDocId())
-        .ifPresent(incomingDoc ->
-            attachmentDtos.stream().map(attachmentMapperDecorator::toEntity).forEach(attachment -> {
-              attachment.setIncomingDoc(incomingDoc);
-              attachmentRepository.save(attachment);
-            }));
-
-    return attachmentDtos;
-  }
-
-    @SneakyThrows
-    @Override
-    public List<AttachmentDto> saveAttachmentsByOutgoingDocId(AttachmentPostDto attachmentPostDto) {
-        if (attachmentPostDto.getAttachments().size() == 0) {
-            return List.of();
-        }
-
-        RabbitConverterFuture<List<FileDto>> rabbitConverterFuture = asyncRabbitTemplate
-                .convertSendAndReceiveAsType(exchange, routingkey, attachmentPostDto,
-                        new ParameterizedTypeReference<>() {
-                        }
-                );
-
-        rabbitConverterFuture.addCallback(
-                new ListenableFutureCallback<>() {
-                    @Override
-                    public void onFailure(Throwable ex) {
-                        throw new RuntimeException(ex);
-                    }
-
-                    @Override
-                    public void onSuccess(List<FileDto> result) {
-                    }
-                }
-        );
-
-        // save file info to db
-        List<FileDto> fileDtos = rabbitConverterFuture.get();
-
-        List<AttachmentDto> attachmentDtos = Objects.requireNonNull(fileDtos).stream()
-                .map(fileDto -> attachmentMapperDecorator.convertFileDtoToAttachmentDto(
-                        attachmentPostDto.getDocId(), fileDto)).toList();
-
-        outgoingDocumentRepository.findById(attachmentPostDto.getDocId())
-                .ifPresent(doc -> {
-                    attachmentDtos.stream().map(attachmentMapperDecorator::toEntity).forEach(attachment -> {
-                        attachment.setOutgoingDocument(doc);
-                        attachmentRepository.save(attachment);
-                    });
-                });
-
-        return attachmentDtos;
+    if (parentFolder == ParentFolderEnum.ICD) {
+      incomingDocumentRepository.findById(attachmentPostDto.getDocId())
+          .ifPresent(incomingDoc ->
+              attachmentDtos.stream().map(attachmentMapperDecorator::toEntity)
+                  .forEach(attachment -> {
+                    attachment.setIncomingDoc(incomingDoc);
+                    attachmentRepository.save(attachment);
+                  }));
+    } else {
+      outgoingDocumentRepository.findById(attachmentPostDto.getDocId())
+          .ifPresent(doc -> attachmentDtos.stream().map(attachmentMapperDecorator::toEntity)
+              .forEach(attachment -> {
+                attachment.setOutgoingDocument(doc);
+                attachmentRepository.save(attachment);
+              }));
     }
+
+  }
 }
