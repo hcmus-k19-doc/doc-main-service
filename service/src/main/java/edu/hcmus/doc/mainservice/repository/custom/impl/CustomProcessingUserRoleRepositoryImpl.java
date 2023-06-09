@@ -57,6 +57,7 @@ public class CustomProcessingUserRoleRepositoryImpl
           qProcessingUser.step,
           qProcessingUser.user.id,
           qProcessingUser.user.fullName,
+          qProcessingUser.user.role,
           qProcessingUserRole.role,
           qProcessingUser.user.department.departmentName
       };
@@ -67,6 +68,7 @@ public class CustomProcessingUserRoleRepositoryImpl
           qProcessingUser.step,
           qProcessingUser.user.id,
           qProcessingUser.user.fullName,
+          qProcessingUser.user.role,
           qProcessingUserRole.role,
           qProcessingUser.user.department.departmentName
       };
@@ -96,6 +98,7 @@ public class CustomProcessingUserRoleRepositoryImpl
           processingUserDto.setId(tuple.get(qProcessingUser.user.id));
           processingUserDto.setFullName(tuple.get(qProcessingUser.user.fullName));
           processingUserDto.setRole(tuple.get(qProcessingUserRole.role));
+          processingUserDto.setDocSystemRole(tuple.get(qProcessingUser.user.role));
           processingUserDto.setDepartment(
               tuple.get(qProcessingUser.user.department.departmentName));
 
