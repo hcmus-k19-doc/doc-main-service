@@ -5,8 +5,6 @@ import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.StringPath;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingUserDto;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
@@ -18,7 +16,6 @@ import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
 import edu.hcmus.doc.mainservice.repository.custom.CustomProcessingUserRoleRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import java.util.List;
-import javax.persistence.criteria.Selection;
 
 public class CustomProcessingUserRoleRepositoryImpl
     extends DocAbstractCustomRepository<ProcessingUserRole>
