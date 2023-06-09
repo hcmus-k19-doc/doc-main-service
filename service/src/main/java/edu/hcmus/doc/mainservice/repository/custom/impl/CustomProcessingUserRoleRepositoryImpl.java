@@ -1,6 +1,7 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.CaseBuilder;
@@ -17,6 +18,7 @@ import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
 import edu.hcmus.doc.mainservice.repository.custom.CustomProcessingUserRoleRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import java.util.List;
+import javax.persistence.criteria.Selection;
 
 public class CustomProcessingUserRoleRepositoryImpl
     extends DocAbstractCustomRepository<ProcessingUserRole>
@@ -39,112 +41,70 @@ public class CustomProcessingUserRoleRepositoryImpl
   @Override
   public List<ProcessingDetailsDto> getProcessingUserRolesByTypeAndDocumentId(
       ProcessingDocumentTypeEnum processingDocumentType, Long documentId, boolean onlyAssignee) {
-    QProcessingUser qProcessingUser = new QProcessingUser(qProcessingUserRole.processingUser.getMetadata().getName());
-    QProcessingDocument qProcessingDocument = new QProcessingDocument(qProcessingUser.processingDocument.getMetadata().getName());
+    QProcessingUser qProcessingUser = new QProcessingUser(
+        qProcessingUserRole.processingUser.getMetadata().getName());
+    QProcessingDocument qProcessingDocument = new QProcessingDocument(
+        qProcessingUser.processingDocument.getMetadata().getName());
 
     BooleanBuilder criteria = new BooleanBuilder();
+    Expression<?>[] selectExpressions;
     if (onlyAssignee) {
-      criteria.and(QProcessingUserRole.processingUserRole.role.eq(ProcessingDocumentRoleEnum.ASSIGNEE));
-    }
-
-    // create custom select expression
-    if (processingDocumentType == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT) {
-      StringPath simpleSelectExpression = qProcessingDocument.incomingDoc.incomingNumber;
-
+      criteria.and(
+          QProcessingUserRole.processingUserRole.role.eq(ProcessingDocumentRoleEnum.ASSIGNEE));
     }
 
     if (processingDocumentType == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT) {
       criteria.and(qProcessingDocument.incomingDoc.id.eq(documentId));
-      return selectFrom(qProcessingUserRole)
-          .select(
-              qProcessingDocument.incomingDoc.incomingNumber,
-              qProcessingUser.step,
-              qProcessingUser.user.id,
-              qProcessingUser.user.fullName,
-              qProcessingUserRole.role,
-              qProcessingUser.user.department.departmentName)
-          .innerJoin(qProcessingUserRole.processingUser, qProcessingUser)
-          .innerJoin(qProcessingUser.processingDocument, qProcessingDocument)
-          .where(criteria)
-          .orderBy(qProcessingUser.step.asc())
-          .orderBy(ROLE_ORDER)
-          .stream()
-          .map(tuple -> {
-            ProcessingDetailsDto processingDetailsDto = new ProcessingDetailsDto();
-            processingDetailsDto.setIncomingNumber(tuple.get(qProcessingDocument.incomingDoc.incomingNumber));
-            processingDetailsDto.setStep(tuple.get(qProcessingUser.step));
-
-            ProcessingUserDto processingUserDto = new ProcessingUserDto();
-            processingUserDto.setId(tuple.get(qProcessingUser.user.id));
-            processingUserDto.setFullName(tuple.get(qProcessingUser.user.fullName));
-            processingUserDto.setRole(tuple.get(qProcessingUserRole.role));
-            processingUserDto.setDepartment(tuple.get(qProcessingUser.user.department.departmentName));
-
-            processingDetailsDto.setProcessingUser(processingUserDto);
-            return processingDetailsDto;
-          })
-          .toList();
+      selectExpressions = new Expression[]{
+          qProcessingDocument.incomingDoc.incomingNumber,
+          qProcessingUser.step,
+          qProcessingUser.user.id,
+          qProcessingUser.user.fullName,
+          qProcessingUserRole.role,
+          qProcessingUser.user.department.departmentName
+      };
     } else {
       criteria.and(qProcessingDocument.outgoingDocument.id.eq(documentId));
-      return selectFrom(qProcessingUserRole)
-          .select(
-              qProcessingDocument.outgoingDocument.outgoingNumber,
-              qProcessingUser.step,
-              qProcessingUser.user.id,
-              qProcessingUser.user.fullName,
-              qProcessingUserRole.role,
-              qProcessingUser.user.department.departmentName)
-          .innerJoin(qProcessingUserRole.processingUser, qProcessingUser)
-          .innerJoin(qProcessingUser.processingDocument, qProcessingDocument)
-          .where(criteria)
-          .orderBy(qProcessingUser.step.asc())
-          .orderBy(ROLE_ORDER)
-          .stream()
-          .map(tuple -> {
-            ProcessingDetailsDto processingDetailsDto = new ProcessingDetailsDto();
-            processingDetailsDto.setIncomingNumber(tuple.get(qProcessingDocument.outgoingDocument.outgoingNumber));
-            processingDetailsDto.setStep(tuple.get(qProcessingUser.step));
-
-            ProcessingUserDto processingUserDto = new ProcessingUserDto();
-            processingUserDto.setId(tuple.get(qProcessingUser.user.id));
-            processingUserDto.setFullName(tuple.get(qProcessingUser.user.fullName));
-            processingUserDto.setRole(tuple.get(qProcessingUserRole.role));
-            processingUserDto.setDepartment(tuple.get(qProcessingUser.user.department.departmentName));
-
-            processingDetailsDto.setProcessingUser(processingUserDto);
-            return processingDetailsDto;
-          })
-          .toList();
+      selectExpressions = new Expression[]{
+          qProcessingDocument.outgoingDocument.outgoingNumber,
+          qProcessingUser.step,
+          qProcessingUser.user.id,
+          qProcessingUser.user.fullName,
+          qProcessingUserRole.role,
+          qProcessingUser.user.department.departmentName
+      };
     }
 
-//    return selectFrom(qProcessingUserRole)
-//        .select(
-//            qProcessingDocument.incomingDoc.incomingNumber,
-//            qProcessingUser.step,
-//            qProcessingUser.user.id,
-//            qProcessingUser.user.fullName,
-//            qProcessingUserRole.role,
-//            qProcessingUser.user.department.departmentName)
-//        .innerJoin(qProcessingUserRole.processingUser, qProcessingUser)
-//        .innerJoin(qProcessingUser.processingDocument, qProcessingDocument)
-//        .where(criteria)
-//        .orderBy(qProcessingUser.step.asc())
-//        .orderBy(ROLE_ORDER)
-//        .stream()
-//        .map(tuple -> {
-//          ProcessingDetailsDto processingDetailsDto = new ProcessingDetailsDto();
-//          processingDetailsDto.setIncomingNumber(tuple.get(qProcessingDocument.incomingDoc.incomingNumber));
-//          processingDetailsDto.setStep(tuple.get(qProcessingUser.step));
-//
-//          ProcessingUserDto processingUserDto = new ProcessingUserDto();
-//          processingUserDto.setId(tuple.get(qProcessingUser.user.id));
-//          processingUserDto.setFullName(tuple.get(qProcessingUser.user.fullName));
-//          processingUserDto.setRole(tuple.get(qProcessingUserRole.role));
-//          processingUserDto.setDepartment(tuple.get(qProcessingUser.user.department.departmentName));
-//
-//          processingDetailsDto.setProcessingUser(processingUserDto);
-//          return processingDetailsDto;
-//        })
-//        .toList();
+    return selectFrom(qProcessingUserRole)
+        .select(selectExpressions)
+        .innerJoin(qProcessingUserRole.processingUser, qProcessingUser)
+        .innerJoin(qProcessingUser.processingDocument, qProcessingDocument)
+        .where(criteria)
+        .orderBy(qProcessingUser.step.asc())
+        .orderBy(ROLE_ORDER)
+        .stream()
+        .map(tuple -> {
+          ProcessingDetailsDto processingDetailsDto = new ProcessingDetailsDto();
+          if (processingDocumentType == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT) {
+
+            processingDetailsDto.setIncomingNumber(
+                tuple.get(qProcessingDocument.incomingDoc.incomingNumber));
+          } else {
+            processingDetailsDto.setOutgoingNumber(
+                tuple.get(qProcessingDocument.outgoingDocument.outgoingNumber));
+          }
+          processingDetailsDto.setStep(tuple.get(qProcessingUser.step));
+
+          ProcessingUserDto processingUserDto = new ProcessingUserDto();
+          processingUserDto.setId(tuple.get(qProcessingUser.user.id));
+          processingUserDto.setFullName(tuple.get(qProcessingUser.user.fullName));
+          processingUserDto.setRole(tuple.get(qProcessingUserRole.role));
+          processingUserDto.setDepartment(
+              tuple.get(qProcessingUser.user.department.departmentName));
+
+          processingDetailsDto.setProcessingUser(processingUserDto);
+          return processingDetailsDto;
+        })
+        .toList();
   }
 }
