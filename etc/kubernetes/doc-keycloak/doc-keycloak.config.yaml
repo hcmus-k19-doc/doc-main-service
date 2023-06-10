@@ -9,6 +9,4 @@ data:
   doc-main-service-keycloak-scope: openid
   doc-main-service-keycloak-client-id: doc-client
   keycloak-http-port: "8180"
-  keycloak-database-host: doc-main-postgres
-  keycloak-database-port: "5432"
   keycloak-database-name: doc-keycloak-db

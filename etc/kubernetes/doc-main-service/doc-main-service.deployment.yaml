@@ -19,7 +19,7 @@ spec:
       containers:
         - name: doc-main-service
           image: hcmusdoc/doc-main-service:latest
-          imagePullPolicy: Never
+          imagePullPolicy: IfNotPresent
           livenessProbe:
             httpGet:
               port: 8080
@@ -52,6 +52,12 @@ spec:
                 configMapKeyRef:
                   name: doc-main-postgres-config
                   key: host
+
+            - name: DOC_DB_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: doc-main-postgres-config
+                  key: port
 
             - name: DOC_DATABASE
               valueFrom:
@@ -142,3 +148,26 @@ spec:
                 secretKeyRef:
                   name: doc-keycloak-secret
                   key: doc-main-service-keycloak-client-secret
+
+            - name: DOC_MAIN_SERVICE_LIQUIBASE_ENABLED
+              value: "true"
+
+            - name: DOC_MAIN_SERVICE_LIQUIBASE_DROP_FIRST
+              value: "false"
+
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: doc-main-service
+  labels:
+    app: doc-main-service
+    tier: service
+spec:
+  selector:
+    app: doc-main-service
+  ports:
+    - port: 8080
+      targetPort: 8080
