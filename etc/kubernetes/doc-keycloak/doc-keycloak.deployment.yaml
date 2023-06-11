@@ -24,8 +24,8 @@ spec:
             httpGet:
               port: 8180
               path: /health/live
-            initialDelaySeconds: 30
-            periodSeconds: 10
+            initialDelaySeconds: 60
+            periodSeconds: 30
           args: [ "start-dev", "--import-realm", "--cache-stack=kubernetes" ]
           ports:
             - containerPort: 8180
@@ -54,13 +54,13 @@ spec:
             - name: KC_DB_URL_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: doc-main-postgres-config
+                  name: doc-db-config
                   key: host
 
             - name: KC_DB_URL_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: doc-main-postgres-config
+                  name: doc-db-config
                   key: port
 
             - name: KC_DB_URL_DATABASE
@@ -72,14 +72,14 @@ spec:
             - name: KC_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: doc-keycloak-secret
-                  key: keycloak-database-user
+                  name: doc-db-secret
+                  key: doc-db-username
 
             - name: KC_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: doc-keycloak-secret
-                  key: keycloak-database-password
+                  name: doc-db-secret
+                  key: doc-db-password
 
             - name: KC_DB_VENDOR
               value: POSTGRES
