@@ -89,8 +89,8 @@ public class CustomOutgoingDocumentRepositoryImpl
       where.and(outgoingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
 
-    User currUser = SecurityUtils.getCurrentUser();
-    where.and(outgoingDocument.createdBy.eq(currUser.getUsername()).or(processingUser.user.id.eq(currUser.getId())));
+//    User currUser = SecurityUtils.getCurrentUser();
+//    where.and(outgoingDocument.createdBy.eq(currUser.getUsername()).or(processingUser.user.id.eq(currUser.getId())));
 
     return selectFrom(outgoingDocument)
         .leftJoin(processingDocument)

@@ -230,7 +230,7 @@ public class CustomProcessingDocumentRepositoryImpl
       where.and(incomingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
 
-    User currUser = SecurityUtils.getCurrentUser();
+//    User currUser = SecurityUtils.getCurrentUser();
 
     JPAQuery<IncomingDocument> query = selectFrom(incomingDocument)
         .leftJoin(processingDocument)
@@ -242,11 +242,11 @@ public class CustomProcessingDocumentRepositoryImpl
         .distinct()
         .where(where);
 
-    if (currUser.getRole() != DocSystemRoleEnum.VAN_THU) {
-      query.innerJoin(processingUser)
-          .on(processingUser.processingDocument.id.eq(processingDocument.id)
-              .and(processingUser.user.id.eq(currUser.getId())));
-    }
+//    if (currUser.getRole() != DocSystemRoleEnum.VAN_THU) {
+//      query.innerJoin(processingUser)
+//          .on(processingUser.processingDocument.id.eq(processingDocument.id)
+//              .and(processingUser.user.id.eq(currUser.getId())));
+//    }
 
     return query;
   }
