@@ -50,32 +50,32 @@ spec:
             - name: DOC_DB_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: doc-main-postgres-config
+                  name: doc-db-config
                   key: host
 
             - name: DOC_DB_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: doc-main-postgres-config
+                  name: doc-db-config
                   key: port
 
             - name: DOC_DATABASE
               valueFrom:
                 configMapKeyRef:
-                  name: doc-main-postgres-config
+                  name: doc-db-config
                   key: db-name
 
             - name: DOC_MAIN_SERVICE_DATASOURCE_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: doc-main-postgres-secret
-                  key: doc-main-postgres-username
+                  name: doc-db-secret
+                  key: doc-db-username
 
             - name: DOC_MAIN_SERVICE_DATASOURCE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: doc-main-postgres-secret
-                  key: doc-main-postgres-password
+                  name: doc-db-secret
+                  key: doc-db-password
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_HOST
               valueFrom:
