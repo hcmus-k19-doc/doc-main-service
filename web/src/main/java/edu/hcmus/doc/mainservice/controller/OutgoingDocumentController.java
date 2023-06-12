@@ -2,6 +2,7 @@ package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.DocPaginationDto;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetDto;
@@ -14,6 +15,7 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
+import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
 import edu.hcmus.doc.mainservice.service.OutgoingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.List;
 
 @RequiredArgsConstructor
 @RestController
@@ -101,5 +105,15 @@ public class OutgoingDocumentController extends DocAbstractController {
   @PostMapping("/get-transfer-documents-detail")
   public GetTransferDocumentDetailCustomResponse getTransferDocumentsDetail(@RequestBody GetTransferDocumentDetailRequest request) {
     return processingDocumentService.getTransferDocumentDetail(request, ProcessingDocumentType.OUTGOING_DOCUMENT);
+  }
+
+  @PostMapping("/link-documents/{targetDocumentId}")
+  public void linkDocuments(@PathVariable Long targetDocumentId,
+                            @RequestBody List<IncomingDocumentDto> documents) {
+    if (documents.isEmpty()) {
+      throw new DocMainServiceRuntimeException(DocMainServiceRuntimeException.DOCUMENT_REQUIRED);
+    }
+
+    outgoingDocumentService.linkDocuments(targetDocumentId, documents);
   }
 }

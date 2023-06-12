@@ -1,6 +1,7 @@
 package edu.hcmus.doc.mainservice.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWithAttachmentPostDto;
@@ -28,4 +29,5 @@ public interface OutgoingDocumentService {
 
   void transferDocuments(TransferDocDto transferDocDto);
 
+  void linkDocuments(Long targetDocumentId, List<IncomingDocumentDto> documents);
 }
