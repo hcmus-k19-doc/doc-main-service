@@ -7,6 +7,7 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentPutDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.IncomingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
+import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.ProcessingDocumentSearchResultDto;
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
@@ -16,8 +17,10 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentD
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
+import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
+import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingUserRoleService;
@@ -56,7 +59,6 @@ public class IncomingDocumentController extends DocAbstractController {
       @RequestParam(required = false) boolean onlyAssignee) {
     return processingUserRoleService.getProcessingUserRolesByDocumentId(processingDocumentType, documentId, onlyAssignee);
   }
-
 
   @PostMapping("/search")
   public DocPaginationDto<IncomingDocumentDto> getIncomingDocuments(
@@ -111,6 +113,16 @@ public class IncomingDocumentController extends DocAbstractController {
         incomingDocumentPutDto);
     return incomingDecoratorDocumentMapper.toDto(
         incomingDocumentService.updateIncomingDocument(incomingDocument));
+  }
+
+  @PostMapping("/link-documents/{targetDocumentId}")
+  public void linkDocuments(@PathVariable Long targetDocumentId,
+                            @RequestBody List<OutgoingDocumentGetDto> documents) {
+    if (documents.isEmpty()) {
+      throw new DocMainServiceRuntimeException(DocMainServiceRuntimeException.DOCUMENT_REQUIRED);
+    }
+
+    incomingDocumentService.linkDocuments(targetDocumentId, documents);
   }
 
   @GetMapping("/transfer-documents-setting")

@@ -1,23 +1,18 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
-import static edu.hcmus.doc.mainservice.model.entity.QOutgoingDocument.outgoingDocument;
-import static edu.hcmus.doc.mainservice.model.entity.QProcessingDocument.processingDocument;
-import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingUser;
-
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
-import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
-import edu.hcmus.doc.mainservice.model.entity.QDepartment;
-import edu.hcmus.doc.mainservice.model.entity.QDocumentType;
-import edu.hcmus.doc.mainservice.model.entity.QFolder;
-import edu.hcmus.doc.mainservice.model.entity.QOutgoingDocument;
-import edu.hcmus.doc.mainservice.model.entity.User;
+import edu.hcmus.doc.mainservice.model.entity.*;
 import edu.hcmus.doc.mainservice.repository.custom.CustomOutgoingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
-import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
-import java.util.List;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.List;
+
+import static edu.hcmus.doc.mainservice.model.entity.QOutgoingDocument.outgoingDocument;
+import static edu.hcmus.doc.mainservice.model.entity.QProcessingDocument.processingDocument;
+import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingUser;
 
 public class CustomOutgoingDocumentRepositoryImpl
     extends DocAbstractCustomRepository<OutgoingDocument>
@@ -88,9 +83,6 @@ public class CustomOutgoingDocumentRepositoryImpl
     if (searchCriteriaDto != null && StringUtils.isNotBlank(searchCriteriaDto.getSummary())) {
       where.and(outgoingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
-
-//    User currUser = SecurityUtils.getCurrentUser();
-//    where.and(outgoingDocument.createdBy.eq(currUser.getUsername()).or(processingUser.user.id.eq(currUser.getId())));
 
     return selectFrom(outgoingDocument)
         .leftJoin(processingDocument)
