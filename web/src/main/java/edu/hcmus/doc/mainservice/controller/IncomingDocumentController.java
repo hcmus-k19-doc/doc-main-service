@@ -26,6 +26,8 @@ import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingUserRoleService;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.stream.Collectors;
+
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -115,16 +117,6 @@ public class IncomingDocumentController extends DocAbstractController {
         incomingDocumentService.updateIncomingDocument(incomingDocument));
   }
 
-  @PostMapping("/link-documents/{targetDocumentId}")
-  public void linkDocuments(@PathVariable Long targetDocumentId,
-                            @RequestBody List<OutgoingDocumentGetDto> documents) {
-    if (documents.isEmpty()) {
-      throw new DocMainServiceRuntimeException(DocMainServiceRuntimeException.DOCUMENT_REQUIRED);
-    }
-
-    incomingDocumentService.linkDocuments(targetDocumentId, documents);
-  }
-
   @GetMapping("/transfer-documents-setting")
   public TransferDocumentModalSettingDto getTransferDocumentModalSetting() {
     return incomingDocumentService.getTransferDocumentModalSetting();
@@ -153,5 +145,24 @@ public class IncomingDocumentController extends DocAbstractController {
   @PutMapping("/close-document/{id}")
   public String closeDocument(@PathVariable Long id) {
     return incomingDocumentService.closeDocument(id);
+  }
+
+  @PostMapping("/link-documents/{targetDocumentId}")
+  public void linkDocuments(@PathVariable Long targetDocumentId,
+                            @RequestBody List<OutgoingDocumentGetDto> documents) {
+    if (documents.isEmpty()) {
+      throw new DocMainServiceRuntimeException(DocMainServiceRuntimeException.DOCUMENT_REQUIRED);
+    }
+
+    incomingDocumentService.linkDocuments(targetDocumentId, documents);
+  }
+
+  @GetMapping("/link-documents/{targetDocumentId}")
+  public List<OutgoingDocumentGetDto> getLinkedDocuments(@PathVariable Long targetDocumentId) {
+    return incomingDocumentService
+            .getLinkedDocuments(targetDocumentId)
+            .stream()
+            .map(outgoingDecoratorDocumentMapper::toDto)
+            .collect(Collectors.toList());
   }
 }

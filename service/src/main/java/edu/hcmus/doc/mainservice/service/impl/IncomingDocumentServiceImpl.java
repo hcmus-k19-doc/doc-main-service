@@ -353,6 +353,11 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   }
 
   @Override
+  public List<OutgoingDocument> getLinkedDocuments(Long sourceDocumentId) {
+    return outgoingDocumentRepository.getDocumentsLinkedToIncomingDocument(sourceDocumentId);
+  }
+
+  @Override
   public TransferDocumentModalSettingDto getTransferDocumentModalSetting() {
     TransferDocumentModalSettingDto settings = new TransferDocumentModalSettingDto();
     List<TransferDocumentMenuConfig> menuConfigs = new ArrayList<>();

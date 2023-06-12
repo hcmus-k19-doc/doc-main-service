@@ -284,6 +284,11 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
     }
   }
 
+  @Override
+  public List<IncomingDocument> getLinkedDocuments(Long targetDocumentId) {
+    return incomingDocumentRepository.getDocumentsLinkedToOutgoingDocument(targetDocumentId);
+  }
+
   private void transferNewDocuments(TransferDocDto transferDocDto, User reporter,
       User assignee, List<User> collaborators, List<OutgoingDocument> outgoingDocuments) {
     ReturnRequest returnRequest = returnRequestRepository.findById(1L).orElseThrow(

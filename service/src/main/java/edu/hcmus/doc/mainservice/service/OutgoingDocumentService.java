@@ -6,7 +6,9 @@ import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModa
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
+import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
+
 import java.util.List;
 
 public interface OutgoingDocumentService {
@@ -30,4 +32,6 @@ public interface OutgoingDocumentService {
   void transferDocuments(TransferDocDto transferDocDto);
 
   void linkDocuments(Long targetDocumentId, List<IncomingDocumentDto> documents);
+
+  List<IncomingDocument> getLinkedDocuments(Long targetDocumentId);
 }

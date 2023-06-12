@@ -16,21 +16,15 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocD
 import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
 import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
+import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.OutgoingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @RestController
@@ -38,6 +32,7 @@ import java.util.List;
 public class OutgoingDocumentController extends DocAbstractController {
   private final OutgoingDocumentService outgoingDocumentService;
   private final ProcessingDocumentService processingDocumentService;
+  private final IncomingDocumentService incomingDocumentService;
 
   @GetMapping("/{id}")
   public OutgoingDocumentGetDto getOutgoingDocument(@PathVariable Long id) {
@@ -115,5 +110,14 @@ public class OutgoingDocumentController extends DocAbstractController {
     }
 
     outgoingDocumentService.linkDocuments(targetDocumentId, documents);
+  }
+
+  @GetMapping("/link-documents/{targetDocumentId}")
+  public List<IncomingDocumentDto> getLinkedDocuments(@PathVariable Long targetDocumentId) {
+    return outgoingDocumentService
+            .getLinkedDocuments(targetDocumentId)
+            .stream()
+            .map(incomingDecoratorDocumentMapper::toDto)
+            .collect(Collectors.toList());
   }
 }

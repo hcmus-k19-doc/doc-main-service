@@ -9,7 +9,9 @@ import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
+import static edu.hcmus.doc.mainservice.model.entity.QLinkedDocument.linkedDocument;
 import static edu.hcmus.doc.mainservice.model.entity.QOutgoingDocument.outgoingDocument;
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingDocument.processingDocument;
 import static edu.hcmus.doc.mainservice.model.entity.QProcessingUser.processingUser;
@@ -106,5 +108,14 @@ public class CustomOutgoingDocumentRepositoryImpl
     return selectFrom(outgoingDocument)
         .where(outgoingDocument.id.in(ids))
         .fetch();
+  }
+
+  @Override
+  public List<OutgoingDocument> getDocumentsLinkedToIncomingDocument(Long sourceDocumentId) {
+    return selectFrom(linkedDocument)
+            .where(linkedDocument.incomingDocument.id.eq(sourceDocumentId))
+            .stream()
+            .map(linkedDocument -> getOutgoingDocumentById(linkedDocument.getOutgoingDocument().getId()))
+            .collect(Collectors.toList());
   }
 }
