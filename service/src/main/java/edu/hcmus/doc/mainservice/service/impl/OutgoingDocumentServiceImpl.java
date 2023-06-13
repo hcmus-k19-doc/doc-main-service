@@ -289,6 +289,15 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
     return incomingDocumentRepository.getDocumentsLinkedToOutgoingDocument(targetDocumentId);
   }
 
+  @Override
+  public void deleteLinkedDocuments(Long targetDocumentId, Long linkedDocumentId) {
+    LinkedDocument linkedDocument = linkedDocumentRepository.getLinkedDocument(linkedDocumentId, targetDocumentId);
+    if (linkedDocument == null) {
+      throw new DocumentNotFoundException(DocumentNotFoundException.DOCUMENT_NOT_FOUND);
+    }
+    linkedDocumentRepository.delete(linkedDocument);
+  }
+
   private void transferNewDocuments(TransferDocDto transferDocDto, User reporter,
       User assignee, List<User> collaborators, List<OutgoingDocument> outgoingDocuments) {
     ReturnRequest returnRequest = returnRequestRepository.findById(1L).orElseThrow(

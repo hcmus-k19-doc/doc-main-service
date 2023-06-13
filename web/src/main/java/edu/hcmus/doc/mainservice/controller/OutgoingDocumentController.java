@@ -120,4 +120,10 @@ public class OutgoingDocumentController extends DocAbstractController {
             .map(incomingDecoratorDocumentMapper::toDto)
             .collect(Collectors.toList());
   }
+
+  @DeleteMapping("/link-documents/{targetDocumentId}")
+  public void deleteLinkedDocuments(@PathVariable Long targetDocumentId,
+                                    @RequestParam Long linkedDocumentId) {
+    outgoingDocumentService.deleteLinkedDocuments(targetDocumentId, linkedDocumentId);
+  }
 }

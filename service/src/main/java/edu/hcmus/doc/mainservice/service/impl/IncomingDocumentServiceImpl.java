@@ -358,6 +358,38 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
   }
 
   @Override
+  public void updateLinkedDocuments(Long targetDocumentId, List<OutgoingDocumentGetDto> outgoingDocuments) {
+    List<OutgoingDocument> outgoingDocumentList = outgoingDocumentRepository
+            .findAllById(outgoingDocuments.stream().map(OutgoingDocumentGetDto::getId)
+                    .collect(Collectors.toList()));
+
+    IncomingDocument targetDocument = findById(targetDocumentId);
+
+    List<OutgoingDocument> linkedDocuments = outgoingDocumentRepository
+            .getDocumentsLinkedToIncomingDocument(targetDocumentId);
+
+    for (OutgoingDocument outgoingDocument : outgoingDocumentList) {
+        if (linkedDocuments.contains(outgoingDocument)) {
+          continue;
+        }
+
+        LinkedDocument linkedDocument = new LinkedDocument();
+        linkedDocument.setIncomingDocument(targetDocument);
+        linkedDocument.setOutgoingDocument(outgoingDocument);
+        linkedDocumentRepository.save(linkedDocument);
+    }
+  }
+
+  @Override
+  public void deleteLinkedDocuments(Long targetDocumentId, Long linkedDocumentId) {
+    LinkedDocument linkedDocument = linkedDocumentRepository.getLinkedDocument(targetDocumentId, linkedDocumentId);
+    if (linkedDocument == null) {
+      throw new DocumentNotFoundException(DocumentNotFoundException.DOCUMENT_NOT_FOUND);
+    }
+    linkedDocumentRepository.delete(linkedDocument);
+  }
+
+  @Override
   public TransferDocumentModalSettingDto getTransferDocumentModalSetting() {
     TransferDocumentModalSettingDto settings = new TransferDocumentModalSettingDto();
     List<TransferDocumentMenuConfig> menuConfigs = new ArrayList<>();

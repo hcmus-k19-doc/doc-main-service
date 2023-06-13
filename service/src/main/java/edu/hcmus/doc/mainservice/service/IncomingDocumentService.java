@@ -51,4 +51,8 @@ public interface IncomingDocumentService {
   void linkDocuments(Long targetDocumentId, List<OutgoingDocumentGetDto> outgoingDocuments);
 
   List<OutgoingDocument> getLinkedDocuments(Long sourceDocumentId);
+
+  void updateLinkedDocuments(Long targetDocumentId, List<OutgoingDocumentGetDto> documents);
+
+  void deleteLinkedDocuments(Long targetDocumentId, Long linkedDocumentId);
 }

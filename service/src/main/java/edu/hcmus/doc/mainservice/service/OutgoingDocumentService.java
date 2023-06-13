@@ -34,4 +34,6 @@ public interface OutgoingDocumentService {
   void linkDocuments(Long targetDocumentId, List<IncomingDocumentDto> documents);
 
   List<IncomingDocument> getLinkedDocuments(Long targetDocumentId);
+
+  void deleteLinkedDocuments(Long targetDocumentId, Long linkedDocumentId);
 }
