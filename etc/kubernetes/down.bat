@@ -1,5 +1,5 @@
-kubectl delete -f ./ingress/doc-kong.yaml
-kubectl delete -f ./ingress/doc-ingress.yaml
+kubectl delete -f ./doc-ingress/doc-kong.yaml
+kubectl delete -f ./doc-ingress/doc-ingress.yaml
 
 kubectl delete -f ./doc-keycloak/doc-keycloak.config.yaml
 kubectl delete -f ./doc-keycloak/doc-keycloak.deployment.yaml
@@ -15,3 +15,5 @@ kubectl delete -f ./doc-main-service/doc-main-service.secret.yaml
 kubectl delete -f ./doc-rabbitmq/doc-rabbitmq.config.yaml
 kubectl delete -f ./doc-rabbitmq/doc-rabbitmq.deployment.yaml
 kubectl delete -f ./doc-rabbitmq/doc-rabbitmq.secret.yaml
+
+kubectl delete -f ./doc-main-service/doc-front.deployment.yaml
