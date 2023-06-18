@@ -82,9 +82,9 @@ public class TransferDocumentUtils {
   /**
    * Create transfer history base on transfer type
    *
-   * @param reporter
-   * @param assignee
-   * @param transferDocDto
+   * @param reporter User
+   * @param assignee User
+   * @param transferDocDto TransferDocDto
    * @return TransferHistory
    */
   public static TransferHistory createTransferHistory(User reporter, User assignee,

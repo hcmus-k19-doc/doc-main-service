@@ -1,6 +1,8 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
 import static edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum.VAN_THU;
+import static edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType.INCOMING_DOCUMENT;
+import static edu.hcmus.doc.mainservice.model.enums.TransferDocumentType.TRANSFER_TO_GIAM_DOC;
 import static edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException.INCOMING_DOCUMENT_NOT_FOUND;
 import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingDocument;
 import static edu.hcmus.doc.mainservice.util.TransferDocumentUtils.createProcessingUser;
@@ -36,7 +38,6 @@ import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
-import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
@@ -193,7 +194,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     User assignee = getUserByIdOrThrow(transferDocDto.getAssigneeId());
 
     TransferHistory transferHistory = TransferDocumentUtils.createTransferHistory(reporter,
-        assignee, transferDocDto, ProcessingDocumentType.INCOMING_DOCUMENT);
+        assignee, transferDocDto, INCOMING_DOCUMENT);
     if (transferDocDto.getIsTransferToSameLevel()) {
       transferToSameLevel(transferDocDto, reporter, assignee, currentUser.getRole());
 
@@ -205,7 +206,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     List<User> collaborators = userRepository.findAllById(
         Objects.requireNonNull(transferDocDto.getCollaboratorIds()));
 
-    if (transferDocDto.getTransferDocumentType() == TransferDocumentType.TRANSFER_TO_GIAM_DOC
+    if (transferDocDto.getTransferDocumentType() == TRANSFER_TO_GIAM_DOC
         && currentUser.getRole() == VAN_THU) {
       // neu la van thu chuyen cho giam doc => new document
       transferNewDocuments(transferDocDto, reporter, assignee, collaborators);
@@ -411,7 +412,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .menuLabel(ResourceBundleUtils.getContent(
                 MESSAGE.submit_document_to_giam_doc_menu_label))
             .menuKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
-            .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
+            .transferDocumentType(TRANSFER_TO_GIAM_DOC)
             .isTransferToSameLevel(false)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
@@ -424,7 +425,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_VAN_THU)
             .isTransferToSameLevel(true)
             .build());
-        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
+        settings.setDefaultTransferDocumentType(TRANSFER_TO_GIAM_DOC);
         settings.setDefaultComponentKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
       }
       case GIAM_DOC -> {
@@ -435,7 +436,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .menuLabel(ResourceBundleUtils.getContent(
                 MESSAGE.transfer_document_to_giam_doc_menu_label))
             .menuKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value)
-            .transferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC)
+            .transferDocumentType(TRANSFER_TO_GIAM_DOC)
             .isTransferToSameLevel(true)
             .build());
         menuConfigs.add(TransferDocumentMenuConfig.builder()
@@ -448,7 +449,7 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
             .transferDocumentType(TransferDocumentType.TRANSFER_TO_TRUONG_PHONG)
             .isTransferToSameLevel(false)
             .build());
-        settings.setDefaultTransferDocumentType(TransferDocumentType.TRANSFER_TO_GIAM_DOC);
+        settings.setDefaultTransferDocumentType(TRANSFER_TO_GIAM_DOC);
         settings.setDefaultComponentKey(TransferDocumentComponent.TRANSFER_TO_GIAM_DOC.value);
       }
       case TRUONG_PHONG -> {
