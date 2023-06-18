@@ -9,7 +9,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/doc?stringtype=unspecified
+    url: jdbc:postgresql://13.215.56.216:5432/doc?stringtype=unspecified
     username: admin
     password: admin
     driver-class-name: org.postgresql.Driver
@@ -34,15 +34,15 @@ spring:
     allow-circular-references: true
 
   liquibase:
-    url: jdbc:postgresql://localhost:5432/doc?stringtype=unspecified
+    url: jdbc:postgresql://13.215.56.216:5432/doc?stringtype=unspecified
     user: admin
     password: admin
     driver-class-name: org.postgresql.Driver
     change-log: classpath:db.changelog-master.xml
     database-change-log-lock-table: database_changelog_lock
     database-change-log-table: database_changelog
-    enabled: true
-    drop-first: true
+    enabled: false
+    drop-first: false
 
 logging:
   level:
