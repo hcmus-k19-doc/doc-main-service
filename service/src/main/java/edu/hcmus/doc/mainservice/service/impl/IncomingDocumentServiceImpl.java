@@ -22,16 +22,39 @@ import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetD
 import edu.hcmus.doc.mainservice.model.dto.SearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.StatisticsWrapperDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
-import edu.hcmus.doc.mainservice.model.entity.*;
+import edu.hcmus.doc.mainservice.model.entity.Folder;
+import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
+import edu.hcmus.doc.mainservice.model.entity.LinkedDocument;
+import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
+import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
+import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
+import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
+import edu.hcmus.doc.mainservice.model.entity.ReturnRequest;
+import edu.hcmus.doc.mainservice.model.entity.TransferHistory;
+import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
-import edu.hcmus.doc.mainservice.model.exception.*;
-import edu.hcmus.doc.mainservice.repository.*;
+import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.IncomingDocumentNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.LinkedDocumentExistedException;
+import edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentException;
+import edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
+import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
+import edu.hcmus.doc.mainservice.repository.LinkedDocumentRepository;
+import edu.hcmus.doc.mainservice.repository.OutgoingDocumentRepository;
+import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
+import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
+import edu.hcmus.doc.mainservice.repository.ProcessingUserRoleRepository;
+import edu.hcmus.doc.mainservice.repository.ReturnRequestRepository;
+import edu.hcmus.doc.mainservice.repository.TransferHistoryRepository;
+import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.AttachmentService;
 import edu.hcmus.doc.mainservice.service.DocumentReminderService;
@@ -39,11 +62,11 @@ import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.util.DocObjectUtils;
 import edu.hcmus.doc.mainservice.util.ResourceBundleUtils;
+import edu.hcmus.doc.mainservice.util.TransferDocumentUtils;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
 import java.time.LocalDate;
 import java.time.Year;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -52,7 +75,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -170,33 +192,18 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     User reporter = getUserByIdOrThrow(transferDocDto.getReporterId());
     User assignee = getUserByIdOrThrow(transferDocDto.getAssigneeId());
 
-    // set transfer history info
-    TransferHistory transferHistory = new TransferHistory();
-    transferHistory.setSender(reporter);
-    transferHistory.setReceiver(assignee);
-    transferHistory.setIncomingDocumentIds(transferDocDto.getDocumentIds());
-    transferHistory.setIsTransferToSameLevel(transferDocDto.getIsTransferToSameLevel());
-
+    TransferHistory transferHistory = TransferDocumentUtils.createTransferHistory(reporter,
+        assignee, transferDocDto, ProcessingDocumentType.INCOMING_DOCUMENT);
     if (transferDocDto.getIsTransferToSameLevel()) {
       transferToSameLevel(transferDocDto, reporter, assignee, currentUser.getRole());
 
       // save transfer history and return
-      transferHistory.setIsInfiniteProcessingTime(true);
       transferHistoryRepository.save(transferHistory);
       return;
     }
 
     List<User> collaborators = userRepository.findAllById(
         Objects.requireNonNull(transferDocDto.getCollaboratorIds()));
-
-    // set transfer history info
-    transferHistory.setIsInfiniteProcessingTime(transferDocDto.getIsInfiniteProcessingTime());
-    transferHistory.setProcessMethod(transferDocDto.getProcessMethod());
-    if (Boolean.FALSE.equals(transferDocDto.getIsInfiniteProcessingTime())) {
-      transferHistory.setProcessingDuration(LocalDate.parse(
-          Objects.requireNonNull(transferDocDto.getProcessingTime()),
-          DateTimeFormatter.ofPattern("dd/MM/yyyy")));
-    }
 
     if (transferDocDto.getTransferDocumentType() == TransferDocumentType.TRANSFER_TO_GIAM_DOC
         && currentUser.getRole() == VAN_THU) {
