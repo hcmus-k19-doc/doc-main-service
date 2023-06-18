@@ -15,7 +15,6 @@ import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.repository.custom.CustomProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import org.apache.commons.lang3.StringUtils;
-
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
@@ -67,8 +66,6 @@ public class CustomProcessingDocumentRepositoryImpl
                 incomingDocument.originalSymbolNumber,
                 incomingDocument.arrivingDate,
                 incomingDocument.summary,
-                incomingDocument.sendingLevel.id,
-                incomingDocument.sendingLevel.level,
                 incomingDocument.documentType.id,
                 incomingDocument.documentType.type,
                 incomingDocument.distributionOrg.id,
@@ -94,10 +91,7 @@ public class CustomProcessingDocumentRepositoryImpl
                   .setArrivingDate(tuple.get(incomingDocument.arrivingDate));
               processingDocument.getIncomingDoc().setSummary(tuple.get(incomingDocument.summary));
               processingDocument.getIncomingDoc().initSendingLevel();
-              processingDocument.getIncomingDoc().getSendingLevel()
-                  .setId(tuple.get(incomingDocument.sendingLevel.id));
-              processingDocument.getIncomingDoc().getSendingLevel()
-                  .setLevel(tuple.get(incomingDocument.sendingLevel.level));
+              processingDocument.getIncomingDoc().setSendingLevel(null);
               processingDocument.getIncomingDoc().initDocumentType();
               processingDocument.getIncomingDoc().getDocumentType()
                   .setId(tuple.get(incomingDocument.documentType.id));
@@ -226,7 +220,6 @@ public class CustomProcessingDocumentRepositoryImpl
     JPAQuery<IncomingDocument> query = selectFrom(incomingDocument)
         .leftJoin(processingDocument)
         .on(incomingDocument.id.eq(processingDocument.incomingDoc.id))
-        .innerJoin(incomingDocument.sendingLevel, QSendingLevel.sendingLevel)
         .innerJoin(incomingDocument.documentType, QDocumentType.documentType)
         .innerJoin(incomingDocument.distributionOrg,
             QDistributionOrganization.distributionOrganization)
