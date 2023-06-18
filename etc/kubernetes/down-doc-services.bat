@@ -16,4 +16,8 @@ kubectl delete -f ./doc-rabbitmq/doc-rabbitmq.config.yaml
 kubectl delete -f ./doc-rabbitmq/doc-rabbitmq.deployment.yaml
 kubectl delete -f ./doc-rabbitmq/doc-rabbitmq.secret.yaml
 
+kubectl delete -f ./doc-file-service/doc-file-service.config.yaml
+kubectl delete -f ./doc-file-service/doc-file-service.secret.yaml
+kubectl delete -f ./doc-file-service/doc-file-service.deployment.yaml
+
 kubectl delete -f ./doc-main-service/doc-front.deployment.yaml

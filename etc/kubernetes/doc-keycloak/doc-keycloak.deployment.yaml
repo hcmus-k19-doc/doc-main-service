@@ -43,7 +43,7 @@ spec:
                   key: keycloak-admin-password
 
             - name: KC_FILE
-              value: /opt/keycloak/data/import/realm-export.json
+              value: /opt/keycloak/data/import/deployment-realm.json
 
             - name: KC_HTTP_PORT
               valueFrom:
@@ -54,14 +54,14 @@ spec:
             - name: KC_DB_URL_HOST
               valueFrom:
                 configMapKeyRef:
-                  name: doc-db-config
-                  key: host
+                  name: doc-keycloak-config
+                  key: keycloak-db-host
 
             - name: KC_DB_URL_PORT
               valueFrom:
                 configMapKeyRef:
-                  name: doc-db-config
-                  key: port
+                  name: doc-keycloak-config
+                  key: keycloak-db-port
 
             - name: KC_DB_URL_DATABASE
               valueFrom:
@@ -72,14 +72,14 @@ spec:
             - name: KC_DB_USERNAME
               valueFrom:
                 secretKeyRef:
-                  name: doc-db-secret
-                  key: doc-db-username
+                  name: doc-keycloak-secret
+                  key: keycloak-db-username
 
             - name: KC_DB_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: doc-db-secret
-                  key: doc-db-password
+                  name: doc-keycloak-secret
+                  key: keycloak-db-password
 
             - name: KC_DB_VENDOR
               value: POSTGRES
