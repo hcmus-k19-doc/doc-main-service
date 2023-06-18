@@ -44,8 +44,8 @@ spec:
             - name: DOC_MAIN_SERVICE_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI
               valueFrom:
                 configMapKeyRef:
-                  name: doc-main-service-config
-                  key: doc-main-service-oauth2-resourceserver-jwt-issuer-uri
+                  name: doc-keycloak-config
+                  key: oauth2-resourceserver-jwt-issuer-uri
 
             - name: DOC_DB_HOST
               valueFrom:
@@ -81,13 +81,13 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: doc-rabbitmq-config
-                  key: doc-main-service-rabbitmq-host
+                  key: rabbitmq-host
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_PORT
               valueFrom:
                 configMapKeyRef:
                   name: doc-rabbitmq-config
-                  key: doc-main-service-rabbitmq-port
+                  key: rabbitmq-port
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_USERNAME
               valueFrom:
@@ -105,19 +105,19 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: doc-rabbitmq-config
-                  key: doc-main-service-rabbitmq-template-exchange
+                  key: rabbitmq-template-exchange
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_TEMPLATE_ROUTING_KEY
               valueFrom:
                 configMapKeyRef:
                   name: doc-rabbitmq-config
-                  key: doc-main-service-rabbitmq-template-routing-key
+                  key: rabbitmq-template-routing-key
 
             - name: DOC_MAIN_SERVICE_RABBITMQ_TEMPLATE_ATTACHMENT_ROUTING_KEY
               valueFrom:
                 configMapKeyRef:
                   name: doc-rabbitmq-config
-                  key: doc-main-service-rabbitmq-template-attachment-routing-key
+                  key: rabbitmq-template-attachment-routing-key
 
             - name: DOC_MAIN_SERVICE_HTTP_AUTH_TOKEN
               valueFrom:
@@ -129,19 +129,19 @@ spec:
               valueFrom:
                 configMapKeyRef:
                   name: doc-keycloak-config
-                  key: doc-main-service-keycloak-url
+                  key: keycloak-url
 
             - name: DOC_MAIN_SERVICE_KEYCLOAK_SCOPE
               valueFrom:
                 configMapKeyRef:
                   name: doc-keycloak-config
-                  key: doc-main-service-keycloak-scope
+                  key: keycloak-scope
 
             - name: DOC_MAIN_SERVICE_KEYCLOAK_CLIENT_ID
               valueFrom:
                 configMapKeyRef:
                   name: doc-keycloak-config
-                  key: doc-main-service-keycloak-client-id
+                  key: keycloak-client-id
 
             - name: DOC_MAIN_SERVICE_KEYCLOAK_CLIENT_SECRET
               valueFrom:
