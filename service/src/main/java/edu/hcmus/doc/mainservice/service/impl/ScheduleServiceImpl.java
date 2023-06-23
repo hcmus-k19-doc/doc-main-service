@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ScheduleServiceImpl implements ScheduleService {
 
   private final FolderService folderService;
+
   private final TaskScheduler taskScheduler;
 
   private final DocumentReminderRepository documentReminderRepository;
@@ -39,8 +40,8 @@ public class ScheduleServiceImpl implements ScheduleService {
   }
 
   @Override
-  public void changeDocumentReminderStatus(ProcessingUser processingUser, LocalDateTime timeExecution, DocumentReminderStatusEnum status) {
-    Instant toInstant = timeExecution.toInstant(ZoneId.systemDefault()
+  public void changeDocumentReminderStatus(ProcessingUser processingUser, LocalDateTime executionTime, DocumentReminderStatusEnum status) {
+    Instant toInstant = executionTime.toInstant(ZoneId.systemDefault()
             .getRules()
             .getOffset(LocalDateTime.now()));
 
