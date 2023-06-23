@@ -1,12 +1,12 @@
 package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
-import edu.hcmus.doc.mainservice.model.dto.TransferHistory.GetTransferDocumentHistoryResponse;
+import edu.hcmus.doc.mainservice.model.dto.DocStatisticsDto;
+import edu.hcmus.doc.mainservice.model.dto.DocStatisticsSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferHistory.TransferHistoryDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferHistory.TransferHistorySearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.UserDepartmentDto;
 import edu.hcmus.doc.mainservice.model.dto.UserDto;
-import edu.hcmus.doc.mainservice.model.entity.TransferHistory;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
@@ -67,5 +67,19 @@ public class UserController extends DocAbstractController {
       @RequestParam(required = false, defaultValue = "3") int pageSize) {
     return userService.getTransferHistoryByUser(
         searchCriteria, page, pageSize);
+  }
+
+  @GetMapping("/all")
+  public List<UserDto> getUsers() {
+    return userService
+        .getAllUsers()
+        .stream()
+        .map(userMapper::toDto)
+        .toList();
+  }
+
+  @PostMapping("/get-statistics")
+  public List<DocStatisticsDto> getStatistics(@RequestBody(required = false) DocStatisticsSearchCriteriaDto docStatisticsSearchCriteriaDto) {
+    return userService.getStatistics(docStatisticsSearchCriteriaDto);
   }
 }
