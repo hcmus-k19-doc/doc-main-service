@@ -332,13 +332,16 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
       ProcessingDocument savedProcessingDocument = processingDocumentRepository.save(
           processingDocument);
 
-      incomingDocumentService.saveCollaboratorList(savedProcessingDocument, collaborators, returnRequest, transferDocDto,
+      incomingDocumentService.saveCollaboratorList(savedProcessingDocument, collaborators,
+          transferDocDto,
           step);
 
-      incomingDocumentService.saveReporterOrAssignee(savedProcessingDocument, assignee, returnRequest, transferDocDto, step,
+      incomingDocumentService.saveReporterOrAssignee(savedProcessingDocument, assignee,
+          transferDocDto, step,
           ProcessingDocumentRoleEnum.ASSIGNEE);
 
-      incomingDocumentService.saveReporterOrAssignee(savedProcessingDocument, reporter, returnRequest, transferDocDto, step,
+      incomingDocumentService.saveReporterOrAssignee(savedProcessingDocument, reporter,
+          transferDocDto, step,
           ProcessingDocumentRoleEnum.REPORTER);
 
       outgoingDocument.setStatus(OutgoingDocumentStatusEnum.IN_PROGRESS);
@@ -362,12 +365,12 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
         throw new TransferDocumentException(user_has_already_exists_in_the_flow_of_document.toString());
       }
 
-      incomingDocumentService.saveCollaboratorList(processingDocument, collaborators, returnRequest, transferDocDto, step);
+      incomingDocumentService.saveCollaboratorList(processingDocument, collaborators, transferDocDto, step);
 
-      incomingDocumentService.saveReporterOrAssignee(processingDocument, assignee, returnRequest, transferDocDto, step,
+      incomingDocumentService.saveReporterOrAssignee(processingDocument, assignee, transferDocDto, step,
           ProcessingDocumentRoleEnum.ASSIGNEE);
 
-      incomingDocumentService.saveReporterOrAssignee(processingDocument, reporter, returnRequest, transferDocDto, step,
+      incomingDocumentService.saveReporterOrAssignee(processingDocument, reporter, transferDocDto, step,
           ProcessingDocumentRoleEnum.REPORTER);
     });
   }
