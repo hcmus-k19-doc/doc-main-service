@@ -239,7 +239,7 @@ public class CustomProcessingDocumentRepositoryImpl
       where.and(incomingDocument.summary.startsWithIgnoreCase(searchCriteriaDto.getSummary()));
     }
 
-    JPAQuery<IncomingDocument> query = selectFrom(incomingDocument)
+    return selectFrom(incomingDocument)
         .leftJoin(processingDocument)
         .on(incomingDocument.id.eq(processingDocument.incomingDoc.id))
         .innerJoin(incomingDocument.documentType, QDocumentType.documentType)
@@ -247,8 +247,6 @@ public class CustomProcessingDocumentRepositoryImpl
             QDistributionOrganization.distributionOrganization)
         .distinct()
         .where(where);
-
-    return query;
   }
 
   @Override
