@@ -17,12 +17,15 @@ public class DocDateTimeUtils {
   public static LocalDateTime getAtEndOfDay(LocalDate date) {
     return LocalTime.MAX.atDate(date);
   }
-
   public static LocalDate get7DaysBefore(LocalDate date) {
     return date.minusDays(7);
   }
 
   public static LocalDateTime getAtStartOf7DaysBefore(LocalDate date) {
     return getAtStartOfDay(get7DaysBefore(date));
+  }
+
+  public static boolean isBetween(LocalDateTime time, LocalDateTime start, LocalDateTime end) {
+    return time.isAfter(start) && time.isBefore(end);
   }
 }

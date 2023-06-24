@@ -2,6 +2,7 @@ package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
 import edu.hcmus.doc.mainservice.model.dto.DocumentReminderDetailsDto;
+import edu.hcmus.doc.mainservice.model.dto.DocumentReminderWrapperDto;
 import edu.hcmus.doc.mainservice.model.enums.DocumentReminderStatusEnum;
 import edu.hcmus.doc.mainservice.service.DocumentReminderService;
 import edu.hcmus.doc.mainservice.util.DocDateTimeUtils;
@@ -40,9 +41,9 @@ public class DocumentReminderController {
   }
 
   @GetMapping("/current-user/details/{date}")
-  public Map<DocumentReminderStatusEnum, Set<DocumentReminderDetailsDto>> getCurrentUserDocumentReminderDetailsByDate
+  public DocumentReminderWrapperDto getCurrentUserDocumentReminderDetailsByDate
       (@PathVariable("date") @DateTimeFormat(pattern = DocDateTimeUtils.YYYY_MM_DD_FORMAT) LocalDate date) {
-    return documentReminderService.getCurrentUserDocumentRemindersDetailsByTime(date);
+    return documentReminderMapper.toDto(documentReminderService.getCurrentUserDocumentRemindersDetailsByTime(date), date);
   }
 
   @GetMapping("/current-user/details/{month}/{year}")
