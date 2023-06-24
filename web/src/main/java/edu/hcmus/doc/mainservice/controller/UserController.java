@@ -1,8 +1,8 @@
 package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
-import edu.hcmus.doc.mainservice.model.dto.DocStatisticsDto;
 import edu.hcmus.doc.mainservice.model.dto.DocStatisticsSearchCriteriaDto;
+import edu.hcmus.doc.mainservice.model.dto.DocStatisticsWrapperDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferHistory.TransferHistoryDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferHistory.TransferHistorySearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.dto.UserDepartmentDto;
@@ -79,7 +79,11 @@ public class UserController extends DocAbstractController {
   }
 
   @PostMapping("/get-statistics")
-  public List<DocStatisticsDto> getStatistics(@RequestBody(required = false) DocStatisticsSearchCriteriaDto docStatisticsSearchCriteriaDto) {
-    return userService.getStatistics(docStatisticsSearchCriteriaDto);
+  public DocStatisticsWrapperDto getStatistics(@RequestBody(required = false) DocStatisticsSearchCriteriaDto docStatisticsSearchCriteriaDto) {
+    DocStatisticsWrapperDto docStatisticsWrapperDto = new DocStatisticsWrapperDto();
+    docStatisticsWrapperDto.setDocStatistics(userService.getStatistics(docStatisticsSearchCriteriaDto));
+    docStatisticsWrapperDto.setFromDate(docStatisticsSearchCriteriaDto.getFromDate());
+    docStatisticsWrapperDto.setToDate(docStatisticsSearchCriteriaDto.getToDate());
+    return docStatisticsWrapperDto;
   }
 }
