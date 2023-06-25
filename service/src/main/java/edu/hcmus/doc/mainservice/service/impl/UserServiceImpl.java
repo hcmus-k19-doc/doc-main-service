@@ -9,13 +9,17 @@ import edu.hcmus.doc.mainservice.model.dto.TransferHistory.TransferHistorySearch
 import edu.hcmus.doc.mainservice.model.dto.UserDepartmentDto;
 import edu.hcmus.doc.mainservice.model.dto.UserDto;
 import edu.hcmus.doc.mainservice.model.dto.UserSearchCriteria;
+import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.OutgoingDocumentStatusEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.EmailExistedException;
+import edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserPasswordIncorrectException;
 import edu.hcmus.doc.mainservice.model.exception.UsernameExistedException;
@@ -54,7 +58,6 @@ public class UserServiceImpl implements UserService {
   private final ProcessingDocumentRepository processingDocumentRepository;
   private final ProcessingUserRepository processingUserRepository;
   private final ProcessingUserRoleRepository processingUserRoleRepository;
-
   @Override
   public List<User> getUsers(String query, long first, long max) {
     return userRepository.getUsers(query, first, max);
@@ -217,7 +220,8 @@ public class UserServiceImpl implements UserService {
           docStatisticsDtos.add(
               new DocStatisticsDto(getUserById(userId).getUsername(), 0, 0, 0, 0));
         } else {
-          docStatisticsDtos.add(quantityStatistics(docListStatisticsDto));
+          docStatisticsDtos.add(quantityStatistics(docListStatisticsDto,
+              ProcessingDocumentType.valueOf(docStatisticsSearchCriteriaDto.getDocType())));
         }
       });
       return docStatisticsDtos;
@@ -226,7 +230,8 @@ public class UserServiceImpl implements UserService {
     }
   }
 
-  private DocStatisticsDto quantityStatistics(DocListStatisticsDto docListStatisticsDto) {
+  private DocStatisticsDto quantityStatistics(DocListStatisticsDto docListStatisticsDto,
+      ProcessingDocumentType processingDocumentType) {
     List<Long> processedDocumentOnTime = new ArrayList<>();
     List<Long> processedDocumentOverdue = new ArrayList<>();
     List<Long> unprocessedDocumentUnexpired = new ArrayList<>();
@@ -255,23 +260,72 @@ public class UserServiceImpl implements UserService {
           }
         }
       });
-      docStatisticsDto.setNumberOfProcessedDocumentOnTime(processedDocumentOnTime.size());
-      docStatisticsDto.setNumberOfProcessedDocumentOverdue(processedDocumentOverdue.size());
     }
 
     docListStatisticsDto.getUnprocessedDocuments().forEach(docId -> {
+      ProcessingDocument processingDocument = processingDocumentRepository
+          .findProcessingDocumentById(docId)
+          .orElseThrow(ProcessingDocumentNotFoundException::new);
       List<ProcessingUser> processingUser = processingUserRepository.findByUserIdAndProcessingDocumentIdWithRole(
           docListStatisticsDto.getUserId(), docId);
-      if (Objects.isNull(processingUser.get(0).getProcessingDuration())) {
-        unprocessedDocumentUnexpired.add(docId);
-      } else {
-        if (LocalDate.now().isBefore(processingUser.get(0).getProcessingDuration())) {
-          unprocessedDocumentUnexpired.add(docId);
+      if (processingUser.isEmpty()) {
+        throw new DocumentNotFoundException(DocumentNotFoundException.DOCUMENT_NOT_FOUND);
+      }
+
+      if (ProcessingDocumentType.INCOMING_DOCUMENT.equals(processingDocumentType)) {
+        if (ProcessingStatus.CLOSED.equals(processingDocument.getStatus()) && getUserById(
+            docListStatisticsDto.getUserId()).getUsername()
+            .equals(processingDocument.getIncomingDoc().getCloseUsername())) {
+          if (Objects.isNull(processingUser.get(0).getProcessingDuration())) {
+            processedDocumentOnTime.add(docId);
+          } else {
+            if (Objects.requireNonNull(processingDocument.getIncomingDoc().getCloseDate())
+                .isBefore(processingUser.get(0).getProcessingDuration())) {
+              processedDocumentOnTime.add(docId);
+            } else {
+              processedDocumentOverdue.add(docId);
+            }
+          }
         } else {
-          unprocessedDocumentOverdue.add(docId);
+          if (Objects.isNull(processingUser.get(0).getProcessingDuration())) {
+            unprocessedDocumentUnexpired.add(docId);
+          } else {
+            if (LocalDate.now().isBefore(processingUser.get(0).getProcessingDuration())) {
+              unprocessedDocumentUnexpired.add(docId);
+            } else {
+              unprocessedDocumentOverdue.add(docId);
+            }
+          }
+        }
+      } else {
+        if (OutgoingDocumentStatusEnum.RELEASED.equals(processingDocument.getOutgoingDocument().getStatus()) && getUserById(
+            docListStatisticsDto.getUserId()).getUsername().equals(processingDocument.getOutgoingDocument().getSigner())) {
+          if (Objects.isNull(processingUser.get(0).getProcessingDuration())) {
+            processedDocumentOnTime.add(docId);
+          } else {
+            if (Objects.requireNonNull(processingDocument.getOutgoingDocument().getReleaseDate())
+                .isBefore(processingUser.get(0).getProcessingDuration())) {
+              processedDocumentOnTime.add(docId);
+            } else {
+              processedDocumentOverdue.add(docId);
+            }
+          }
+        } else {
+          if (Objects.isNull(processingUser.get(0).getProcessingDuration())) {
+            unprocessedDocumentUnexpired.add(docId);
+          } else {
+            if (LocalDate.now().isBefore(processingUser.get(0).getProcessingDuration())) {
+              unprocessedDocumentUnexpired.add(docId);
+            } else {
+              unprocessedDocumentOverdue.add(docId);
+            }
+          }
         }
       }
     });
+
+    docStatisticsDto.setNumberOfProcessedDocumentOnTime(processedDocumentOnTime.size());
+    docStatisticsDto.setNumberOfProcessedDocumentOverdue(processedDocumentOverdue.size());
     docStatisticsDto.setNumberOfUnprocessedDocumentUnexpired(unprocessedDocumentUnexpired.size());
     docStatisticsDto.setNumberOfUnprocessedDocumentOverdue(unprocessedDocumentOverdue.size());
 

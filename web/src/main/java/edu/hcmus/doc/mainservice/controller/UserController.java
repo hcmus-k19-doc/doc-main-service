@@ -11,7 +11,9 @@ import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.UserService;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,7 +42,8 @@ public class UserController extends DocAbstractController {
   }
 
   @GetMapping("/role/department/{role}")
-  public List<UserDepartmentDto> getUsersByRoleWithDepartment(@PathVariable DocSystemRoleEnum role) {
+  public List<UserDepartmentDto> getUsersByRoleWithDepartment(
+      @PathVariable DocSystemRoleEnum role) {
     return userService.getUsersByRoleWithDepartment(role);
   }
 
@@ -50,7 +53,8 @@ public class UserController extends DocAbstractController {
   }
 
   @PutMapping("/current/password")
-  public Long updateCurrentUserPassword(@RequestParam String oldPassword, @RequestParam String newPassword) {
+  public Long updateCurrentUserPassword(@RequestParam String oldPassword,
+      @RequestParam String newPassword) {
     return userService.updateCurrentUserPassword(oldPassword, newPassword);
   }
 
@@ -62,7 +66,7 @@ public class UserController extends DocAbstractController {
 
   @PostMapping("/get-transfer-history")
   public List<TransferHistoryDto> getTransferDocumentHistory(
-      @RequestBody(required = false)TransferHistorySearchCriteriaDto searchCriteria,
+      @RequestBody(required = false) TransferHistorySearchCriteriaDto searchCriteria,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "3") int pageSize) {
     return userService.getTransferHistoryByUser(
@@ -79,11 +83,19 @@ public class UserController extends DocAbstractController {
   }
 
   @PostMapping("/get-statistics")
-  public DocStatisticsWrapperDto getStatistics(@RequestBody(required = false) DocStatisticsSearchCriteriaDto docStatisticsSearchCriteriaDto) {
+  public DocStatisticsWrapperDto getStatistics(
+      @RequestBody(required = false) DocStatisticsSearchCriteriaDto docStatisticsSearchCriteriaDto) {
     DocStatisticsWrapperDto docStatisticsWrapperDto = new DocStatisticsWrapperDto();
-    docStatisticsWrapperDto.setDocStatistics(userService.getStatistics(docStatisticsSearchCriteriaDto));
-    docStatisticsWrapperDto.setFromDate(docStatisticsSearchCriteriaDto.getFromDate());
-    docStatisticsWrapperDto.setToDate(docStatisticsSearchCriteriaDto.getToDate());
+    docStatisticsWrapperDto.setDocStatisticsDtos(
+        userService.getStatistics(docStatisticsSearchCriteriaDto));
+    docStatisticsWrapperDto.setFromDate(
+        Objects.isNull(docStatisticsSearchCriteriaDto.getFromDate()) ? ""
+            : docStatisticsSearchCriteriaDto.getFromDate()
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
+    docStatisticsWrapperDto.setToDate(
+        Objects.isNull(docStatisticsSearchCriteriaDto.getToDate()) ? ""
+            : docStatisticsSearchCriteriaDto.getToDate()
+                .format(DateTimeFormatter.ofPattern("dd/MM/yyyy")));
     return docStatisticsWrapperDto;
   }
 }

@@ -417,6 +417,16 @@ public class CustomProcessingDocumentRepositoryImpl
   }
 
   @Override
+  public Optional<ProcessingDocument> findProcessingDocumentById(Long id){
+    return Optional.ofNullable(
+        selectFrom(processingDocument)
+            .where(processingDocument.id.eq(id))
+            .fetchOne()
+    );
+
+  }
+
+  @Override
   public DocListStatisticsDto getDocListStatistics(Long userId, LocalDate fromDate, LocalDate toDate, ProcessingDocumentType processingDocumentType) {
     QProcessingDocument qProcessingDocument = processingDocument;
     QProcessingUser qProcessingUser = processingUser;

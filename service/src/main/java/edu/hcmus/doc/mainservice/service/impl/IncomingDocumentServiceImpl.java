@@ -544,6 +544,11 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
 
     processingDocument.setStatus(ProcessingStatus.CLOSED);
 
+    IncomingDocument incomingDocument = getIncomingDocumentById(incomingDocumentId);
+    incomingDocument.setCloseDate(LocalDate.now());
+    incomingDocument.setCloseUsername(SecurityUtils.getCurrentUser().getUsername());
+    incomingDocumentRepository.saveAndFlush(incomingDocument);
+
     return "incomingDocDetailPage.message.closed_successfully";
   }
 }
