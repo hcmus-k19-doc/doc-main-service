@@ -13,17 +13,20 @@ public class CustomAttachmentRepositoryImpl
     implements CustomAttachmentRepository {
 
   @Override
-  public List<Attachment> getAttachmentsDocId(Long docId, ParentFolderEnum parentFolder) {
+  public List<Attachment> getAttachmentsByDocId(Long docId, ParentFolderEnum parentFolder) {
     BooleanBuilder where = new BooleanBuilder();
     if (parentFolder == ParentFolderEnum.ICD) {
       where.and(QAttachment.attachment.incomingDoc.id.eq(docId));
     } else {
       where.and(QAttachment.attachment.outgoingDocument.id.eq(docId));
     }
+
     return select(QAttachment.attachment.id,
         QAttachment.attachment.alfrescoFileId,
         QAttachment.attachment.alfrescoFolderId,
-        QAttachment.attachment.fileType)
+        QAttachment.attachment.fileType,
+        QAttachment.attachment.createdDate,
+        QAttachment.attachment.createdBy)
         .from(QAttachment.attachment)
         .where(where)
         .fetch()
@@ -34,6 +37,8 @@ public class CustomAttachmentRepositoryImpl
           attachment.setAlfrescoFileId(tuple.get(QAttachment.attachment.alfrescoFileId));
           attachment.setAlfrescoFolderId(tuple.get(QAttachment.attachment.alfrescoFolderId));
           attachment.setFileType(tuple.get(QAttachment.attachment.fileType));
+          attachment.setCreatedDate(tuple.get(QAttachment.attachment.createdDate));
+          attachment.setCreatedBy(tuple.get(QAttachment.attachment.createdBy));
           return attachment;
         })
         .toList();

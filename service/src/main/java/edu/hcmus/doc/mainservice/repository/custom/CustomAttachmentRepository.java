@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface CustomAttachmentRepository {
 
-  List<Attachment> getAttachmentsDocId(Long docId, ParentFolderEnum parentFolder);
+  List<Attachment> getAttachmentsByDocId(Long docId, ParentFolderEnum parentFolder);
 }
