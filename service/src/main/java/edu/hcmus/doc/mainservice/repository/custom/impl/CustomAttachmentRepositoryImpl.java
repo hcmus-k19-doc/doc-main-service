@@ -1,7 +1,9 @@
 package edu.hcmus.doc.mainservice.repository.custom.impl;
 
+import com.querydsl.core.BooleanBuilder;
 import edu.hcmus.doc.mainservice.model.entity.Attachment;
 import edu.hcmus.doc.mainservice.model.entity.QAttachment;
+import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
 import edu.hcmus.doc.mainservice.repository.custom.CustomAttachmentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import java.util.List;
@@ -11,13 +13,19 @@ public class CustomAttachmentRepositoryImpl
     implements CustomAttachmentRepository {
 
   @Override
-  public List<Attachment> getAttachmentsByIncomingDocId(Long incomingDocId) {
+  public List<Attachment> getAttachmentsDocId(Long docId, ParentFolderEnum parentFolder) {
+    BooleanBuilder where = new BooleanBuilder();
+    if (parentFolder == ParentFolderEnum.ICD) {
+      where.and(QAttachment.attachment.incomingDoc.id.eq(docId));
+    } else {
+      where.and(QAttachment.attachment.outgoingDocument.id.eq(docId));
+    }
     return select(QAttachment.attachment.id,
         QAttachment.attachment.alfrescoFileId,
         QAttachment.attachment.alfrescoFolderId,
         QAttachment.attachment.fileType)
         .from(QAttachment.attachment)
-        .where(QAttachment.attachment.incomingDoc.id.eq(incomingDocId))
+        .where(where)
         .fetch()
         .stream()
         .map(tuple -> {
