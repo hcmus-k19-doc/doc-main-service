@@ -7,4 +7,6 @@ public interface ProcessingMethodService {
   List<ProcessingMethod> findAll();
 
   ProcessingMethod findByName(String name);
+
+  ProcessingMethod createProcessingMethod(String name);
 }
