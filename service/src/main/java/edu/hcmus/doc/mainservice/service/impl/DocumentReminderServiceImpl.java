@@ -3,6 +3,7 @@ package edu.hcmus.doc.mainservice.service.impl;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import edu.hcmus.doc.mainservice.model.dto.DocumentReminderDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.MobileNotificationMessageDto;
 import edu.hcmus.doc.mainservice.model.entity.DocumentReminder;
@@ -119,8 +120,10 @@ public class DocumentReminderServiceImpl implements DocumentReminderService {
   public String pushMobileNotification(MobileNotificationMessageDto mobileNotificationMessageDto)
       throws FirebaseMessagingException {
     Message message = Message.builder()
-        .putData("title", mobileNotificationMessageDto.getTitle())
-        .putData("body", mobileNotificationMessageDto.getBody())
+        .setNotification(Notification.builder()
+            .setTitle(mobileNotificationMessageDto.getTitle())
+            .setBody(mobileNotificationMessageDto.getBody())
+            .build())
         .setToken(mobileNotificationMessageDto.getToken())
         .build();
 
