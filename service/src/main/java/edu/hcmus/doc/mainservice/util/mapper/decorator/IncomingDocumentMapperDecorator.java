@@ -85,13 +85,15 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
     dto.setStatus(status);
     dto.setIsDocTransferred(isDocTransferred);
     dto.setIsDocCollaborator(isDocCollaborator);
-    dto.setIsTransferable(processingDocumentRepository.getIncomingDocumentsWithTransferPermission().contains(incomingDocument.getId()));
+    dto.setIsTransferable(processingDocumentRepository.getIncomingDocumentsWithTransferPermission()
+        .contains(incomingDocument.getId()));
     dto.setIsCloseable(incomingDocumentService.validateCloseDocument(incomingDocument.getId()));
     dto.setAttachments(attachments);
 
     dto.setProcessingDuration(
         processingDocumentService
-            .getDateExpired(incomingDocument.getId(), SecurityUtils.getCurrentUser().getId())
+            .getDateExpired(incomingDocument.getId(), currentUser.getId(), currentUser.getRole(),
+                false)
             .orElse(null)
     );
     return dto;
@@ -127,7 +129,15 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
             .build());
 
     dto.setIsDocCollaborator(isDocCollaborator);
-    dto.setIsTransferable(processingDocumentRepository.getIncomingDocumentsWithTransferPermission().contains(processingDocument.getIncomingDoc().getId()));
+    dto.setIsTransferable(processingDocumentRepository.getIncomingDocumentsWithTransferPermission()
+        .contains(processingDocument.getIncomingDoc().getId()));
+
+    dto.setProcessingDuration(
+        processingDocumentService
+            .getDateExpired(processingDocument.getIncomingDoc().getId(), currentUser.getId(),
+                currentUser.getRole(), true)
+            .orElse(null)
+    );
 
     return dto;
   }
