@@ -6,7 +6,7 @@ import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserPasswordIncorrectException;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.service.KeycloakService;
-import edu.hcmus.doc.mainservice.util.keycloak.KeycloakProperty;
+import edu.hcmus.doc.mainservice.util.keycloak.KeycloakProperties;
 import edu.hcmus.doc.mainservice.util.keycloak.KeycloakResource;
 import org.apache.commons.lang3.StringUtils;
 import org.jboss.resteasy.client.jaxrs.ResteasyWebTarget;
@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(rollbackFor = Throwable.class)
 public class KeycloakServiceImpl implements KeycloakService {
 
-  private final KeycloakProperty keycloakProperty;
+  private final KeycloakProperties keycloakProperties;
 
   private final KeycloakResource keycloakTokenEndpoint;
 
@@ -30,11 +30,11 @@ public class KeycloakServiceImpl implements KeycloakService {
   private final PasswordEncoder passwordEncoder;
 
   public KeycloakServiceImpl(
-      KeycloakProperty keycloakProperty,
+      KeycloakProperties keycloakProperties,
       ResteasyWebTarget resteasyTokenTarget,
       ResteasyWebTarget resteasyRevokeTarget,
       UserRepository userRepository, PasswordEncoder passwordEncoder) {
-    this.keycloakProperty = keycloakProperty;
+    this.keycloakProperties = keycloakProperties;
     this.keycloakTokenEndpoint = resteasyTokenTarget.proxy(KeycloakResource.class);
     this.keycloakRevokeEndpoint = resteasyRevokeTarget.proxy(KeycloakResource.class);
     this.userRepository = userRepository;
@@ -53,9 +53,9 @@ public class KeycloakServiceImpl implements KeycloakService {
         OAuth2ParameterNames.PASSWORD,
         username,
         password,
-        keycloakProperty.getScope(),
-        keycloakProperty.getClientId(),
-        keycloakProperty.getClientSecret()
+        keycloakProperties.getScope(),
+        keycloakProperties.getClientId(),
+        keycloakProperties.getClientSecret()
     );
   }
 
@@ -64,9 +64,9 @@ public class KeycloakServiceImpl implements KeycloakService {
     return keycloakTokenEndpoint.refreshToken(
         OAuth2ParameterNames.REFRESH_TOKEN,
         refreshToken,
-        keycloakProperty.getScope(),
-        keycloakProperty.getClientId(),
-        keycloakProperty.getClientSecret()
+        keycloakProperties.getScope(),
+        keycloakProperties.getClientId(),
+        keycloakProperties.getClientSecret()
     );
   }
 
@@ -77,8 +77,8 @@ public class KeycloakServiceImpl implements KeycloakService {
     }
 
     keycloakRevokeEndpoint.revokeTokens(
-        keycloakProperty.getClientId(),
-        keycloakProperty.getClientSecret(),
+        keycloakProperties.getClientId(),
+        keycloakProperties.getClientSecret(),
         refreshToken,
         OAuth2ParameterNames.REFRESH_TOKEN
     );

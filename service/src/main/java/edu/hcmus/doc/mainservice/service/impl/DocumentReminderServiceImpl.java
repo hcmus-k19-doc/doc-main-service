@@ -1,6 +1,10 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
 import edu.hcmus.doc.mainservice.model.dto.DocumentReminderDetailsDto;
+import edu.hcmus.doc.mainservice.model.dto.MobileNotificationMessageDto;
 import edu.hcmus.doc.mainservice.model.entity.DocumentReminder;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
@@ -27,6 +31,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional(rollbackFor = Throwable.class)
 public class DocumentReminderServiceImpl implements DocumentReminderService {
+
+  private final FirebaseMessaging firebaseMessaging;
 
   private final DocumentReminderRepository documentReminderRepository;
 
@@ -107,5 +113,20 @@ public class DocumentReminderServiceImpl implements DocumentReminderService {
             : DocumentReminderStatusEnum.ACTIVE
     );
     return documentReminderRepository.save(documentReminder).getId();
+  }
+
+  @Override
+  public String pushMobileNotification(MobileNotificationMessageDto mobileNotificationMessageDto)
+      throws FirebaseMessagingException {
+    Message message = Message.builder()
+        .putData("title", mobileNotificationMessageDto.getTitle())
+        .putData("body", mobileNotificationMessageDto.getBody())
+        .setToken(mobileNotificationMessageDto.getToken())
+        .build();
+
+    String res = firebaseMessaging.send(message);
+    log.info("Push notification response: {}", res);
+
+    return res;
   }
 }
