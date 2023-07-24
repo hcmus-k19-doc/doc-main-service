@@ -14,6 +14,8 @@ public interface CustomProcessingUserRepository {
 
   Optional<LocalDate> getDateExpired(Long incomingDocumentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole);
 
+  Optional<String> getDateExpiredV2(Long incomingDocumentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole);
+
   List<ProcessingUser> findByUserIdAndProcessingDocumentIdWithRole(Long userId, Long processingDocumentId);
 
   ProcessingUser findByUserIdAndProcessingDocumentIdAndRoleAssignee(Long userId, Long processingDocumentId);

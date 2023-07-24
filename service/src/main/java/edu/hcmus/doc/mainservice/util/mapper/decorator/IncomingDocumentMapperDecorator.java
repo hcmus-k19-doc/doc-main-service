@@ -8,6 +8,7 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentD
 import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.User;
+import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
@@ -19,8 +20,11 @@ import edu.hcmus.doc.mainservice.service.DocumentTypeService;
 import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
+import edu.hcmus.doc.mainservice.util.ResourceBundleUtils;
 import edu.hcmus.doc.mainservice.util.TransferDocumentUtils;
 import edu.hcmus.doc.mainservice.util.mapper.IncomingDocumentMapper;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -132,10 +136,13 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
     dto.setIsTransferable(processingDocumentRepository.getIncomingDocumentsWithTransferPermission()
         .contains(processingDocument.getIncomingDoc().getId()));
 
-    dto.setProcessingDuration(
+    dto.setCustomProcessingDuration(
         processingDocumentService
-            .getDateExpired(processingDocument.getIncomingDoc().getId(), currentUser.getId(),
+            .getDateExpiredV2(processingDocument.getIncomingDoc().getId(), currentUser.getId(),
                 currentUser.getRole(), true)
+            .map(result -> result.equals("infinite") ? ResourceBundleUtils.getContent(
+                MESSAGE.infinite_processing_duration) : LocalDate.parse(result).format(
+                DateTimeFormatter.ofPattern("dd-MM-yyyy")))
             .orElse(null)
     );
 

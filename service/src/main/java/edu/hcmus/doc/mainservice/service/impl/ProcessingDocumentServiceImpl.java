@@ -420,4 +420,10 @@ public class ProcessingDocumentServiceImpl implements ProcessingDocumentService 
   public Optional<LocalDate> getDateExpired(Long incomingDocumentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole) {
     return processingUserRepository.getDateExpired(incomingDocumentId, userId, userRole, isAnyRole);
   }
+
+  @Override
+  public Optional<String> getDateExpiredV2(Long incomingDocumentId, Long userId,
+      DocSystemRoleEnum userRole, Boolean isAnyRole) {
+    return processingUserRepository.getDateExpiredV2(incomingDocumentId, userId, userRole, isAnyRole);
+  }
 }

@@ -42,4 +42,6 @@ public interface ProcessingDocumentService {
   ProcessingStatus getProcessingStatus(Long documentId);
 
   Optional<LocalDate> getDateExpired(Long incomingDocumentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole);
+
+  Optional<String> getDateExpiredV2(Long incomingDocumentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole);
 }

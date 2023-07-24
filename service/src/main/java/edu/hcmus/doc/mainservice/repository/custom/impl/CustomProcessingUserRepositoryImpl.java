@@ -6,6 +6,7 @@ import static edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum.C
 import static edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum.REPORTER;
 
 import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.Tuple;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
 import edu.hcmus.doc.mainservice.model.entity.QIncomingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QProcessingDocument;
@@ -49,6 +50,15 @@ public class CustomProcessingUserRepositoryImpl
         .fetchFirst() != null;
   }
 
+  /**
+   * This function is used to get date expired of a user in a processing document,
+   * but it cant detect if the processing duration is infinite or not
+   * @param incomingDocumentId Long
+   * @param userId Long
+   * @param userRole DocSystemRoleEnum
+   * @param isAnyRole Boolean
+   * @return Optional<LocalDate>
+   */
   @Override
   public Optional<LocalDate> getDateExpired(Long incomingDocumentId, Long userId,
       DocSystemRoleEnum userRole
@@ -84,6 +94,67 @@ public class CustomProcessingUserRepositoryImpl
         .innerJoin(qProcessingDocument.incomingDoc, incomingDocument)
         .on(incomingDocument.id.eq(incomingDocumentId))
         .fetchFirst());
+  }
+
+  /**
+   * This function is used to get date expired of a user in a processing document,
+   * but it cant detect if the processing duration is infinite or not
+   * @param incomingDocumentId
+   * @param userId
+   * @param userRole
+   * @param isAnyRole
+   * @return
+   */
+  @Override
+  public Optional<String> getDateExpiredV2(Long incomingDocumentId, Long userId,
+      DocSystemRoleEnum userRole, Boolean isAnyRole) {
+    QProcessingDocument qProcessingDocument = new QProcessingDocument(
+        qProcessingUser.processingDocument.getMetadata().getName());
+    QProcessingUserRole qProcessingUserRole = QProcessingUserRole.processingUserRole;
+    QIncomingDocument incomingDocument = new QIncomingDocument(
+        qProcessingDocument.incomingDoc.getMetadata().getName());
+
+    BooleanBuilder whereBuilder = new BooleanBuilder();
+    if (Boolean.TRUE.equals(isAnyRole)) {
+      if (userRole.equals(DocSystemRoleEnum.VAN_THU)) {
+        // If isAnyRole is true and userRole is VANTHU, select roles: ASSIGNEE, COLLABORATOR, and REPORTER
+        whereBuilder.and(qProcessingUserRole.role.in(ASSIGNEE, COLLABORATOR, REPORTER));
+      } else {
+        // If isAnyRole is true and userRole is not VANTHU, select roles: ASSIGNEE, COLLABORATOR
+        whereBuilder.and(qProcessingUserRole.role.in(ASSIGNEE, COLLABORATOR));
+      }
+    } else {
+      // If isAnyRole is false, select role: ASSIGNEE
+      whereBuilder.and(qProcessingUserRole.role.eq(ASSIGNEE));
+    }
+
+    Tuple tuple = selectFrom(qProcessingUser)
+        .select(qProcessingUser.processingDuration,
+            qProcessingUser.id)
+        .innerJoin(qProcessingDocument)
+        .on(qProcessingDocument.id.eq(qProcessingUser.processingDocument.id)
+            .and(qProcessingUser.user.id.eq(userId)))
+        .innerJoin(qProcessingUserRole)
+        .on(qProcessingUserRole.processingUser.id.eq(qProcessingUser.id)
+            .and(whereBuilder))
+        .innerJoin(qProcessingDocument.incomingDoc, incomingDocument)
+        .on(incomingDocument.id.eq(incomingDocumentId))
+        .fetchFirst();
+
+    // if tuple is null, return null
+    if (tuple == null) {
+      return Optional.empty();
+    }
+    // if id is not null, and processingDuration is null, return infinite
+    if (tuple.get(qProcessingUser.id) != null && tuple.get(qProcessingUser.processingDuration) == null) {
+      return Optional.of("infinite");
+    }
+    // if id is not null, and processingDuration is not null, return processingDuration
+    if (tuple.get(qProcessingUser.id) != null && tuple.get(qProcessingUser.processingDuration) != null) {
+      return Optional.of(tuple.get(qProcessingUser.processingDuration).toString());
+    }
+    // if not match any case, return null
+    return Optional.empty();
   }
 
   @Override
