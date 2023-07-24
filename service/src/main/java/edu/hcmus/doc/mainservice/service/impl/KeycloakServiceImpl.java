@@ -1,9 +1,12 @@
 package edu.hcmus.doc.mainservice.service.impl;
 
 import edu.hcmus.doc.mainservice.model.dto.TokenDto;
+import edu.hcmus.doc.mainservice.model.entity.DocFirebaseTokenEntity;
 import edu.hcmus.doc.mainservice.model.entity.User;
+import edu.hcmus.doc.mainservice.model.enums.DocFirebaseTokenType;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserPasswordIncorrectException;
+import edu.hcmus.doc.mainservice.repository.FirebaseTokenRepository;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.service.KeycloakService;
 import edu.hcmus.doc.mainservice.util.keycloak.KeycloakProperties;
@@ -29,24 +32,32 @@ public class KeycloakServiceImpl implements KeycloakService {
 
   private final PasswordEncoder passwordEncoder;
 
+  private final FirebaseTokenRepository firebaseTokenRepository;
+
   public KeycloakServiceImpl(
       KeycloakProperties keycloakProperties,
       ResteasyWebTarget resteasyTokenTarget,
       ResteasyWebTarget resteasyRevokeTarget,
-      UserRepository userRepository, PasswordEncoder passwordEncoder) {
+      UserRepository userRepository, PasswordEncoder passwordEncoder,
+      FirebaseTokenRepository firebaseTokenRepository) {
     this.keycloakProperties = keycloakProperties;
     this.keycloakTokenEndpoint = resteasyTokenTarget.proxy(KeycloakResource.class);
     this.keycloakRevokeEndpoint = resteasyRevokeTarget.proxy(KeycloakResource.class);
     this.userRepository = userRepository;
     this.passwordEncoder = passwordEncoder;
+    this.firebaseTokenRepository = firebaseTokenRepository;
   }
 
   @Override
-  public TokenDto getToken(String username, String password) {
-    User user = userRepository.findByUsername(username).orElseThrow(UserNotFoundException::new);
+  public TokenDto getToken(String username, String password, String firebaseToken) {
+    User user = userRepository.findUserByUsername(username).orElseThrow(UserNotFoundException::new);
 
     if (!passwordEncoder.matches(password, user.getPassword())) {
       throw new UserPasswordIncorrectException();
+    }
+
+    if (StringUtils.isNotBlank(firebaseToken)) {
+      saveFirebaseToken(user, firebaseToken, DocFirebaseTokenType.FCM);
     }
 
     return keycloakTokenEndpoint.getToken(
@@ -71,9 +82,13 @@ public class KeycloakServiceImpl implements KeycloakService {
   }
 
   @Override
-  public void revokeTokens(String refreshToken) {
+  public void revokeTokens(String refreshToken, String firebaseToken) {
     if (StringUtils.isBlank(refreshToken)) {
       return;
+    }
+
+    if (StringUtils.isNotBlank(firebaseToken)) {
+      deleteByTokenAndType(firebaseToken, DocFirebaseTokenType.FCM);
     }
 
     keycloakRevokeEndpoint.revokeTokens(
@@ -82,5 +97,17 @@ public class KeycloakServiceImpl implements KeycloakService {
         refreshToken,
         OAuth2ParameterNames.REFRESH_TOKEN
     );
+  }
+
+  private void saveFirebaseToken(User user, String token, DocFirebaseTokenType type) {
+    DocFirebaseTokenEntity firebaseToken = new DocFirebaseTokenEntity();
+    firebaseToken.setToken(token);
+    firebaseToken.setType(type);
+    firebaseToken.setUser(user);
+    firebaseTokenRepository.save(firebaseToken);
+  }
+
+  private void deleteByTokenAndType(String firebaseToken, DocFirebaseTokenType type) {
+    firebaseTokenRepository.deleteByTokenAndType(firebaseToken, type);
   }
 }

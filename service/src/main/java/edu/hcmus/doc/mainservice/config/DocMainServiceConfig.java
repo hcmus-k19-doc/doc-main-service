@@ -63,12 +63,12 @@ public class DocMainServiceConfig {
   }
 
   @Bean
-  FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
+  public FirebaseMessaging firebaseMessaging(FirebaseApp firebaseApp) {
     return FirebaseMessaging.getInstance(firebaseApp);
   }
 
   @Bean
-  FirebaseApp firebaseApp(GoogleCredentials googleCredentials) {
+  public FirebaseApp firebaseApp(GoogleCredentials googleCredentials) {
     FirebaseOptions options = FirebaseOptions.builder()
         .setCredentials(googleCredentials)
         .build();
@@ -78,7 +78,7 @@ public class DocMainServiceConfig {
 
   @Bean
   @SneakyThrows
-  GoogleCredentials googleCredentials() {
+  public GoogleCredentials googleCredentials() {
     if (firebaseProperties.getGoogleCredentials() != null) {
       return GoogleCredentials.fromStream(new ClassPathResource(firebaseProperties.getGoogleCredentials()).getInputStream());
     }

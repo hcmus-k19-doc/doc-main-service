@@ -29,4 +29,12 @@ public interface DocumentReminderService {
 
   String pushMobileNotification(MobileNotificationMessageDto mobileNotificationMessageDto)
       throws FirebaseMessagingException;
+
+  void pushMobileNotificationsByUserId(
+      MobileNotificationMessageDto mobileNotificationMessageDto, Long userId)
+      throws FirebaseMessagingException;
+
+  MobileNotificationMessageDto buildMobileNotificationMessage(
+      DocumentReminderStatusEnum documentReminderStatus,
+      String documentNumber);
 }

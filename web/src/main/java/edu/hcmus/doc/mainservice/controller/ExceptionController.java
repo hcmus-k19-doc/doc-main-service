@@ -89,7 +89,7 @@ public class ExceptionController {
 
   @ExceptionHandler(FirebaseMessagingException.class)
   public ResponseEntity<ExceptionDto> handleFirebaseMessagingException(FirebaseMessagingException exception) {
-    log.error(exception.getMessage());
+    log.error(exception.getMessage(), exception);
     return ResponseEntity
         .status(HttpStatus.BAD_REQUEST)
         .body(new ExceptionDto("Firebase messaging error"));
