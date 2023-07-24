@@ -10,6 +10,7 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocD
 import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import java.time.LocalDate;
 import java.util.List;
@@ -43,5 +44,5 @@ public interface ProcessingDocumentService {
 
   Optional<LocalDate> getDateExpired(Long incomingDocumentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole);
 
-  Optional<String> getDateExpiredV2(Long incomingDocumentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole);
+  Optional<String> getDateExpiredV2(Long documentId, Long userId, DocSystemRoleEnum userRole, Boolean isAnyRole, ProcessingDocumentTypeEnum type);
 }

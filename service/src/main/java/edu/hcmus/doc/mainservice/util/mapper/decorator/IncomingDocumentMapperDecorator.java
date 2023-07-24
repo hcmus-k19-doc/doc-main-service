@@ -11,6 +11,7 @@ import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
@@ -139,7 +140,7 @@ public abstract class IncomingDocumentMapperDecorator implements IncomingDocumen
     dto.setCustomProcessingDuration(
         processingDocumentService
             .getDateExpiredV2(processingDocument.getIncomingDoc().getId(), currentUser.getId(),
-                currentUser.getRole(), true)
+                currentUser.getRole(), true, ProcessingDocumentTypeEnum.INCOMING_DOCUMENT)
             .map(result -> result.equals("infinite") ? ResourceBundleUtils.getContent(
                 MESSAGE.infinite_processing_duration) : LocalDate.parse(result).format(
                 DateTimeFormatter.ofPattern("dd-MM-yyyy")))

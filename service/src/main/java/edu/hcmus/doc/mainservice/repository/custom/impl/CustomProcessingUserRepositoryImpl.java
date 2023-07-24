@@ -7,13 +7,16 @@ import static edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum.R
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQuery;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
 import edu.hcmus.doc.mainservice.model.entity.QIncomingDocument;
+import edu.hcmus.doc.mainservice.model.entity.QOutgoingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QProcessingUser;
 import edu.hcmus.doc.mainservice.model.entity.QProcessingUserRole;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
 import edu.hcmus.doc.mainservice.repository.custom.CustomProcessingUserRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
@@ -51,12 +54,13 @@ public class CustomProcessingUserRepositoryImpl
   }
 
   /**
-   * This function is used to get date expired of a user in a processing document,
-   * but it cant detect if the processing duration is infinite or not
+   * This function is used to get date expired of a user in a processing document, but it cant
+   * detect if the processing duration is infinite or not
+   *
    * @param incomingDocumentId Long
-   * @param userId Long
-   * @param userRole DocSystemRoleEnum
-   * @param isAnyRole Boolean
+   * @param userId             Long
+   * @param userRole           DocSystemRoleEnum
+   * @param isAnyRole          Boolean
    * @return Optional<LocalDate>
    */
   @Override
@@ -97,26 +101,32 @@ public class CustomProcessingUserRepositoryImpl
   }
 
   /**
-   * This function is used to get date expired of a user in a processing document,
-   * but it cant detect if the processing duration is infinite or not
-   * @param incomingDocumentId
+   * This function is used to get date expired of a user in a processing document, but it cant
+   * detect if the processing duration is infinite or not
+   *
+   * @param documentId
    * @param userId
    * @param userRole
    * @param isAnyRole
    * @return
    */
   @Override
-  public Optional<String> getDateExpiredV2(Long incomingDocumentId, Long userId,
-      DocSystemRoleEnum userRole, Boolean isAnyRole) {
+  public Optional<String> getDateExpiredV2(Long documentId, Long userId,
+      DocSystemRoleEnum userRole, Boolean isAnyRole, ProcessingDocumentTypeEnum type) {
     QProcessingDocument qProcessingDocument = new QProcessingDocument(
         qProcessingUser.processingDocument.getMetadata().getName());
     QProcessingUserRole qProcessingUserRole = QProcessingUserRole.processingUserRole;
     QIncomingDocument incomingDocument = new QIncomingDocument(
         qProcessingDocument.incomingDoc.getMetadata().getName());
+    QOutgoingDocument outgoingDocument = new QOutgoingDocument(
+        qProcessingDocument.outgoingDocument.getMetadata().getName());
 
     BooleanBuilder whereBuilder = new BooleanBuilder();
     if (Boolean.TRUE.equals(isAnyRole)) {
-      if (userRole.equals(DocSystemRoleEnum.VAN_THU)) {
+      if ((type == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT && userRole.equals(
+          DocSystemRoleEnum.VAN_THU)) || (
+          type == ProcessingDocumentTypeEnum.OUTGOING_DOCUMENT && userRole.equals(
+              DocSystemRoleEnum.CHUYEN_VIEN))) {
         // If isAnyRole is true and userRole is VANTHU, select roles: ASSIGNEE, COLLABORATOR, and REPORTER
         whereBuilder.and(qProcessingUserRole.role.in(ASSIGNEE, COLLABORATOR, REPORTER));
       } else {
@@ -128,7 +138,7 @@ public class CustomProcessingUserRepositoryImpl
       whereBuilder.and(qProcessingUserRole.role.eq(ASSIGNEE));
     }
 
-    Tuple tuple = selectFrom(qProcessingUser)
+    JPAQuery<Tuple> jpaQuery = selectFrom(qProcessingUser)
         .select(qProcessingUser.processingDuration,
             qProcessingUser.id)
         .innerJoin(qProcessingDocument)
@@ -136,21 +146,31 @@ public class CustomProcessingUserRepositoryImpl
             .and(qProcessingUser.user.id.eq(userId)))
         .innerJoin(qProcessingUserRole)
         .on(qProcessingUserRole.processingUser.id.eq(qProcessingUser.id)
-            .and(whereBuilder))
-        .innerJoin(qProcessingDocument.incomingDoc, incomingDocument)
-        .on(incomingDocument.id.eq(incomingDocumentId))
-        .fetchFirst();
+            .and(whereBuilder));
+
+    // if type is INCOMING then join with incomingDocument, else join with outgoingDocument
+    if (type == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT) {
+      jpaQuery.innerJoin(qProcessingDocument.incomingDoc, incomingDocument)
+          .on(incomingDocument.id.eq(documentId));
+    } else {
+      jpaQuery.innerJoin(qProcessingDocument.outgoingDocument, outgoingDocument)
+          .on(outgoingDocument.id.eq(documentId));
+    }
+
+    Tuple tuple = jpaQuery.fetchFirst();
 
     // if tuple is null, return null
     if (tuple == null) {
       return Optional.empty();
     }
     // if id is not null, and processingDuration is null, return infinite
-    if (tuple.get(qProcessingUser.id) != null && tuple.get(qProcessingUser.processingDuration) == null) {
+    if (tuple.get(qProcessingUser.id) != null
+        && tuple.get(qProcessingUser.processingDuration) == null) {
       return Optional.of("infinite");
     }
     // if id is not null, and processingDuration is not null, return processingDuration
-    if (tuple.get(qProcessingUser.id) != null && tuple.get(qProcessingUser.processingDuration) != null) {
+    if (tuple.get(qProcessingUser.id) != null
+        && tuple.get(qProcessingUser.processingDuration) != null) {
       return Optional.of(tuple.get(qProcessingUser.processingDuration).toString());
     }
     // if not match any case, return null
