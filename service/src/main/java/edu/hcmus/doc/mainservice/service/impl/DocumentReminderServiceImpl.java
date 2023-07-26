@@ -161,6 +161,8 @@ public class DocumentReminderServiceImpl implements DocumentReminderService {
   public String pushMobileNotification(MobileNotificationMessageDto mobileNotificationMessageDto)
       throws FirebaseMessagingException {
     Message message = Message.builder()
+        .putData("processingDocumentType", mobileNotificationMessageDto.getProcessingDocumentType().name())
+        .putData("documentId", mobileNotificationMessageDto.getDocumentId().toString())
         .setNotification(Notification.builder()
             .setTitle(mobileNotificationMessageDto.getTitle())
             .setBody(mobileNotificationMessageDto.getBody())
