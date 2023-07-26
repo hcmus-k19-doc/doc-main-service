@@ -7,6 +7,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import edu.hcmus.doc.mainservice.model.dto.MobileNotificationMessageDto;
 import edu.hcmus.doc.mainservice.model.entity.DocumentReminder;
 import edu.hcmus.doc.mainservice.model.enums.DocumentReminderStatusEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
 import edu.hcmus.doc.mainservice.repository.DocumentReminderRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.DocumentReminderService;
@@ -14,6 +15,7 @@ import edu.hcmus.doc.mainservice.service.FolderService;
 import edu.hcmus.doc.mainservice.util.DocDateTimeUtils;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -62,8 +64,19 @@ public class DocScheduleService {
       }
 
       try {
-        MobileNotificationMessageDto message = documentReminderService.buildMobileNotificationMessage(reminder.getStatus(),
-            reminder.getProcessingUser().getProcessingDocument().getIncomingDoc().getIncomingNumber());
+        MobileNotificationMessageDto message;
+        if (Objects.nonNull(reminder.getProcessingUser().getProcessingDocument().getIncomingDoc())){
+          message = documentReminderService.buildMobileNotificationMessage(reminder.getStatus(),
+              reminder.getProcessingUser().getProcessingDocument().getIncomingDoc().getIncomingNumber());
+          message.setProcessingDocumentType(ProcessingDocumentTypeEnum.INCOMING_DOCUMENT);
+          message.setDocumentId(reminder.getProcessingUser().getProcessingDocument().getIncomingDoc().getId());
+        } else {
+          message = documentReminderService.buildMobileNotificationMessage(reminder.getStatus(),
+              reminder.getProcessingUser().getProcessingDocument().getOutgoingDocument().getOutgoingNumber());
+          message.setProcessingDocumentType(ProcessingDocumentTypeEnum.OUTGOING_DOCUMENT);
+          message.setDocumentId(reminder.getProcessingUser().getProcessingDocument().getOutgoingDocument().getId());
+        }
+
         documentReminderService.pushMobileNotificationsByUserId(message, reminder.getProcessingUser().getUser().getId());
       } catch (FirebaseMessagingException e) {
         log.error("Error when sending mobile notification: {}", e.getMessage(), e);
