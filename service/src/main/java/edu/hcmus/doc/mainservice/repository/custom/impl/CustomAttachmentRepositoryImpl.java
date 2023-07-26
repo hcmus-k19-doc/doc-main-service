@@ -20,6 +20,7 @@ public class CustomAttachmentRepositoryImpl
     } else {
       where.and(QAttachment.attachment.outgoingDocument.id.eq(docId));
     }
+    where.and(QAttachment.attachment.isDeleted.eq(false));
 
     return select(QAttachment.attachment.id,
         QAttachment.attachment.alfrescoFileId,
