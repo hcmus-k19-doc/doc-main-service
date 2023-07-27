@@ -1,7 +1,6 @@
 package edu.hcmus.doc.mainservice.controller;
 
 import edu.hcmus.doc.mainservice.DocURL;
-import edu.hcmus.doc.mainservice.model.dto.ProcessingDetailsDto;
 import edu.hcmus.doc.mainservice.model.dto.ReturnRequest.ReturnRequestGetDto;
 import edu.hcmus.doc.mainservice.model.dto.ReturnRequest.ReturnRequestPostDto;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
@@ -37,7 +36,7 @@ public class ReturnRequestController {
   }
 
   @PostMapping
-  public Long createReturnRequest(@RequestBody ReturnRequestPostDto returnRequestPostDto) {
+  public List<Long> createReturnRequest(@RequestBody ReturnRequestPostDto returnRequestPostDto) {
     return returnRequestService.createReturnRequest(returnRequestPostDto);
   }
 }

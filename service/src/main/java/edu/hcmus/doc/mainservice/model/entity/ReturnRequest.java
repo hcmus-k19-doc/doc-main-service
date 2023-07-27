@@ -23,11 +23,11 @@ public class ReturnRequest extends DocAbstractIdEntity {
   private ExtendRequestStatus status;
 
   @OneToOne
-  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id", updatable = false, nullable = false)
+  @JoinColumn(name = "incoming_doc_id", referencedColumnName = "id")
   private IncomingDocument incomingDocument;
 
   @OneToOne
-  @JoinColumn(name = "outgoing_doc_id", referencedColumnName = "id", updatable = false, nullable = false)
+  @JoinColumn(name = "outgoing_doc_id", referencedColumnName = "id")
   private OutgoingDocument outgoingDocument;
 
   @OneToOne

@@ -1,6 +1,3 @@
---liquibase formatted sql
---changeset doc:046
-
 set search_path to doc_main;
 
 alter table return_request
@@ -26,9 +23,3 @@ alter table transfer_history add column return_request_id bigint;
 
 alter table transfer_history
 add constraint transfer_history_return_request_fk FOREIGN KEY (return_request_id) REFERENCES doc_main."return_request"(id);
-
-ALTER TABLE transfer_history DROP CONSTRAINT transfer_history_processing_method_fk;
-
-ALTER TABLE transfer_history
-    ADD CONSTRAINT
-        transfer_history_processing_method_fk FOREIGN KEY (processing_method_id) REFERENCES doc_main.processing_method(id);

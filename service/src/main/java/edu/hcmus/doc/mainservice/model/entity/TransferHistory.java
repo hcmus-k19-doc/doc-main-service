@@ -50,4 +50,8 @@ public class TransferHistory extends DocAbstractIdEntity {
 
   @Column(name = "is_transfer_to_same_level", columnDefinition = "BOOLEAN")
   private Boolean isTransferToSameLevel;
+
+  @OneToOne
+  @JoinColumn(name = "return_request_id", referencedColumnName = "id")
+  private ReturnRequest returnRequest;
 }
