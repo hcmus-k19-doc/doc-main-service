@@ -67,9 +67,20 @@ public class CustomProcessingDocumentRepositoryImpl
 
   @Override
   public long getTotalElements(SearchCriteriaDto searchCriteriaDto) {
-    return searchQueryByCriteria(searchCriteriaDto)
+    if (searchCriteriaDto.getStatus() != null) {
+      return Optional.ofNullable(searchQueryByCriteria(searchCriteriaDto)
+          .select(processingStatusCases)
+          .where(Expressions.stringPath("status").eq(searchCriteriaDto.getStatus().value))
+          .groupBy(Expressions.stringPath("status"))
+          .select(processingDocument.id.count())
+          .fetchFirst())
+          .orElse(0L);
+    }
+
+    return Optional.ofNullable(searchQueryByCriteria(searchCriteriaDto)
         .select(incomingDocument.id.count())
-        .fetchFirst();
+        .fetchFirst())
+        .orElse(0L);
   }
 
   @Override
@@ -81,6 +92,11 @@ public class CustomProcessingDocumentRepositoryImpl
   @Override
   public List<ProcessingDocument> searchByCriteria(SearchCriteriaDto searchCriteriaDto, long offset,
       long limit) {
+    BooleanBuilder where = new BooleanBuilder();
+    if (searchCriteriaDto.getStatus() != null) {
+      where.and(Expressions.stringPath("status").eq(searchCriteriaDto.getStatus().value));
+    }
+
     return
         searchQueryByCriteria(searchCriteriaDto)
             .select(
@@ -96,6 +112,7 @@ public class CustomProcessingDocumentRepositoryImpl
                 incomingDocument.documentType.type,
                 incomingDocument.distributionOrg.id,
                 incomingDocument.distributionOrg.name)
+            .where(where)
             .orderBy(incomingDocument.id.desc())
             .offset(offset * limit)
             .limit(limit)
@@ -210,12 +227,12 @@ public class CustomProcessingDocumentRepositoryImpl
 
     if (searchCriteriaDto != null && StringUtils.isNotBlank(
         searchCriteriaDto.getIncomingNumber())) {
-      where.and(incomingDocument.incomingNumber.eq(searchCriteriaDto.getIncomingNumber()));
+      where.and(incomingDocument.incomingNumber.containsIgnoreCase(searchCriteriaDto.getIncomingNumber()));
     }
     if (searchCriteriaDto != null && StringUtils.isNotBlank(
         searchCriteriaDto.getOriginalSymbolNumber())) {
       where.and(
-          incomingDocument.originalSymbolNumber.eq(searchCriteriaDto.getOriginalSymbolNumber()));
+          incomingDocument.originalSymbolNumber.containsIgnoreCase(searchCriteriaDto.getOriginalSymbolNumber()));
     }
     if (searchCriteriaDto != null && searchCriteriaDto.getDocumentTypeId() != null) {
       where.and(incomingDocument.documentType.id.eq(searchCriteriaDto.getDocumentTypeId()));
