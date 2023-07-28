@@ -39,7 +39,7 @@ public class TransferHistory extends DocAbstractIdEntity {
   private List<Long> outgoingDocumentIds;
 
   @OneToOne
-  @JoinColumn(name = "processing_method_id", referencedColumnName = "id", updatable = false, nullable = false)
+  @JoinColumn(name = "processing_method_id", referencedColumnName = "id")
   private ProcessingMethod processingMethod;
 
   @Column(name = "processing_duration", columnDefinition = "TIMESTAMP")

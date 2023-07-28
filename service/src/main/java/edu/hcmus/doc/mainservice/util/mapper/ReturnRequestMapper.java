@@ -32,8 +32,9 @@ public interface ReturnRequestMapper {
   @Mapping(target = "previousProcessingUserRoleTitle", ignore = true)
   @Mapping(target = "createdAt", ignore = true)
   @Mapping(target = "documentId", ignore = true)
-  @Mapping(target = "type", ignore = true)
+  @Mapping(target = "documentType", ignore = true)
   @Mapping(target = "reason", ignore = true)
+  @Mapping(target = "returnRequestType", ignore = true)
   ReturnRequestGetDto toReturnRequestGetDto(ReturnRequest entity, ProcessingDocumentTypeEnum type);
 
 }

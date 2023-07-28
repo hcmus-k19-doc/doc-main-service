@@ -37,6 +37,7 @@ public abstract class ReturnRequestMapperDecorator implements ReturnRequestMappe
     }
 
     dto.setReason(entity.getReason());
+    dto.setReturnRequestType(entity.getType());
     return dto;
   }
 }

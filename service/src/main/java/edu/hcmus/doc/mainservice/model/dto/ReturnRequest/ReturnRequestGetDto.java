@@ -2,6 +2,7 @@ package edu.hcmus.doc.mainservice.model.dto.ReturnRequest;
 
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
+import edu.hcmus.doc.mainservice.model.enums.ReturnRequestType;
 import lombok.Data;
 
 @Data
@@ -17,6 +18,7 @@ public class ReturnRequestGetDto {
   private String previousProcessingUserRoleTitle;
   private String createdAt;
   private Long documentId;
-  private ProcessingDocumentTypeEnum type;
+  private ProcessingDocumentTypeEnum documentType;
   private String reason;
+  private ReturnRequestType returnRequestType;
 }

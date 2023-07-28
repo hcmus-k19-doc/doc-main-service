@@ -2,24 +2,39 @@ package edu.hcmus.doc.mainservice.service.impl;
 
 import edu.hcmus.doc.mainservice.model.dto.ReturnRequest.ReturnRequestGetDto;
 import edu.hcmus.doc.mainservice.model.dto.ReturnRequest.ReturnRequestPostDto;
+import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
+import edu.hcmus.doc.mainservice.model.entity.IncomingDocument;
+import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
+import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUser;
 import edu.hcmus.doc.mainservice.model.entity.ProcessingUserRole;
 import edu.hcmus.doc.mainservice.model.entity.ReturnRequest;
 import edu.hcmus.doc.mainservice.model.entity.TransferHistory;
+import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.ExtendRequestStatus;
+import edu.hcmus.doc.mainservice.model.enums.OutgoingDocumentStatusEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
+import edu.hcmus.doc.mainservice.model.enums.ReturnRequestType;
+import edu.hcmus.doc.mainservice.model.exception.DocumentAlreadyProcessedByNextUserInFlow;
+import edu.hcmus.doc.mainservice.model.exception.DocumentAlreadyProcessedByYou;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
+import edu.hcmus.doc.mainservice.model.exception.ProcessingDocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.ReturnRequestNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.UserNotFoundException;
 import edu.hcmus.doc.mainservice.repository.DocumentReminderRepository;
 import edu.hcmus.doc.mainservice.repository.IncomingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.OutgoingDocumentRepository;
+import edu.hcmus.doc.mainservice.repository.ProcessingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingUserRepository;
 import edu.hcmus.doc.mainservice.repository.ProcessingUserRoleRepository;
 import edu.hcmus.doc.mainservice.repository.ReturnRequestRepository;
 import edu.hcmus.doc.mainservice.repository.TransferHistoryRepository;
 import edu.hcmus.doc.mainservice.repository.UserRepository;
+import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
+import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import edu.hcmus.doc.mainservice.service.ReturnRequestService;
+import edu.hcmus.doc.mainservice.util.TransferDocumentUtils;
 import edu.hcmus.doc.mainservice.util.mapper.ReturnRequestMapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +65,10 @@ public class ReturnRequestServiceImpl implements ReturnRequestService {
 
   private final DocumentReminderRepository documentReminderRepository;
 
+  private final ProcessingDocumentRepository processingDocumentRepository;
+
+  private final ProcessingDocumentService processingDocumentService;
+
   @Override
   public List<ReturnRequestGetDto> getReturnRequestsByDocumentId(Long documentId,
       ProcessingDocumentTypeEnum type) {
@@ -69,37 +88,77 @@ public class ReturnRequestServiceImpl implements ReturnRequestService {
 
   @Override
   public List<Long> createReturnRequest(ReturnRequestPostDto returnRequestDto) {
+    User currentUser = SecurityUtils.getCurrentUser();
     List<ReturnRequest> returnRequests = new ArrayList<>();
-    ProcessingDocumentTypeEnum type = returnRequestDto.getType();
-    // validate document, if type is INCOMING then check in incoming document table
-    if (type == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT) {
-      returnRequestDto.getDocumentIds().forEach(documentId -> {
-        ReturnRequest returnRequest = new ReturnRequest();
-        // validate users
-        validateUsers(returnRequestDto, returnRequest);
-        // validate document
-        incomingDocumentRepository
+    ProcessingDocumentTypeEnum type = returnRequestDto.getDocumentType();
+    ReturnRequestType returnRequestType = returnRequestDto.getReturnRequestType();
+    returnRequestDto.getDocumentIds().forEach(documentId -> {
+      ReturnRequest returnRequest = new ReturnRequest();
+      Boolean isDocumentProcessedByNextUserInFlow = false;
+      Boolean isDocTransferredByCurrentUser = false;
+      // validate users
+      validateUsers(returnRequestDto, returnRequest);
+      // validate document
+      if (type == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT) {
+        IncomingDocument incomingDocument = incomingDocumentRepository
             .findById(documentId)
-            .ifPresentOrElse(returnRequest::setIncomingDocument,
-                () -> new DocumentNotFoundException(DocumentNotFoundException.DOCUMENT_NOT_FOUND));
-        returnRequest.setReason(returnRequestDto.getReason());
-        returnRequest.setStatus(ExtendRequestStatus.APPROVED);
-        returnRequests.add(returnRequest);
-      });
-    } else if (type == ProcessingDocumentTypeEnum.OUTGOING_DOCUMENT) {
-      returnRequestDto.getDocumentIds().forEach(documentId -> {
-        ReturnRequest returnRequest = new ReturnRequest();
-        // validate users
-        validateUsers(returnRequestDto, returnRequest);
-        // validate document
-        outgoingDocumentRepository.findById(documentId)
-            .ifPresentOrElse(returnRequest::setOutgoingDocument,
-                () -> new DocumentNotFoundException(DocumentNotFoundException.DOCUMENT_NOT_FOUND));
-        returnRequest.setReason(returnRequestDto.getReason());
-        returnRequest.setStatus(ExtendRequestStatus.APPROVED);
-        returnRequests.add(returnRequest);
-      });
-    }
+            .orElseThrow(
+                () -> new DocumentNotFoundException(DocumentNotFoundException.INCOMING_DOCUMENT_NOT_FOUND));
+        returnRequest.setIncomingDocument(incomingDocument);
+
+        // case WITHDRAW: check if the document is already processed by higher role or not
+        int step = TransferDocumentUtils.getStep(currentUser, null, true);
+        if (returnRequestType.equals(ReturnRequestType.WITHDRAW)) {
+          isDocumentProcessedByNextUserInFlow = processingDocumentService.isExistUserWorkingOnThisDocumentAtSpecificStep(
+              incomingDocument.getId(), step + 1, type);
+        } else {
+          // case SEND_BACK: check if you have transferred the document to the next user or not
+          isDocTransferredByCurrentUser = processingDocumentService.isUserWorkingOnDocumentWithSpecificRole(
+              GetTransferDocumentDetailRequest.builder()
+                  .documentId(incomingDocument.getId())
+                  .userId(currentUser.getId())
+                  .role(ProcessingDocumentRoleEnum.REPORTER)
+                  .step(step)
+                  .build());
+        }
+
+      } else {
+        OutgoingDocument outgoingDocument = outgoingDocumentRepository.findById(documentId)
+            .orElseThrow(
+                () -> new DocumentNotFoundException(DocumentNotFoundException.OUTGOING_DOCUMENT_NOT_FOUND));
+        returnRequest.setOutgoingDocument(outgoingDocument);
+
+        // check if the document is already processed by higher role or not
+        int step = TransferDocumentUtils.getStepOutgoingDocument(currentUser, true);
+        if (returnRequestType.equals(ReturnRequestType.WITHDRAW)) {
+          isDocumentProcessedByNextUserInFlow = processingDocumentService.isExistUserWorkingOnThisDocumentAtSpecificStep(
+              outgoingDocument.getId(), step + 1, type);
+        } else {
+          // case SEND_BACK: check if you have transferred the document to the next user or not
+          isDocTransferredByCurrentUser = processingDocumentService.isUserWorkingOnOutgoingDocumentWithSpecificRole(
+              GetTransferDocumentDetailRequest.builder()
+                  .documentId(outgoingDocument.getId())
+                  .userId(currentUser.getId())
+                  .role(ProcessingDocumentRoleEnum.REPORTER)
+                  .step(step)
+                  .build());
+        }
+      }
+      // check if the document is already processed by higher role or not, if yes, throw exception
+      if (returnRequestType.equals(ReturnRequestType.WITHDRAW)
+          && isDocumentProcessedByNextUserInFlow) {
+        throw new DocumentAlreadyProcessedByNextUserInFlow();
+      } else if (returnRequestType.equals(ReturnRequestType.SEND_BACK)
+          && isDocTransferredByCurrentUser) {
+        // if the document is processed by current user, throw exception because you can not send back the document after transferred
+        throw new DocumentAlreadyProcessedByYou();
+      }
+
+      returnRequest.setReason(returnRequestDto.getReason());
+      returnRequest.setStatus(ExtendRequestStatus.APPROVED);
+      returnRequest.setType(returnRequestType);
+      returnRequests.add(returnRequest);
+    });
     // save to DB
     returnRequestRepository.saveAll(returnRequests);
 
@@ -114,6 +173,12 @@ public class ReturnRequestServiceImpl implements ReturnRequestService {
       List<ProcessingUser> processingUsers = processingUserRepository.findByDocumentIdAndStep(
           documentId, returnRequestDto.getStep(), type);
 
+      if (processingUsers.isEmpty()) {
+        throw new ProcessingDocumentNotFoundException(
+            ProcessingDocumentNotFoundException.PROCESSING_DOCUMENT_NOT_FOUND);
+      }
+      ProcessingDocument processingDocument = processingUsers.get(0).getProcessingDocument();
+
       processingUsers.forEach(processingUser -> {
         ProcessingUserRole processingUserRole = processingUserRoleRepository.findByProcessingUserId(
             processingUser.getId());
@@ -123,7 +188,19 @@ public class ReturnRequestServiceImpl implements ReturnRequestService {
         processingUserRepository.delete(processingUser);
       });
 
-//      processingUserRepository.deleteAll(processingUsers);
+      // if no user working on document, delete processing document record
+      // this is to handle case VAN_THU or CHUYEN_VIEN create return request
+      if (Boolean.FALSE.equals(
+          processingDocumentRepository.isExistUserWorkingOnThisDocumentAtSpecificStep(
+              processingDocument.getId(), null))) {
+        processingDocumentRepository.delete(processingDocument);
+        if (type.equals(ProcessingDocumentTypeEnum.OUTGOING_DOCUMENT)) {
+          // neu la outgoing document thi update status outgoing document ve unprocessed
+          returnRequestDto.getDocumentIds().forEach(outgoingDocumentId -> {
+            outgoingDocumentRepository.updateStatusById(outgoingDocumentId, OutgoingDocumentStatusEnum.UNPROCESSED);
+          });
+        }
+      }
     });
 
     return returnRequests.stream().map(ReturnRequest::getId).toList();
@@ -131,17 +208,21 @@ public class ReturnRequestServiceImpl implements ReturnRequestService {
 
   private void validateUsers(ReturnRequestPostDto returnRequestDto, ReturnRequest returnRequest) {
     // validate current processing user
-    userRepository.findById(returnRequestDto.getCurrentProcessingUserId())
-        .ifPresentOrElse(returnRequest::setCurrentProcessingUser,
-            () -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
+    User currentProcessingUser = userRepository.findById(
+            returnRequestDto.getCurrentProcessingUserId())
+        .orElseThrow(() -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
 
     // validate previous processing user
-    userRepository.findById(returnRequestDto.getPreviousProcessingUserId())
-        .ifPresentOrElse(returnRequest::setPreviousProcessingUser,
-            () -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
+    User previousProcessingUser = userRepository.findById(
+            returnRequestDto.getPreviousProcessingUserId())
+        .orElseThrow(() -> new UserNotFoundException(UserNotFoundException.USER_NOT_FOUND));
+
+    returnRequest.setCurrentProcessingUser(currentProcessingUser);
+    returnRequest.setPreviousProcessingUser(previousProcessingUser);
   }
 
-  private TransferHistory createTransferHistory(ReturnRequest returnRequest, ProcessingDocumentTypeEnum type) {
+  private TransferHistory createTransferHistory(ReturnRequest returnRequest,
+      ProcessingDocumentTypeEnum type) {
     TransferHistory transferHistory = new TransferHistory();
     transferHistory.setReturnRequest(returnRequest);
     transferHistory.setSender(returnRequest.getCurrentProcessingUser());
