@@ -30,6 +30,7 @@ public class CustomAttachmentRepositoryImpl
         QAttachment.attachment.createdBy)
         .from(QAttachment.attachment)
         .where(where)
+        .orderBy(QAttachment.attachment.createdDate.desc())
         .fetch()
         .stream()
         .map(tuple -> {
