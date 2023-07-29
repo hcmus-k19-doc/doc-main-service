@@ -22,4 +22,5 @@ public class SearchCriteriaDto {
   private LocalDate processingDurationTo;
   private String summary;
   private ProcessingStatus status;
+  private String documentName;
 }

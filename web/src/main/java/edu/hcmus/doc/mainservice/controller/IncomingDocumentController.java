@@ -62,7 +62,7 @@ public class IncomingDocumentController extends DocAbstractController {
 
   @PostMapping("/search")
   public DocPaginationDto<IncomingDocumentDto> getIncomingDocuments(
-      @RequestBody(required = false) SearchCriteriaDto searchCriteria,
+      @RequestBody SearchCriteriaDto searchCriteria,
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "3") int pageSize
   ) {
