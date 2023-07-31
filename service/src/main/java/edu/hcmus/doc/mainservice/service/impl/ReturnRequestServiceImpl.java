@@ -336,6 +336,7 @@ public class ReturnRequestServiceImpl implements ReturnRequestService {
     transferHistory.setReturnRequest(returnRequest);
     transferHistory.setSender(returnRequest.getCurrentProcessingUser());
     transferHistory.setReceiver(returnRequest.getPreviousProcessingUser());
+    transferHistory.setIsRead(false);
     if (type == ProcessingDocumentTypeEnum.INCOMING_DOCUMENT) {
       transferHistory.setIncomingDocumentIds(List.of(returnRequest.getIncomingDocument().getId()));
     } else if (type == ProcessingDocumentTypeEnum.OUTGOING_DOCUMENT) {
