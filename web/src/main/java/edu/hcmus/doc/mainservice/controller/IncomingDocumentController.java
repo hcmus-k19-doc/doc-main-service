@@ -18,7 +18,7 @@ import edu.hcmus.doc.mainservice.model.dto.TransferDocument.TransferDocDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.ValidateTransferDocDto;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
-import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
+import edu.hcmus.doc.mainservice.model.exception.DocBusinessException;
 import edu.hcmus.doc.mainservice.service.IncomingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingDocumentService;
 import edu.hcmus.doc.mainservice.service.ProcessingUserRoleService;
@@ -150,7 +150,7 @@ public class IncomingDocumentController extends DocAbstractController {
   public void linkDocuments(@PathVariable Long targetDocumentId,
                             @RequestBody List<Long> documents) {
     if (documents.isEmpty()) {
-      throw new DocMainServiceRuntimeException(DocMainServiceRuntimeException.DOCUMENT_REQUIRED);
+      throw new DocBusinessException(DocBusinessException.DOCUMENT_REQUIRED);
     }
 
     incomingDocumentService.linkDocuments(targetDocumentId, documents);
@@ -169,7 +169,7 @@ public class IncomingDocumentController extends DocAbstractController {
   public void updateLinkedDocuments(@PathVariable Long targetDocumentId,
                                     @RequestBody List<OutgoingDocumentGetDto> documents) {
     if (documents.isEmpty()) {
-      throw new DocMainServiceRuntimeException(DocMainServiceRuntimeException.DOCUMENT_REQUIRED);
+      throw new DocBusinessException(DocBusinessException.DOCUMENT_REQUIRED);
     }
 
     incomingDocumentService.updateLinkedDocuments(targetDocumentId, documents);

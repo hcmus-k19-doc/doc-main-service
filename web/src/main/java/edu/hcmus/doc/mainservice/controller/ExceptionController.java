@@ -4,6 +4,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import edu.hcmus.doc.mainservice.model.dto.ExceptionDto;
 import edu.hcmus.doc.mainservice.model.dto.KeycloakErrorDto;
 import edu.hcmus.doc.mainservice.model.exception.DocAuthorizedException;
+import edu.hcmus.doc.mainservice.model.exception.DocBusinessException;
 import edu.hcmus.doc.mainservice.model.exception.DocExistedException;
 import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
 import edu.hcmus.doc.mainservice.model.exception.DocNotFoundException;
@@ -14,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.validation.FieldError;
+import org.springframework.validation.BindException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -69,13 +70,13 @@ public class ExceptionController {
         .body(new ExceptionDto(exception.getMessage()));
   }
 
-  @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ExceptionDto> handleMethodArgumentNotValidException(
-      MethodArgumentNotValidException exception) {
-    FieldError errorField = exception.getFieldError();
+  @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
+  public ResponseEntity<ExceptionDto> handleValidException(
+      BindException exception) {
+    log.warn(exception.getMessage());
     return ResponseEntity
         .badRequest()
-        .body(new ExceptionDto(Objects.requireNonNull(errorField).getDefaultMessage()));
+        .body(new ExceptionDto(Objects.requireNonNull(exception.getFieldError()).getDefaultMessage()));
   }
 
   @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
@@ -95,9 +96,17 @@ public class ExceptionController {
         .body(new ExceptionDto("Firebase messaging error"));
   }
 
+  @ExceptionHandler(DocBusinessException.class)
+  public ResponseEntity<ExceptionDto> handleDocBusinessException(DocBusinessException exception) {
+    log.warn(exception.getMessage(), exception);
+    return ResponseEntity
+        .badRequest()
+        .body(new ExceptionDto(exception.getMessage()));
+  }
+
   @ExceptionHandler(Throwable.class)
   public ResponseEntity<ExceptionDto> handleInternalErrorException(Throwable throwable) {
-    log.error(throwable.getMessage());
+    log.error(throwable.getMessage(), throwable);
 
     return ResponseEntity
         .internalServerError()

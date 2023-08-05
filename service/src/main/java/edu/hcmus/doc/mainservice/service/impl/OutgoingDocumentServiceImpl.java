@@ -32,6 +32,8 @@ import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
+import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
+import edu.hcmus.doc.mainservice.model.exception.DocMandatoryFields;
 import edu.hcmus.doc.mainservice.model.exception.DocNotHavePermissionException;
 import edu.hcmus.doc.mainservice.model.exception.DocStatusViolatedException;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
@@ -61,7 +63,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -87,6 +93,7 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
   private final FolderService folderService;
   private final ProcessingUserRepository processingUserRepository;
   private final ProcessingMethodService processingMethodService;
+  private final Validator validator;
 
   @Override
   public OutgoingDocument getOutgoingDocumentById(Long id) {
@@ -147,16 +154,18 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
   public OutgoingDocument createOutgoingDocument(OutgoingDocumentWithAttachmentPostDto outgoingDocumentWithAttachmentPostDto)
           throws JsonProcessingException {
     OutgoingDocumentPostDto outgoingDocumentPostDto =
-            objectMapper.readValue(
-                    outgoingDocumentWithAttachmentPostDto.getOutgoingDocumentPostDto(),
+        objectMapper.readValue(
+            outgoingDocumentWithAttachmentPostDto.getOutgoingDocumentPostDto(),
             OutgoingDocumentPostDto.class);
+
+    validateOutgoingDocumentDto(outgoingDocumentPostDto);
 
     OutgoingDocument outgoingDocument = outgoingDecoratorDocumentMapper
             .toEntity(outgoingDocumentPostDto);
 
     OutgoingDocument savedOutgoingDocument = outgoingDocumentRepository.save(outgoingDocument);
 
-    if(Objects.nonNull(outgoingDocumentWithAttachmentPostDto.getAttachments())) {
+    if (CollectionUtils.isNotEmpty(outgoingDocumentWithAttachmentPostDto.getAttachments())) {
       AttachmentPostDto attachmentPostDto = attachmentMapperDecorator.toAttachmentPostDto(
           savedOutgoingDocument.getId(), outgoingDocumentWithAttachmentPostDto.getAttachments());
 
@@ -174,6 +183,7 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
         objectMapper.readValue(
             outgoingDocumentWithAttachmentPutDto.getOutgoingDocumentPutDto(),
             OutgoingDocumentPutDto.class);
+    validateOutgoingDocumentDto(outgoingDocumentPutDto);
 
     OutgoingDocument outgoingDocument = outgoingDecoratorDocumentMapper.toEntity(
         outgoingDocumentPutDto);
@@ -425,5 +435,20 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
       incomingDocumentService.saveReporterOrAssignee(processingDocument, reporter, transferDocDto, step,
           ProcessingDocumentRoleEnum.REPORTER);
     });
+  }
+
+  private <T> void validateOutgoingDocumentDto(T outgoingDocumentDto) {
+    Set<ConstraintViolation<T>> constraintViolations = validator.validate(outgoingDocumentDto);
+    if (!constraintViolations.isEmpty()) {
+      ConstraintViolation<T> constraintViolation = constraintViolations
+          .stream()
+          .findAny()
+          .orElseThrow(DocMainServiceRuntimeException::new);
+      throw new DocMandatoryFields(
+          constraintViolation.getPropertyPath()
+              + ": "
+              + constraintViolation.getMessage()
+      );
+    }
   }
 }
