@@ -112,7 +112,7 @@ public class IncomingDocumentController extends DocAbstractController {
   @SneakyThrows
   @PutMapping("/update")
   public IncomingDocumentDto updateIncomingDocument(
-      @ModelAttribute IncomingDocumentWithAttachmentPutDto incomingDocumentWithAttachmentPutDto) {
+      @ModelAttribute @Valid IncomingDocumentWithAttachmentPutDto incomingDocumentWithAttachmentPutDto) {
     return incomingDecoratorDocumentMapper.toDto(
         incomingDocumentService.updateIncomingDocument(incomingDocumentWithAttachmentPutDto));
   }

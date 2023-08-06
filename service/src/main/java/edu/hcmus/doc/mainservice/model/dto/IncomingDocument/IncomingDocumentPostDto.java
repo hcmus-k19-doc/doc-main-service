@@ -27,16 +27,15 @@ public class IncomingDocumentPostDto {
     @NotNull
     private Long distributionOrg;
 
-    @NotNull(message = "distributionDate is required")
+    @NotNull
     @FutureOrPresent
     private LocalDate distributionDate;
 
-    @NotNull(message = "arrivingDate is required")
+    @NotNull
     @FutureOrPresent
     private LocalDate arrivingDate;
 
-    @NotNull(message = "arrivingTime is required")
-    @FutureOrPresent
+    @NotNull
     private LocalTime arrivingTime;
 
     @NotBlank(message = "receiveIncomingDocPage.form.summaryRequired")
