@@ -11,14 +11,13 @@ import com.querydsl.core.BooleanBuilder;
 import com.querydsl.jpa.impl.JPAQuery;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.entity.OutgoingDocument;
-import edu.hcmus.doc.mainservice.model.entity.ProcessingDocument;
 import edu.hcmus.doc.mainservice.model.entity.QDepartment;
 import edu.hcmus.doc.mainservice.model.entity.QDocumentType;
 import edu.hcmus.doc.mainservice.model.entity.QFolder;
 import edu.hcmus.doc.mainservice.model.entity.QOutgoingDocument;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.OutgoingDocumentStatusEnum;
-import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.repository.custom.CustomOutgoingDocumentRepository;
 import edu.hcmus.doc.mainservice.repository.custom.DocAbstractCustomRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
@@ -70,6 +69,18 @@ public class CustomOutgoingDocumentRepositoryImpl
 
   @Override
   public JPAQuery<OutgoingDocument> buildSearchQuery(OutgoingDocSearchCriteriaDto searchCriteriaDto) {
+    BooleanBuilder where = buildCommonWhereClause(searchCriteriaDto);
+    return selectFrom(outgoingDocument)
+        .leftJoin(outgoingDocument.documentType)
+        .fetchJoin()
+        .leftJoin(outgoingDocument.publishingDepartment)
+        .fetchJoin()
+        .distinct()
+        .orderBy(outgoingDocument.id.desc())
+        .where(where);
+  }
+
+  private BooleanBuilder buildCommonWhereClause(OutgoingDocSearchCriteriaDto searchCriteriaDto) {
     BooleanBuilder where = new BooleanBuilder();
 
     if (StringUtils.isNotBlank(searchCriteriaDto.getOutgoingNumber())) {
@@ -99,16 +110,27 @@ public class CustomOutgoingDocumentRepositoryImpl
       where.and(outgoingDocument.name.containsIgnoreCase(searchCriteriaDto.getDocumentName()));
     }
 
+    return where;
+  }
+
+  @Override
+  public List<Long> checkOutgoingDocumentSearchByCriteria(OutgoingDocSearchCriteriaDto searchCriteriaDto,
+      long offset, long limit, long userId, int step, ProcessingDocumentRoleEnum role) {
+
+    BooleanBuilder where = buildCommonWhereClause(searchCriteriaDto);
+
     return selectFrom(outgoingDocument)
-        .innerJoin(outgoingDocument.documentType, QDocumentType.documentType)
-        .fetchJoin()
-        .innerJoin(outgoingDocument.publishingDepartment, QDepartment.department)
-        .fetchJoin()
-        .innerJoin(outgoingDocument.folder, QFolder.folder)
-        .fetchJoin()
+        .select(outgoingDocument.id)
+        .innerJoin(processingDocument).on(outgoingDocument.id.eq(processingDocument.outgoingDocument.id)).fetchJoin()
+        .innerJoin(processingUser).on(processingUser.processingDocument.id.eq(processingDocument.id).and(processingUser.user.id.eq(userId)).and(processingUser.step.eq(step))).fetchJoin()
+        .innerJoin(processingUserRole).on(processingUser.id.eq(processingUserRole.processingUser.id).and(processingUserRole.role.eq(role))).fetchJoin()
         .distinct()
         .orderBy(outgoingDocument.id.desc())
-        .where(where);
+        .where(where)
+        .orderBy(outgoingDocument.id.asc())
+        .offset(offset * limit)
+        .limit(limit)
+        .fetch();
   }
 
   @Override
@@ -120,14 +142,14 @@ public class CustomOutgoingDocumentRepositoryImpl
 
     return selectFrom(outgoingDocument)
         .select(outgoingDocument.id)
-        .leftJoin(processingDocument)
+        .innerJoin(processingDocument)
         .on(outgoingDocument.id.eq(processingDocument.outgoingDocument.id))
         .fetchJoin()
-        .leftJoin(processingUser)
+        .innerJoin(processingUser)
         .on(processingUser.processingDocument.id.eq(processingDocument.id))
         .fetchJoin()
         .distinct()
-        .leftJoin(processingUserRole)
+        .innerJoin(processingUserRole)
         .on(processingUser.id.eq(processingUserRole.processingUser.id))
         .where(where.and(outgoingDocument.status.eq(OutgoingDocumentStatusEnum.RELEASED).not()))
         .fetch();

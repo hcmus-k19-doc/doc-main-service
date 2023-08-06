@@ -11,6 +11,7 @@ import edu.hcmus.doc.mainservice.model.dto.Attachment.AttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentMenuConfig;
 import edu.hcmus.doc.mainservice.model.dto.IncomingDocument.TransferDocumentModalSettingDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
+import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetListDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentPutDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWithAttachmentPostDto;
@@ -29,6 +30,7 @@ import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.OutgoingDocumentStatusEnum;
 import edu.hcmus.doc.mainservice.model.enums.ParentFolderEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentTypeEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
@@ -57,6 +59,8 @@ import edu.hcmus.doc.mainservice.util.DocObjectUtils;
 import edu.hcmus.doc.mainservice.util.TransferDocumentUtils;
 import edu.hcmus.doc.mainservice.util.mapper.OutgoingDocumentMapper;
 import edu.hcmus.doc.mainservice.util.mapper.decorator.AttachmentMapperDecorator;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -208,8 +212,32 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
   }
 
   @Override
-  public List<OutgoingDocument> searchOutgoingDocuments(OutgoingDocSearchCriteriaDto searchCriteria, int page, int pageSize) {
-    return outgoingDocumentRepository.searchByCriteria(searchCriteria, page, pageSize);
+  public List<OutgoingDocumentGetListDto> searchOutgoingDocuments(OutgoingDocSearchCriteriaDto searchCriteria, int page, int pageSize) {
+    List<OutgoingDocument> allOutgoingDocumentList = outgoingDocumentRepository.searchByCriteria(searchCriteria, page, pageSize);
+
+    User currentUser = SecurityUtils.getCurrentUser();
+    int step = TransferDocumentUtils.getStepOutgoingDocument(currentUser, true);
+    int collaboratorStep = TransferDocumentUtils.getStepOutgoingDocument(currentUser, false);
+
+    List<Long> transferredOutgoingDocumentList = outgoingDocumentRepository.checkOutgoingDocumentSearchByCriteria(searchCriteria, page, pageSize, currentUser.getId(), step, ProcessingDocumentRoleEnum.REPORTER);
+    List<Long> collaboratorOutgoingDocumentList = outgoingDocumentRepository.checkOutgoingDocumentSearchByCriteria(searchCriteria, page, pageSize, currentUser.getId(), collaboratorStep, ProcessingDocumentRoleEnum.COLLABORATOR);
+    List<Long> transferPermissionDocumentIdList = outgoingDocumentRepository.getOutgoingDocumentsWithTransferPermission();
+    List<OutgoingDocumentGetListDto> outgoingDocumentGetListDtoList = new ArrayList<>();
+    allOutgoingDocumentList.forEach(outgoingDocument -> {
+      OutgoingDocumentGetListDto outgoingDocumentGetListDto = outgoingDecoratorDocumentMapper.toListDto(outgoingDocument);
+      outgoingDocumentGetListDto.setIsDocTransferred(transferredOutgoingDocumentList.contains(outgoingDocument.getId()));
+      outgoingDocumentGetListDto.setIsDocCollaborator(collaboratorOutgoingDocumentList.contains(outgoingDocument.getId()));
+      outgoingDocumentGetListDto.setIsTransferable(transferPermissionDocumentIdList.contains(outgoingDocument.getId()));
+      outgoingDocumentGetListDto.setCustomProcessingDuration(processingDocumentService
+            .getDateExpiredV2(outgoingDocument.getId(), currentUser.getId(),
+                currentUser.getRole(), true, ProcessingDocumentTypeEnum.OUTGOING_DOCUMENT)
+            .map(result -> result.equals("infinite") ? DocMessageUtils.getContent(
+                MESSAGE.infinite_processing_duration) : LocalDate.parse(result).format(
+                DateTimeFormatter.ofPattern("dd-MM-yyyy")))
+            .orElse(null));
+      outgoingDocumentGetListDtoList.add(outgoingDocumentGetListDto);
+    });
+    return outgoingDocumentGetListDtoList;
   }
 
   @Override
