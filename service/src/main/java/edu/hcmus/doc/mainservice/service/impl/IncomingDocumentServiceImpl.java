@@ -185,6 +185,8 @@ public class IncomingDocumentServiceImpl implements IncomingDocumentService {
     IncomingDocumentPostDto incomingDocumentPostDto = objectMapper.readValue(
         incomingDocumentWithAttachmentPostDto.getIncomingDocumentPostDto(),
         IncomingDocumentPostDto.class);
+    DocObjectUtils.validateObject(incomingDocumentPostDto);
+
     IncomingDocument incomingDocument = incomingDecoratorDocumentMapper.toEntity(
         incomingDocumentPostDto);
 

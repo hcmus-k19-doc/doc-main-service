@@ -22,12 +22,11 @@ public class OutgoingDocumentPostDto extends DocAbstractDto  {
     private Long publishingDepartment;
     @NotBlank
     private String recipient;
-    @NotBlank
+    @NotBlank(message = "outgoing_doc_detail_page.form.summary_required")
     private String summary;
     @NotNull
     private Urgency urgency;
     @NotNull
     private Confidentiality confidentiality;
-    @NotNull
     private LocalDate publishingDate;
 }

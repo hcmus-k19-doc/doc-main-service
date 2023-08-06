@@ -25,6 +25,7 @@ import edu.hcmus.doc.mainservice.service.ProcessingUserRoleService;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.stream.Collectors;
+import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -81,7 +82,7 @@ public class IncomingDocumentController extends DocAbstractController {
   @SneakyThrows
   @PostMapping("/create")
   public IncomingDocumentDto createIncomingDocument(
-      @ModelAttribute IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto) {
+      @ModelAttribute @Valid IncomingDocumentWithAttachmentPostDto incomingDocumentWithAttachmentPostDto) {
     return incomingDecoratorDocumentMapper.toDto(
         incomingDocumentService.createIncomingDocument(incomingDocumentWithAttachmentPostDto));
   }

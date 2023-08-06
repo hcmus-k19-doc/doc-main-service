@@ -32,8 +32,6 @@ import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentComponent;
 import edu.hcmus.doc.mainservice.model.enums.TransferDocumentType;
-import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
-import edu.hcmus.doc.mainservice.model.exception.DocMandatoryFields;
 import edu.hcmus.doc.mainservice.model.exception.DocNotHavePermissionException;
 import edu.hcmus.doc.mainservice.model.exception.DocStatusViolatedException;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
@@ -63,9 +61,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
-import javax.validation.ConstraintViolation;
-import javax.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -93,7 +88,6 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
   private final FolderService folderService;
   private final ProcessingUserRepository processingUserRepository;
   private final ProcessingMethodService processingMethodService;
-  private final Validator validator;
 
   @Override
   public OutgoingDocument getOutgoingDocumentById(Long id) {
@@ -158,7 +152,7 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
             outgoingDocumentWithAttachmentPostDto.getOutgoingDocumentPostDto(),
             OutgoingDocumentPostDto.class);
 
-    validateOutgoingDocumentDto(outgoingDocumentPostDto);
+    DocObjectUtils.validateObject(outgoingDocumentPostDto);
 
     OutgoingDocument outgoingDocument = outgoingDecoratorDocumentMapper
             .toEntity(outgoingDocumentPostDto);
@@ -183,7 +177,7 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
         objectMapper.readValue(
             outgoingDocumentWithAttachmentPutDto.getOutgoingDocumentPutDto(),
             OutgoingDocumentPutDto.class);
-    validateOutgoingDocumentDto(outgoingDocumentPutDto);
+    DocObjectUtils.validateObject(outgoingDocumentPutDto);
 
     OutgoingDocument outgoingDocument = outgoingDecoratorDocumentMapper.toEntity(
         outgoingDocumentPutDto);
@@ -435,20 +429,5 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
       incomingDocumentService.saveReporterOrAssignee(processingDocument, reporter, transferDocDto, step,
           ProcessingDocumentRoleEnum.REPORTER);
     });
-  }
-
-  private <T> void validateOutgoingDocumentDto(T outgoingDocumentDto) {
-    Set<ConstraintViolation<T>> constraintViolations = validator.validate(outgoingDocumentDto);
-    if (!constraintViolations.isEmpty()) {
-      ConstraintViolation<T> constraintViolation = constraintViolations
-          .stream()
-          .findAny()
-          .orElseThrow(DocMainServiceRuntimeException::new);
-      throw new DocMandatoryFields(
-          constraintViolation.getPropertyPath()
-              + ": "
-              + constraintViolation.getMessage()
-      );
-    }
   }
 }

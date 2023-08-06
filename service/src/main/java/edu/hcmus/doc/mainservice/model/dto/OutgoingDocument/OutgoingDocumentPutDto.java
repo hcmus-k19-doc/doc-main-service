@@ -19,11 +19,10 @@ public class OutgoingDocumentPutDto extends DocAbstractDto {
     @NotBlank
     private String recipient;
     private String signer;
-    @NotBlank
+    @NotBlank(message = "outgoing_doc_detail_page.form.summary_required")
     private String summary;
     @NotNull
     private Urgency urgency;
-    @NotNull
     @FutureOrPresent
     private LocalDate releaseDate;
     @NotNull

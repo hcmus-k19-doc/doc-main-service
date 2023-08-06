@@ -7,9 +7,11 @@ import edu.hcmus.doc.mainservice.model.exception.DocAuthorizedException;
 import edu.hcmus.doc.mainservice.model.exception.DocBusinessException;
 import edu.hcmus.doc.mainservice.model.exception.DocExistedException;
 import edu.hcmus.doc.mainservice.model.exception.DocMainServiceRuntimeException;
+import edu.hcmus.doc.mainservice.model.exception.DocMandatoryFields;
 import edu.hcmus.doc.mainservice.model.exception.DocNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.DocStatusViolatedException;
-import java.util.Objects;
+import java.util.Optional;
+import javax.validation.ConstraintViolationException;
 import javax.ws.rs.ClientErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -70,13 +72,25 @@ public class ExceptionController {
         .body(new ExceptionDto(exception.getMessage()));
   }
 
-  @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class})
-  public ResponseEntity<ExceptionDto> handleValidException(
+  @ExceptionHandler({MethodArgumentNotValidException.class, BindException.class, ConstraintViolationException.class})
+  public ResponseEntity<ExceptionDto> handleMandatoryFieldsException(
       BindException exception) {
     log.warn(exception.getMessage());
     return ResponseEntity
         .badRequest()
-        .body(new ExceptionDto(Objects.requireNonNull(exception.getFieldError()).getDefaultMessage()));
+        .body(new ExceptionDto(
+            Optional.ofNullable(
+                    exception.getFieldError())
+                .orElseThrow(DocMainServiceRuntimeException::new
+                ).getDefaultMessage()));
+  }
+
+  @ExceptionHandler(DocMandatoryFields.class)
+  public ResponseEntity<ExceptionDto> handleMandatoryFieldsException(DocMandatoryFields exception) {
+    log.warn(exception.getMessage());
+    return ResponseEntity
+        .badRequest()
+        .body(new ExceptionDto(exception.getBusinessMessage()));
   }
 
   @ExceptionHandler(ObjectOptimisticLockingFailureException.class)
