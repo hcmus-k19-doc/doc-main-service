@@ -142,16 +142,6 @@ public abstract class OutgoingDocumentMapperDecorator implements OutgoingDocumen
     OutgoingDocumentGetListDto dto = delegate.toListDto(outgoingDocument);
     dto.setDocumentTypeName(outgoingDocument.getDocumentType().getType());
     dto.setPublishingDepartmentName(outgoingDocument.getPublishingDepartment().getDepartmentName());
-//    dto.setCustomProcessingDuration(
-//        processingDocumentService
-//            .getDateExpiredV2(outgoingDocument.getId(), currentUser.getId(),
-//                currentUser.getRole(), true, ProcessingDocumentTypeEnum.OUTGOING_DOCUMENT)
-//            .map(result -> result.equals("infinite") ? DocMessageUtils.getContent(
-//                MESSAGE.infinite_processing_duration) : LocalDate.parse(result).format(
-//                DateTimeFormatter.ofPattern("dd-MM-yyyy")))
-//            .orElse(null)
-//    );
-
     return dto;
   }
 }

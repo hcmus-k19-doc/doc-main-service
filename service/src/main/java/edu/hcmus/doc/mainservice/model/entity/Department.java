@@ -3,6 +3,7 @@ package edu.hcmus.doc.mainservice.model.entity;
 import edu.hcmus.doc.mainservice.DocConst;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToOne;
 import javax.persistence.Table;
@@ -18,7 +19,7 @@ public class Department extends DocAbstractIdEntity {
   @Column(name = "department_name", nullable = false, columnDefinition = "VARCHAR(20) NOT NULL")
   private String departmentName;
 
-  @OneToOne
+  @OneToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "truong_phong_id", columnDefinition = "BIGINT")
   private User truongPhong;
 

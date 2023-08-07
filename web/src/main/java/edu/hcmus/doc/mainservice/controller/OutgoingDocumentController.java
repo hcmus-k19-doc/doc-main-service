@@ -9,6 +9,7 @@ import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetD
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentGetListDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWithAttachmentPostDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWithAttachmentPutDto;
+import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.OutgoingDocumentWrapperDto;
 import edu.hcmus.doc.mainservice.model.dto.OutgoingDocument.PublishDocumentDto;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailCustomResponse;
 import edu.hcmus.doc.mainservice.model.dto.TransferDocument.GetTransferDocumentDetailRequest;
@@ -77,11 +78,11 @@ public class OutgoingDocumentController extends DocAbstractController {
       @RequestParam(required = false, defaultValue = "0") int page,
       @RequestParam(required = false, defaultValue = "3") int pageSize
   ) {
+    OutgoingDocumentWrapperDto outgoingDocumentWrapperDto = outgoingDocumentService.searchOutgoingDocuments(searchCriteria, page, pageSize);
     return paginationMapper.toDto(
-        outgoingDocumentService
-            .searchOutgoingDocuments(searchCriteria, page, pageSize),
-        outgoingDocumentService.getTotalElements(searchCriteria),
-        outgoingDocumentService.getTotalPages(searchCriteria, pageSize));
+        outgoingDocumentWrapperDto.getOutgoingDocumentGetListDto(),
+        outgoingDocumentWrapperDto.getTotalElements(),
+        outgoingDocumentWrapperDto.getTotalPages());
   }
 
   @GetMapping("/transfer-outgoing-documents-setting")

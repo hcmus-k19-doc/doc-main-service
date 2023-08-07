@@ -4,6 +4,7 @@ import edu.hcmus.doc.mainservice.model.dto.OutgoingDocSearchCriteriaDto;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentRoleEnum;
 import edu.hcmus.doc.mainservice.repository.DocAbstractSearchRepository;
 import java.util.List;
+import java.util.Map;
 
 public interface CustomOutgoingDocumentRepository
         extends DocAbstractSearchRepository<OutgoingDocument, OutgoingDocSearchCriteriaDto> {
@@ -17,6 +18,10 @@ public interface CustomOutgoingDocumentRepository
 
   boolean isDocumentReleased(Long documentId);
 
-  List<Long>  checkOutgoingDocumentSearchByCriteria(OutgoingDocSearchCriteriaDto searchCriteriaDto,
-      long offset, long limit, long userId, int step, ProcessingDocumentRoleEnum role);
+  List<Long>  checkOutgoingDocumentSearchByCriteria(long userId, int step, ProcessingDocumentRoleEnum role);
+
+  long getTotalElementOfOutgoingDocumentList();
+
+  Map<Long, String> getProcessingTimeOfOutgoingDocumentList(long userId);
+
 }
