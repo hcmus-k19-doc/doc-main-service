@@ -65,6 +65,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -150,16 +151,18 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
   public OutgoingDocument createOutgoingDocument(OutgoingDocumentWithAttachmentPostDto outgoingDocumentWithAttachmentPostDto)
           throws JsonProcessingException {
     OutgoingDocumentPostDto outgoingDocumentPostDto =
-            objectMapper.readValue(
-                    outgoingDocumentWithAttachmentPostDto.getOutgoingDocumentPostDto(),
+        objectMapper.readValue(
+            outgoingDocumentWithAttachmentPostDto.getOutgoingDocumentPostDto(),
             OutgoingDocumentPostDto.class);
+
+    DocObjectUtils.validateObject(outgoingDocumentPostDto);
 
     OutgoingDocument outgoingDocument = outgoingDecoratorDocumentMapper
             .toEntity(outgoingDocumentPostDto);
 
     OutgoingDocument savedOutgoingDocument = outgoingDocumentRepository.save(outgoingDocument);
 
-    if(Objects.nonNull(outgoingDocumentWithAttachmentPostDto.getAttachments())) {
+    if (CollectionUtils.isNotEmpty(outgoingDocumentWithAttachmentPostDto.getAttachments())) {
       AttachmentPostDto attachmentPostDto = attachmentMapperDecorator.toAttachmentPostDto(
           savedOutgoingDocument.getId(), outgoingDocumentWithAttachmentPostDto.getAttachments());
 
@@ -177,6 +180,7 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
         objectMapper.readValue(
             outgoingDocumentWithAttachmentPutDto.getOutgoingDocumentPutDto(),
             OutgoingDocumentPutDto.class);
+    DocObjectUtils.validateObject(outgoingDocumentPutDto);
 
     OutgoingDocument outgoingDocument = outgoingDecoratorDocumentMapper.toEntity(
         outgoingDocumentPutDto);

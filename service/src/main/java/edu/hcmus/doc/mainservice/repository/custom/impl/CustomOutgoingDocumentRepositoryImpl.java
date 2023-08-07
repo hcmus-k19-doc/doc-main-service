@@ -95,13 +95,13 @@ public class CustomOutgoingDocumentRepositoryImpl
       ));
     }
     if (StringUtils.isNotBlank(searchCriteriaDto.getSummary())) {
-      where.and(outgoingDocument.summary.containsIgnoreCase(searchCriteriaDto.getSummary()));
+      where.and(outgoingDocument.summary.containsIgnoreCase(searchCriteriaDto.getSummary().trim()));
     }
     if (searchCriteriaDto.getStatus() != null) {
       where.and(outgoingDocument.status.eq(searchCriteriaDto.getStatus()));
     }
     if (StringUtils.isNotBlank(searchCriteriaDto.getDocumentName())) {
-      where.and(outgoingDocument.name.containsIgnoreCase(searchCriteriaDto.getDocumentName()));
+      where.and(outgoingDocument.name.containsIgnoreCase(searchCriteriaDto.getDocumentName().trim()));
     }
 
     return selectFrom(outgoingDocument)
