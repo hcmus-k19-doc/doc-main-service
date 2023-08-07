@@ -152,16 +152,6 @@ public class CustomOutgoingDocumentRepositoryImpl
         ));
   }
 
-
-  @Override
-  public long getTotalElementOfOutgoingDocumentList(){
-    return selectFrom(outgoingDocument)
-        .select(outgoingDocument.id)
-        .fetch()
-        .size();
-  }
-
-
   @Override
   public List<Long> getOutgoingDocumentsWithTransferPermission() {
     BooleanBuilder where = new BooleanBuilder();

@@ -235,7 +235,7 @@ public class OutgoingDocumentServiceImpl implements OutgoingDocumentService {
 
     OutgoingDocumentWrapperDto outgoingDocumentWrapperDto = new OutgoingDocumentWrapperDto();
     outgoingDocumentWrapperDto.setOutgoingDocumentGetListDto(outgoingDocumentGetListDtoList);
-    outgoingDocumentWrapperDto.setTotalElements(outgoingDocumentRepository.getTotalElementOfOutgoingDocumentList());
+    outgoingDocumentWrapperDto.setTotalElements(getTotalElements(searchCriteria));
     outgoingDocumentWrapperDto.setTotalPages((outgoingDocumentWrapperDto.getTotalElements() / pageSize) + (outgoingDocumentWrapperDto.getTotalElements() % pageSize == 0 ? 0 : 1));
 
     return outgoingDocumentWrapperDto;

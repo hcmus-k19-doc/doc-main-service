@@ -20,8 +20,6 @@ public interface CustomOutgoingDocumentRepository
 
   List<Long>  checkOutgoingDocumentSearchByCriteria(long userId, int step, ProcessingDocumentRoleEnum role);
 
-  long getTotalElementOfOutgoingDocumentList();
-
   Map<Long, String> getProcessingTimeOfOutgoingDocumentList(long userId);
 
 }
