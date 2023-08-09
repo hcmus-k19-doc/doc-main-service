@@ -34,7 +34,7 @@ public class EmailServiceImpl implements EmailService {
     log.info("Send email to {}", toUsername);
     if (isCreateAccount) {
       params.setProperty("username", toUsername);
-      sendEmail(2L, toEmail, params);
+      sendEmail(4L, toEmail, params);
     } else {
       sendEmail(2L, toEmail, params);
     }
@@ -61,7 +61,7 @@ public class EmailServiceImpl implements EmailService {
     params.setProperty("from_username", from);
     params.setProperty("docIds", docIds);
     log.info("Send transfer email from {} to {}", from, to);
-    sendEmail(5L, toEmail, params);
+    sendEmail(6L, toEmail, params);
   }
 
   @Override
@@ -73,7 +73,7 @@ public class EmailServiceImpl implements EmailService {
     params.setProperty("from_username", from);
     params.setProperty("docIds", docIds);
     log.info("Send transfer email from {} to {}", from, to);
-    sendEmail(6L, toEmail, params);
+    sendEmail(5L, toEmail, params);
   }
 
   private void sendEmail(Long templateId, String toEmail, Properties params) {

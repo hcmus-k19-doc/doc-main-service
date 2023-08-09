@@ -137,7 +137,7 @@ public class UserServiceImpl implements UserService {
     });
 
     String password = generateRandomPassword();
-    user.setPassword(password);
+    user.setPassword(passwordEncoder.encode(password));
     Long id = userRepository.save(user).getId();
 
     // send email to user with new password
@@ -374,5 +374,16 @@ public class UserServiceImpl implements UserService {
     docStatisticsDto.setNumberOfUnprocessedDocumentOverdue(unprocessedDocumentOverdue.size());
 
     return docStatisticsDto;
+  }
+
+  @Override
+  public Long resetUserPassword(Long userId) {
+    User user = getUserById(userId);
+    String password = generateRandomPassword();
+    user.setPassword(passwordEncoder.encode(password));
+
+    // send email
+    emailService.sendPasswordEmail(user.getEmail(), user.getUsername(), user.getFullName(), password, false);
+    return userRepository.save(user).getId();
   }
 }
