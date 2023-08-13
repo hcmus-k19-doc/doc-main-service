@@ -384,14 +384,19 @@ public class UserServiceImpl implements UserService {
   public Long resetUserPasswordById(Long userId) {
     User user = getUserById(userId);
     String password = generateRandomPassword();
-    user.setPassword(passwordEncoder.encode(password));
+    String passwordHash = passwordEncoder.encode(password);
+    user.setPassword(passwordHash);
 
     PasswordExpiration passwordExpiration = new PasswordExpiration();
-    passwordExpiration.setPassword(password);
+    passwordExpiration.setPassword(passwordHash);
     passwordExpiration.setUser(user);
     passwordExpiration.setCreationTime(LocalDateTime.now());
     passwordExpiration.setNeedsChange(true);
 
+    // delete old password
+    List<PasswordExpiration> oldRequest = passwordExpirationRepository.findPasswordExpirationByUserId(
+        userId);
+    passwordExpirationRepository.deleteAll(oldRequest);
     passwordExpirationRepository.save(passwordExpiration);
     // send email
     emailService.sendPasswordEmail(user.getEmail(), user.getUsername(), user.getFullName(), password, false);
@@ -402,17 +407,48 @@ public class UserServiceImpl implements UserService {
   public Long resetUserPasswordByEmail(String email) {
     User user = getUserByEmail(email);
     String password = generateRandomPassword();
-    user.setPassword(passwordEncoder.encode(password));
+    String passwordHash = passwordEncoder.encode(password);
+    user.setPassword(passwordHash);
 
     PasswordExpiration passwordExpiration = new PasswordExpiration();
-    passwordExpiration.setPassword(password);
+    passwordExpiration.setPassword(passwordHash);
     passwordExpiration.setUser(user);
     passwordExpiration.setCreationTime(LocalDateTime.now());
     passwordExpiration.setNeedsChange(true);
 
+    // delete old password
+    List<PasswordExpiration> oldRequest = passwordExpirationRepository.findPasswordExpirationByUserId(
+        user.getId());
+    passwordExpirationRepository.deleteAll(oldRequest);
     passwordExpirationRepository.save(passwordExpiration);
     // send email
     emailService.sendPasswordEmail(user.getEmail(), user.getUsername(), user.getFullName(), password, false);
+    return userRepository.save(user).getId();
+  }
+
+  @Override
+  public Long updateUserPassword(String username, String oldPassword, String newPassword,
+      String confirmPassword) {
+
+    User user = getUserByUsername(username);
+    if (oldPassword.equals(newPassword)) {
+      throw new UserPasswordException(PASSWORD_NOT_CHANGED);
+    }
+
+    if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+      throw new UserPasswordException();
+    }
+
+    if (!newPassword.equals(confirmPassword)) {
+      throw new UserPasswordException(PASSWORD_CONFIRMATION_INVALID);
+    }
+
+    user.setPassword(passwordEncoder.encode(newPassword));
+    // delete old password
+    List<PasswordExpiration> oldRequest = passwordExpirationRepository.findPasswordExpirationByUserId(
+        user.getId());
+    passwordExpirationRepository.deleteAll(oldRequest);
+
     return userRepository.save(user).getId();
   }
 }
