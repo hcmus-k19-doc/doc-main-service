@@ -3,6 +3,7 @@ package edu.hcmus.doc.mainservice.service.impl;
 import static edu.hcmus.doc.mainservice.model.exception.UserPasswordException.PASSWORD_CONFIRMATION_INVALID;
 import static edu.hcmus.doc.mainservice.model.exception.UserPasswordException.PASSWORD_NOT_CHANGED;
 import static edu.hcmus.doc.mainservice.security.util.SecurityUtils.generateRandomPassword;
+import static edu.hcmus.doc.mainservice.util.validator.PasswordConstraintValidator.validatePasswords;
 
 import edu.hcmus.doc.mainservice.model.dto.ChangePasswordDto;
 import edu.hcmus.doc.mainservice.model.dto.DocDetailStatisticsDto;
@@ -24,6 +25,7 @@ import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
 import edu.hcmus.doc.mainservice.model.enums.OutgoingDocumentStatusEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
+import edu.hcmus.doc.mainservice.model.exception.DocMandatoryFields;
 import edu.hcmus.doc.mainservice.model.exception.DocumentNotFoundException;
 import edu.hcmus.doc.mainservice.model.exception.EmailExistedException;
 import edu.hcmus.doc.mainservice.model.exception.TransferHistoryNotFoundException;
@@ -47,8 +49,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import javax.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -167,7 +169,10 @@ public class UserServiceImpl implements UserService {
   }
 
   @Override
-  public Long updateCurrentUserPassword(@Valid ChangePasswordDto changePasswordDto) {
+  public Long updateCurrentUserPassword(ChangePasswordDto changePasswordDto) {
+
+    validatePasswords(changePasswordDto.getOldPassword(), changePasswordDto.getNewPassword(),
+        changePasswordDto.getConfirmPassword());
 
     User user = getCurrentUserFromDB();
     if (changePasswordDto.getOldPassword().equals(changePasswordDto.getNewPassword())) {
@@ -418,6 +423,10 @@ public class UserServiceImpl implements UserService {
   @Override
   public Long updateUserPassword(String username, String oldPassword, String newPassword,
       String confirmPassword) {
+    if (StringUtils.isBlank(username)) {
+      throw new DocMandatoryFields("Username or password is invalid");
+    }
+    validatePasswords(oldPassword, newPassword, confirmPassword);
 
     User user = getUserByUsername(username);
     if (oldPassword.equals(newPassword)) {
