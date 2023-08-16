@@ -22,6 +22,7 @@ import edu.hcmus.doc.mainservice.model.entity.PasswordExpiration;
 import edu.hcmus.doc.mainservice.model.entity.TransferHistory;
 import edu.hcmus.doc.mainservice.model.entity.User;
 import edu.hcmus.doc.mainservice.model.enums.DocSystemRoleEnum;
+import edu.hcmus.doc.mainservice.model.enums.MESSAGE;
 import edu.hcmus.doc.mainservice.model.enums.OutgoingDocumentStatusEnum;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingDocumentType;
 import edu.hcmus.doc.mainservice.model.enums.ProcessingStatus;
@@ -41,6 +42,7 @@ import edu.hcmus.doc.mainservice.repository.UserRepository;
 import edu.hcmus.doc.mainservice.security.util.SecurityUtils;
 import edu.hcmus.doc.mainservice.service.EmailService;
 import edu.hcmus.doc.mainservice.service.UserService;
+import edu.hcmus.doc.mainservice.util.DocMessageUtils;
 import edu.hcmus.doc.mainservice.util.mapper.PaginationMapper;
 import edu.hcmus.doc.mainservice.util.mapper.TransferHistoryMapper;
 import edu.hcmus.doc.mainservice.util.mapper.UserMapper;
@@ -424,7 +426,7 @@ public class UserServiceImpl implements UserService {
   public Long updateUserPassword(String username, String oldPassword, String newPassword,
       String confirmPassword) {
     if (StringUtils.isBlank(username)) {
-      throw new DocMandatoryFields("Username or password is invalid");
+      throw new DocMandatoryFields(DocMessageUtils.getContent(MESSAGE.invalid_login_information));
     }
     validatePasswords(oldPassword, newPassword, confirmPassword);
 
